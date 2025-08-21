@@ -1,7 +1,12 @@
-pip install flask
-pip install flask-login
-pip install SQLAlchemy
-pip install Bcrypt
-pip install flask-bcrypt
-pip install flask_sqlalchemy
-pip install psycopg2
+flask
+flask-login
+SQLAlchemy
+Bcrypt
+flask-bcrypt
+flask-sqlalchemy
+psycopg2
+Flask-Migrate
+flask-marshmallow
+flask_restful
+marshmallow-sqlalchemy
+flask-jwt-extended

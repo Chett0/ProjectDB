@@ -2,3 +2,4 @@ client/node_modules/
 client/projectDB/README.md
 server/server-venv/
 request.rest
+__pycache__/
