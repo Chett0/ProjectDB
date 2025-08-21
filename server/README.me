@@ -1,0 +1,11 @@
+Execution: 
+
+    flask --app app run
+
+
+Migration: 
+
+    $env:FLASK_APP="app" 
+    flask db init
+    flask db migrate
+    flask db upgrade
