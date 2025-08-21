@@ -11,10 +11,11 @@ class Airline(db.Model):
     code: Mapped[str] = mapped_column(db.String(3), nullable=False)
 
     aircrafts: Mapped[List['Aircraft']] = relationship(
+        "Aircraft",
         back_populates="airline"
     )
 
-    routes: Mapped[List["AirlineRoute"]] = relationship(
+    airlines_routes: Mapped[List["AirlineRoute"]] = relationship(
         "AirlineRoute",
         back_populates="airline",
     )

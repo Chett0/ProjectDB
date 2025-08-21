@@ -6,6 +6,7 @@ from app.extensions import db, ma, bcrypt, jwt
 from apis.airlines import airlines_bp
 from apis.auth import auth_bp
 from apis.aircrafts import aircrafts_bp
+from apis.flights import flights_bp
 
 # For migrations
 
@@ -31,6 +32,7 @@ app = create_app_with_migration()
 app.register_blueprint(airlines_bp, url_prefix='/api')
 app.register_blueprint(auth_bp, url_prefix='/api')
 app.register_blueprint(aircrafts_bp, url_prefix='/api')
+app.register_blueprint(flights_bp, url_prefix='/api')
 
 if __name__ == '__main__':
    app.run()    # flask --app app run

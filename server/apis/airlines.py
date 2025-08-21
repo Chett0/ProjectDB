@@ -115,20 +115,3 @@ def delete_route_by_id(route_id):
 
 
 
-    
-
-
-# @airlines_bp.route('/flights', methods=['GET'])
-# def get_flights_by_airlineId():
-#     airline_id = 1
-#     try:
-#         page_number = request.args.get('page', 1, type=int)
-#         page_size = request.args.get('size', 10, type=int)
-
-#         flights_query =  Flight.query.join(Route).filter(Route.airline_id == airline_id)
-
-#         return jsonify({"message":"F retrieved successfully", "routes": plural_route_schema.dump(routes)}), 200
-
-#     except Exception as e:
-#         print(e)
-#         return jsonify({"message":"Error retrieving routes"}), 500

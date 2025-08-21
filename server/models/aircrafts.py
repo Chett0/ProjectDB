@@ -13,7 +13,7 @@ class Aircraft(db.Model):
     airline_id: Mapped[int] = mapped_column(db.ForeignKey("airlines.id"))
     airline : Mapped["Airline"] = relationship("Airline")
     
-    # flights : Mapped[List["Flight"]] = relationship(
-    #     back_populates="aircraft",
-    #     foreign_keys="[Flight.aircraft_id]"
-    # )
+    flights : Mapped[List["Flight"]] = relationship(
+        "Flight",
+        back_populates="aircraft"
+    )

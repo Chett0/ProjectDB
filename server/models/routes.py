@@ -9,12 +9,24 @@ class Route(db.Model):
     id : Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     
     departure_airport_id : Mapped[int] = mapped_column(db.ForeignKey("airports.id"))
-    departure_airport : Mapped["Airport"] = relationship("Airport", foreign_keys=[departure_airport_id])
+    departure_airport : Mapped["Airport"] = relationship(
+        "Airport", 
+        back_populates="departure_route",
+        foreign_keys=[departure_airport_id]
+    )
     arrival_airport_id : Mapped[int] = mapped_column(db.ForeignKey("airports.id"))
-    arrival_airport : Mapped["Airport"] = relationship("Airport", foreign_keys=[arrival_airport_id])
+    arrival_airport : Mapped["Airport"] = relationship(
+        "Airport", 
+        foreign_keys=[arrival_airport_id]
+    )
 
-    airlinesRoutes: Mapped[List["AirlineRoute"]] = relationship(
+    airlines_routes: Mapped[List["AirlineRoute"]] = relationship(
         "AirlineRoute",
+        back_populates="route"
+    )
+
+    flights: Mapped[List["Flight"]] = relationship(
+        "Flight",
         back_populates="route"
     )
     
