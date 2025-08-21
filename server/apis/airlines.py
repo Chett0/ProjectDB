@@ -37,15 +37,6 @@ def create_route():
     try:
         data = request.get_json()
 
-
-        # id version
-        # new_route = Route(
-        #     departure_airport_id=data['departure_airport_id'],
-        #     arrival_airport_id=data['arrival_airport_id'],
-        #     airline_id=airline_id
-        # )
-
-        # code version
         departure_airport_code = data['departure_airport_code']
         arrival_airport_code = data['arrival_airport_code']
 
@@ -54,7 +45,6 @@ def create_route():
         departure_airport_id = Airport.query.filter_by(code=departure_airport_code).first().id
         arrival_airport_id = Airport.query.filter_by(code=arrival_airport_code).first().id
 
-        
 
         new_route = Route(
             departure_airport_id=departure_airport_id,

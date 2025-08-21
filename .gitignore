@@ -3,3 +3,4 @@ client/projectDB/README.md
 server/server-venv/
 request.rest
 __pycache__/
+server/__pycache__/

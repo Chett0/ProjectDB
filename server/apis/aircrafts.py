@@ -1,105 +1,80 @@
 from flask import jsonify, request, Blueprint
 from app.extensions import db, ma
 from models import Aircraft
+from schema import aircraft_schema, aircrafts_schema
+from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
+from auth import check_user_role
 
 aircrafts_bp = Blueprint('aircraft', __name__)
 
 
-# class RouteSchema(ma.SQLAlchemySchema):
-#     class Meta:
-#         model = Aircraft
-    
-#     id = ma.auto_field()
-#     departure_airport = ma.Nested('AirportSchema')
-#     arrival_airport = ma.Nested('AirportSchema')
-#     airline = ma.Nested('AirlineSchema')
+@aircrafts_bp.route('/aircrafts', methods=['GET'])
+def get_aircrafts_by_airline():
+    airline_id = 1
+    try:
+        aircrafts = Aircraft.query.filter_by(airline_id=airline_id).all() 
 
-# singular_route_schema = RouteSchema()
-# plural_route_schema = RouteSchema(many=True)
+        return jsonify({"message":"Aircrafts retrieved successfully", "aircrafts": aircrafts_schema.dump(aircrafts)}), 200
 
-# @aircrafts_bp.route('/aircrafts', methods=['GET'])
-# def get_aircrafts_by_airline():
-#     airline_id = 1
-#     try:
-#         aircrafts = Aircraft.query.filter_by(airline_id=airline_id).all() 
-
-#         return jsonify({"message":"Routes retrieved successfully", "routes": plural_route_schema.dump(aircrafts)}), 200
-
-#     except Exception as e:
-#         print(e)
-#         return jsonify({"message":"Error retrieving routes"}), 500
+    except Exception as e:
+        print(e)
+        return jsonify({"message":"Error retrieving aircrafts"}), 500
     
 
-# @airlines_bp.route('/routes', methods=['POST'])
-# def create_route():
-#     #airline_code from jwt token
-#     airline_id = 1
-#     try:
-#         data = request.get_json()
+@aircrafts_bp.route('/aircrafts', methods=['POST'])
+def create_aircraft():
+    #airline_code from jwt token
+    airline_id = 1
+    try:
+        data = request.get_json()
 
+        model = data['model']
+        nSeats = data['nSeats']
+    
+        new_airline = Aircraft(
+            model=model,
+            nSeats=nSeats,
+            airline_id=airline_id
+        )
 
-#         # id version
-#         # new_route = Route(
-#         #     departure_airport_id=data['departure_airport_id'],
-#         #     arrival_airport_id=data['arrival_airport_id'],
-#         #     airline_id=airline_id
-#         # )
+        db.session.add(new_airline)
+        db.session.commit()
 
-#         # code version
-#         departure_airport_code = data['departure_airport_code']
-#         arrival_airport_code = data['arrival_airport_code']
+        return jsonify({'message': 'Aircraft created successfully'}), 201
 
-        
-
-#         departure_airport_id = Airport.query.filter_by(code=departure_airport_code).first().id
-#         arrival_airport_id = Airport.query.filter_by(code=arrival_airport_code).first().id
-
-        
-
-#         new_route = Route(
-#             departure_airport_id=departure_airport_id,
-#             arrival_airport_id=arrival_airport_id,
-#             airline_id=airline_id
-#         )
-
-#         db.session.add(new_route)
-#         db.session.commit()
-
-#         return jsonify({'message': 'Route created successfully'}), 201
-
-#     except Exception as e:
-#         print(e)
-#         return jsonify({"message":"Error retrieving routes"}), 500
+    except Exception as e:
+        print(e)
+        return jsonify({"message":"Error retrieving aircraft"}), 500
     
 
-# @airlines_bp.route('/routes/<int:route_id>', methods=['GET'])
-# def get_route_by_id(route_id):  
-#     airline_id = 1
-#     try:
-#         route = Route.query.filter_by(id=route_id, airline_id=airline_id).first()
-#         if not route:
-#             return jsonify({"message": "Route not found"}), 404
+@aircrafts_bp.route('/aircrafts/<int:aircraft_id>', methods=['GET'])
+def get_aircraft_by_id(aircraft_id):  
+    airline_id = 1
+    try:
+        aircraft = Aircraft.query.filter_by(id=aircraft_id, airline_id=airline_id).first()
+        if not aircraft:
+            return jsonify({"message": "Aircraft not found"}), 404
         
         
         
-#         return jsonify({"message":"Route deleted successfully", "route": singular_route_schema.dump(route)}), 200
+        return jsonify({"message":"Aircraft deleted successfully", "aircraft": aircraft_schema.dump(aircraft)}), 200
     
-#     except Exception as e:
-#         return jsonify({"message": "Error retrieving route"}), 500
+    except Exception as e:
+        return jsonify({"message": "Error retrieving aircraft"}), 500
     
 
-# @airlines_bp.route('/routes/<int:route_id>', methods=['DELETE'])
-# def delete_route_by_id(route_id):  
-#     airline_id = 1
-#     try:
-#         route = Route.query.filter_by(id=route_id, airline_id=airline_id).first()
-#         if not route:
-#             return jsonify({"message": "Route not found"}), 404
+@aircrafts_bp.route('/aircrafts/<int:aircraft_id>', methods=['DELETE'])
+def delete_aircraft_by_id(aircraft_id):  
+    airline_id = 1
+    try:
+        aircraft = Aircraft.query.filter_by(id=aircraft_id, airline_id=airline_id).first()
+        if not aircraft:
+            return jsonify({"message": "Aircraft not found"}), 404
         
-#         db.session.delete(route)
-#         db.session.commit()
+        db.session.delete(aircraft)
+        db.session.commit()
         
-#         return jsonify({"message":"Route retrieved successfully", "route": singular_route_schema.dump(route)}), 200
+        return jsonify({"message":"Aircraft retrieved successfully", "aircraft": aircraft_schema.dump(aircraft)}), 200
     
-#     except Exception as e:
-#         return jsonify({"message": "Error retrieving route"}), 500
+    except Exception as e:
+        return jsonify({"message": "Error retrieving aircraft"}), 500

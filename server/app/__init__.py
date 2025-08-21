@@ -8,10 +8,6 @@ from apis.auth import auth_bp
 from apis.aircrafts import aircrafts_bp
 
 # For migrations
-# $env:FLASK_APP="app" 
-# flask db init
-# flask db migrate
-# flask db upgrade
 
 def create_app_with_migration():
     app = Flask(__name__)           
