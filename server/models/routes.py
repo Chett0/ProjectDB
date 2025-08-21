@@ -1,5 +1,6 @@
 from app.extensions import db
 from sqlalchemy.orm import Mapped, relationship, mapped_column
+from typing import List
 
   
 class Route(db.Model):
@@ -12,5 +13,8 @@ class Route(db.Model):
     arrival_airport_id : Mapped[int] = mapped_column(db.ForeignKey("airports.id"))
     arrival_airport : Mapped["Airport"] = relationship("Airport", foreign_keys=[arrival_airport_id])
 
-    airline_id: Mapped[int] = mapped_column(db.ForeignKey("airlines.id"))
-    airline : Mapped["Airline"] = relationship("Airline")
+    airlinesRoutes: Mapped[List["AirlineRoute"]] = relationship(
+        "AirlineRoute",
+        back_populates="route"
+    )
+    

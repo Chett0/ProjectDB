@@ -10,7 +10,7 @@ class UserRole(Enum):
 class User(db.Model):
     __tablename__ = 'users'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     email: Mapped[str] = mapped_column(db.String(50), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(db.String(100), nullable=False)
     role : Mapped[UserRole] = mapped_column(db.Enum(UserRole), nullable=False)

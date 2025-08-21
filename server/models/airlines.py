@@ -14,6 +14,7 @@ class Airline(db.Model):
         back_populates="airline"
     )
 
-    routes: Mapped[List["Route"]] = relationship(
-        back_populates="airline"
+    routes: Mapped[List["AirlineRoute"]] = relationship(
+        "AirlineRoute",
+        back_populates="airline",
     )

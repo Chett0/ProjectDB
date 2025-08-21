@@ -3,7 +3,7 @@ from app.extensions import db, ma
 from models import Aircraft
 from schema import aircraft_schema, aircrafts_schema
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
-from auth import check_user_role
+from apis.auth import check_user_role
 
 aircrafts_bp = Blueprint('aircraft', __name__)
 
