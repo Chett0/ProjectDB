@@ -1,26 +1,21 @@
 from flask import jsonify, request, Blueprint
 from app.extensions import db, ma
-from models import Airline, Route, Airport, AirlineRoute
+from models import Airline, Route, Airport, AirlineRoute, UserRole
 from flask_restful import Resource
 from schema import route_schema, routes_schema
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
-from apis.auth import check_user_role
 from sqlalchemy.orm import joinedload
+from middleware.auth import roles_required
 
 airlines_bp = Blueprint('airline', __name__)
 
 # Routes 
 
 @airlines_bp.route('/routes', methods=['GET'])
-# @jwt_required()
+@roles_required([UserRole.AIRLINE.value])
 def get_routes():
-    user_id = 1
     try:
-        # user_id = get_jwt_identity()
-        # user_role = get_jwt()["role"]
-        # if not check_user_role(user_role, "Airline"):
-        #     return jsonify({"message": "Unauthorized access"}), 403
-
+        user_id = get_jwt_identity()
         routes = Route.query.outerjoin(AirlineRoute).filter_by(airline_id=user_id).all()
 
         return jsonify({"message":"Routes retrieved successfully", "routes": routes_schema.dump(routes)}), 200

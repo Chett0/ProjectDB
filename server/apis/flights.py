@@ -102,8 +102,6 @@ def get_flights():
 
         if(layovers):
 
-            connecting_flights = []
-
             min_connection_seconds = 2 * 3600
             max_connection_seconds = 12 * 3600
 
@@ -117,8 +115,8 @@ def get_flights():
 
             for dep_route in departure_routes:
                 for arr_route in arrival_routes:
-                    if dep_route.arrival_airport_id == arr_route.departure_airport_id:
 
+                    if dep_route.arrival_airport_id == arr_route.departure_airport_id:
                         first_flights = flights_query.filter_by(route_id=dep_route.id).all()
                         second_flights = flights_query.filter_by(route_id=arr_route.id).all()
 
@@ -136,9 +134,6 @@ def get_flights():
                                         "second_flight":second_flight,
                                         "total_duration":total_journey_duration
                                     })
-            
-            # for layovers_flight in connecting_flights:
-            #     all_flights.append(layovers_flight)
 
         total_flights_number = len(filtered_fligths)
         if total_flights_number == 0:

@@ -6,12 +6,6 @@ from flask_jwt_extended import create_access_token
 
 auth_bp = Blueprint('auth', __name__)
 
-def check_user_role(user, expected_role):
-    if user.role != expected_role:
-        return False
-    return True
-
-
 
 @auth_bp.route('/passengers/register', methods=['POST'])
 def register_passenger():
@@ -138,7 +132,7 @@ def login():
             }
         )
 
-        return jsonify(access_token=access_token), 200
+        return jsonify({'message': 'Login successfully'}, access_token=access_token), 200
     except Exception as e:
         print(e)
         return jsonify({"message": "Error user login"}), 500
