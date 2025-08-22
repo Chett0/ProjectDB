@@ -4,3 +4,5 @@ server/server-venv/
 request.rest
 __pycache__/
 server/__pycache__/
+server/app/config
+.vscode/

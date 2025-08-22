@@ -23,3 +23,6 @@ class Flight(db.Model):
 
     departure_time : Mapped[datetime] = mapped_column(db.DateTime, nullable=False)
     arrival_time : Mapped[datetime] = mapped_column(db.DateTime, nullable=False)
+
+
+
