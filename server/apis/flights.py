@@ -1,10 +1,8 @@
 from flask import jsonify, request, Blueprint
-from app.extensions import db, ma
-from models import Flight, Route, Airport, AirlineRoute
-from flask_restful import Resource
+from app.extensions import db
+from models import Flight, Route, Airport
+# from flask_restful import Resource
 from schema import flights_schema, flight_schema, FlightSchema
-from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
-from apis.auth import check_user_role
 from datetime import datetime
 from sqlalchemy import func
 from marshmallow import Schema, fields
@@ -52,13 +50,16 @@ def get_flights():
     try:
         page_number = request.args.get('page', 1, type=int)
         limit = request.args.get('limit', 10, type=int)
-        sort_by = request.args.get('sort_by', 'departure_time')
+        sort_by = request.args.get('sort', 'departure_time')
         order = request.args.get('order', 'asc').lower()
         departure_airport_code = request.args.get('from')
         arrival_airport_code = request.args.get('to')
         layovers = request.args.get('layovers', 1, type=int)
         departure_date = request.args.get('departure_date')
+        round_trip = request.args.get('round_trip', 0, type=int)
         # arrival_date = request.args.get('arrival_date')
+
+        sort = {'sort_by' : sort_by, 'order' : order}
 
         if not departure_airport_code or not arrival_airport_code:
             return jsonify({
@@ -71,13 +72,15 @@ def get_flights():
 
         arrival_airport = Airport.query.filter_by(code=arrival_airport_code).first()
         if not arrival_airport:
-            return jsonify({"message":"Arriva airport not found"}), 404
+            return jsonify({"message":"Arrival airport not found"}), 404
         
         flights_query = Flight.query 
 
-        if departure_date:
-            formatted_departure_date = datetime.strptime(departure_date, "%Y-%m-%d")
-            flights_query = flights_query.where(func.date(Flight.departure_time) == formatted_departure_date.date())
+        if not departure_date:
+            return jsonify({"message":"Departure date required"}), 404
+        formatted_departure_date = datetime.strptime(departure_date, "%Y-%m-%d")
+        flights_query = flights_query.where(func.date(Flight.departure_time) == formatted_departure_date.date())
+        
         # if arrival_date:
         #     formatted_arrival_date = datetime.strptime(arrival_date, "%Y-%m-%d")
         #     flights_query = flights_query.where(Flight.arrival_time.date() == departure_date.date())
@@ -87,14 +90,14 @@ def get_flights():
             arrival_airport_id=arrival_airport.id
         ).first()
 
-        filtered_fligths = []
+        journeys = []
 
         if direct_route:
             direct_flights = flights_query.filter_by(route_id=direct_route.id).all()
             for flight in direct_flights:
                 flight_duration = (flight.arrival_time - flight.departure_time).total_seconds() // 3600
                 # flight.flight_type = 'direct'
-                filtered_fligths.append({
+                journeys.append({
                     "first_flight":flight,
                     "total_duration":flight_duration
                 })
@@ -129,13 +132,13 @@ def get_flights():
 
                                     total_journey_duration = (second_flight.arrival_time - first_flight.departure_time).total_seconds() // 3600
 
-                                    filtered_fligths.append({
+                                    journeys.append({
                                         "first_flight":first_flight, 
                                         "second_flight":second_flight,
                                         "total_duration":total_journey_duration
                                     })
 
-        total_flights_number = len(filtered_fligths)
+        total_flights_number = len(journeys)
         if total_flights_number == 0:
             return jsonify({
                 'message':'Fligths retrieved successfully',
@@ -148,27 +151,13 @@ def get_flights():
 
         # flights = flights_query.offset(offset=offset).limit(limit=limit).all()
 
-        if(sort_by):
-            if(order == "asc"):
-                if(sort_by=="departure_time"):
-                    filtered_fligths.sort(key=lambda x: x["first_flight"].departure_time)
-                elif(sort_by=="price"):
-                    filtered_fligths.sort(key=lambda x: x["total_price"])
-                elif(sort_by=="duration"):
-                    filtered_fligths.sort(key=lambda x: x["total_duration"])
-            elif(order == "desc"):
-                if(sort_by=="departure_time"):
-                    filtered_fligths.sort(key=lambda x: x["first_flight"].departure_time, reverse=True)
-                elif(sort_by=="price"):
-                    filtered_fligths.sort(key=lambda x: x["total_price"], reverse=True)
-                elif(sort_by=="duration"):
-                    filtered_fligths.sort(key=lambda x: x["total_duration"], reverse=True)
+        sort_journeys(journeys, sort)
 
-        filtered_fligths[offset:offset + limit]
+        journeys[offset:offset + limit]
 
         return jsonify({
             "message":"Fligths retrieved successfully",
-            "flights":search_flights_shcema.dump(filtered_fligths),
+            "flights":search_flights_shcema.dump(journeys),
             "total_pages":total_pages
         }), 200
 
@@ -191,3 +180,25 @@ def get_flight_by_id(flight_id):
     
     except Exception as e:
         return jsonify({"message": "Error retrieving flight"}), 500
+
+
+
+def sort_journeys(journeys, sort_params):
+
+    if(sort_params['order'] == "asc"):
+
+        if(sort_params["sort_by"]=="departure_time"):
+            journeys.sort(key=lambda x: x["first_flight"].departure_time)
+        elif(sort_params["sort_by"]=="price"):
+            journeys.sort(key=lambda x: x["total_price"])
+        elif(sort_params["sort_by"]=="duration"):
+            journeys.sort(key=lambda x: x["total_duration"])
+
+    elif(sort_params["order"] == "desc"):
+
+        if(sort_params["sort_by"]=="departure_time"):
+            journeys.sort(key=lambda x: x["first_flight"].departure_time, reverse=True)
+        elif(sort_params["sort_by"]=="price"):
+            journeys.sort(key=lambda x: x["total_price"], reverse=True)
+        elif(sort_params["sort_by"]=="duration"):
+            journeys.sort(key=lambda x: x["total_duration"], reverse=True)

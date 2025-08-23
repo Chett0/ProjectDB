@@ -5,7 +5,7 @@ class AirportSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Airport
     
-    id = ma.Integer()
+    # id = ma.Integer()
     name = ma.String()
     code = ma.String()
     city = ma.String()
