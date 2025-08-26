@@ -6,8 +6,8 @@ class Airport(db.Model):
     __tablename__ = 'airports'
 
     id : Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name : Mapped[str] = mapped_column(db.String(255), nullable=False, unique=True)
-    code : Mapped[str] = mapped_column(db.String(3), nullable=False, unique=True)
+    name : Mapped[str] = mapped_column(db.String(255), nullable=False, unique=True, index=True)
+    code : Mapped[str] = mapped_column(db.String(3), nullable=False, unique=True, index=True)
     city : Mapped[str] = mapped_column(db.String(100), nullable=False)
     country : Mapped[str] = mapped_column(db.String(100), nullable=False)
 

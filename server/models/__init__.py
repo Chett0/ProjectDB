@@ -6,6 +6,7 @@ from .users import User, UserRole
 from .passenger import Passenger
 from .airlineRoute import AirlineRoute
 from .flights import Flight
+from .tickets import Ticket
 
 __all__ = [
     'Airline', 
@@ -16,5 +17,6 @@ __all__ = [
     'User',
     'UserRole', 
     'Passenger',
-    'Flight'
+    'Flight',
+    'Ticket'
 ]

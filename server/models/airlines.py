@@ -7,8 +7,8 @@ class Airline(db.Model):
 
     id: Mapped[int] = mapped_column(db.ForeignKey("users.id", ondelete="CASCADE"),primary_key=True)
 
-    name: Mapped[str] = mapped_column(db.String(50), nullable=False)
-    code: Mapped[str] = mapped_column(db.String(3), nullable=False)
+    name: Mapped[str] = mapped_column(db.String(50), nullable=False, index=True)
+    code: Mapped[str] = mapped_column(db.String(3), nullable=False, index=True)
 
     aircrafts: Mapped[List['Aircraft']] = relationship(
         "Aircraft",
