@@ -10,7 +10,7 @@ class Aircraft(db.Model):
     model : Mapped[str] = mapped_column(nullable=False, unique=True)
     nSeats : Mapped[int] = mapped_column(nullable=False)
 
-    airline_id: Mapped[int] = mapped_column(db.ForeignKey("airlines.id"))
+    airline_id: Mapped[int] = mapped_column(db.ForeignKey("airlines.id"), index=True)
     airline : Mapped["Airline"] = relationship("Airline")
     
     flights : Mapped[List["Flight"]] = relationship(

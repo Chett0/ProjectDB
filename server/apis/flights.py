@@ -176,7 +176,7 @@ def get_flight_by_id(flight_id):
         if not flight:
             return jsonify({"message": "Flight not found"}), 404
         
-        return jsonify({"message":"Flight retrieved successfully", "aircraft": flight_schema.dump(flight)}), 200
+        return jsonify({"message":"Flight retrieved successfully", "flight": flight_schema.dump(flight)}), 200
     
     except Exception as e:
         return jsonify({"message": "Error retrieving flight"}), 500
