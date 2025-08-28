@@ -1,2 +1,4 @@
 bootstrap@5.3.3 
 popper.js
+@auth0/angular-jwt 
+@angular/common

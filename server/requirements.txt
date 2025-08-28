@@ -10,3 +10,4 @@ flask-marshmallow
 flask_restful
 marshmallow-sqlalchemy
 flask-jwt-extended
+Flask-Cors

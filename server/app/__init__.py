@@ -2,6 +2,7 @@ from flask import Flask
 from app.config import Config
 from flask_migrate import Migrate
 from app.extensions import db, ma, bcrypt, jwt
+from flask_cors import CORS
 
 from apis.airlines import airlines_bp
 from apis.auth import auth_bp
@@ -12,7 +13,8 @@ from apis.locations import locations_bp
 # For migrations
 
 def create_app_with_migration():
-    app = Flask(__name__)           
+    app = Flask(__name__)
+    CORS(app)           
     app.config.from_mapping(
         SECRET_KEY = "5791628bb0b13ce0c676dfde280ba245"
     )     
