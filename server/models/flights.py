@@ -2,6 +2,11 @@ from app.extensions import db
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 from sqlalchemy import DateTime
 from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .routes import Route
+    from .aircrafts import Aircraft
 
   
 class Flight(db.Model):
@@ -16,13 +21,15 @@ class Flight(db.Model):
     )
 
     aircraft_id : Mapped[int] = mapped_column(db.ForeignKey("aircrafts.id"))
-    aircraft : Mapped["Aicraft"] = relationship(
-        "Aircraft", 
+    aircraft : Mapped["Aircraft"] = relationship(
+        "Aircraft",
         foreign_keys=[aircraft_id]
     )
 
     departure_time : Mapped[datetime] = mapped_column(db.DateTime, nullable=False)
     arrival_time : Mapped[datetime] = mapped_column(db.DateTime, nullable=False)
+    base_price: Mapped[float] = mapped_column(db.Numeric(10,2), nullable=False, default=0)
+    duration: Mapped[int] = mapped_column(nullable=False, default=0)
 
 
 

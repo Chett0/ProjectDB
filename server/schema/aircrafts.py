@@ -1,10 +1,10 @@
 from app.extensions import ma
-from models import Airline
+from models import Aircraft
 from schema import AirlineSchema
 
 class AircraftSchema(ma.SQLAlchemySchema):
     class Meta:
-        model = Airline
+        model = Aircraft
     
     id = ma.Integer()
     model = ma.String()

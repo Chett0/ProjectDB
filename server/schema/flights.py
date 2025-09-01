@@ -9,6 +9,8 @@ class FlightSchema(ma.SQLAlchemySchema):
     id = ma.Integer()
     route = ma.Nested('RouteSchema')
     aircraft = ma.Nested('AircraftSchema')
+    base_price = ma.Decimal(as_string=True)
+    duration = ma.Integer()
     departure_time = ma.DateTime(format="iso")
     arrival_time = ma.DateTime(format="iso")
 

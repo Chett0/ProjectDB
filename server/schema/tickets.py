@@ -11,7 +11,8 @@ class TicketSchema(ma.SQLAlchemySchema):
     passenger = ma.Nested('PassengerSchema', only=('id', 'name', 'surname'))
     final_cost = ma.Decimal(as_string=True)
     purchase_date = ma.DateTime(format='iso')
-    extras = ma.Dict()
+    seat = ma.Nested('SeatSchema', only=('nSeat', 'label', 'aircraft_class'))
+    extras = ma.Nested('ExtraSchema', many=True)
 
 
 ticket_schema = TicketSchema()
