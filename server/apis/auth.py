@@ -132,7 +132,7 @@ def login():
             }
         )
 
-        return jsonify({'message': 'Login successfully'}, access_token=access_token), 200
+        return jsonify(message = 'Login successfully', access_token=access_token), 200
     except Exception as e:
         print(e)
         return jsonify({"message": "Error user login"}), 500

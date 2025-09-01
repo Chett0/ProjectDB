@@ -1,0 +1,16 @@
+<div>
+  <div class="container">
+    <form [formGroup]="loginForm">
+    <div class="d-flex gap-2">
+        <input type="text" class="form-control w-auto" placeholder="email" formControlName="email">
+        <input type="text" class="form-control w-auto" placeholder="password" formControlName="password">
+
+        <button type="button" class="btn btn-dark" (click)="login()">Login</button>
+        <button type="button" class="btn btn-dark" (click)="register()">Register</button> 
+
+
+        </div>
+      </form>
+  </div>
+</div>
+
