@@ -25,19 +25,21 @@ export class LoginComponent {
     const email = this.loginForm.value.email;
     const password = this.loginForm.value.password;
     if(email && password){
+      console.log("Login...")
       const user : User = {email : email, password : password};
       this.authService.login(user).subscribe({
         next: response => {
-          localStorage.setItem('access_token', JSON.stringify(response.access_token));
+          localStorage.setItem('access_token', response.access_token)
+          this.router.navigate([`${response.role.toLowerCase()}s`])
         },
         error: (err) => {
-
+          console.error(err);
         }
-      })
+      });
     }
   }
 
-  register() : void {
+  navigateToRegister() : void {
     this.router.navigate(['/register'])
   }
 

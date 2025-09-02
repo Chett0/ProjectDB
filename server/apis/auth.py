@@ -78,7 +78,8 @@ def register_airline():
         if existing_user:
             return jsonify({"message": "Email already in use"}), 409
 
-        tmp_password = generate_random_password()
+        # tmp_password = generate_random_password()
+        tmp_password = "123"
         hashed_password = bcrypt.generate_password_hash(password=tmp_password).decode('utf-8')
 
         new_user = User(
@@ -132,7 +133,7 @@ def login():
             }
         )
 
-        return jsonify(message = 'Login successfully', access_token=access_token), 200
+        return jsonify(message = 'Login successfully', access_token=access_token, role=user.role.value), 200
     except Exception as e:
         print(e)
         return jsonify({"message": "Error user login"}), 500

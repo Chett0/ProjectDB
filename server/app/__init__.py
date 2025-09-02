@@ -15,7 +15,7 @@ from apis.tickets import tickets_bp
 
 def create_app_with_migration():
     app = Flask(__name__)
-    CORS(app)           
+    CORS(app, origins=["http://localhost:4200"])           
     app.config.from_mapping(
         SECRET_KEY = "5791628bb0b13ce0c676dfde280ba245"
     )     

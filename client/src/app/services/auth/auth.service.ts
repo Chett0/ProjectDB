@@ -5,7 +5,8 @@ import { PassengerAsUser } from '../../../types/users/passenger';
 
 
 interface AuthResp {
-  access_token : string
+  access_token : string,
+  role : string
 }
 
 

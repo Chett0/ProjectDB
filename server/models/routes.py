@@ -22,7 +22,9 @@ class Route(db.Model):
 
     airlines_routes: Mapped[List["AirlineRoute"]] = relationship(
         "AirlineRoute",
-        back_populates="route"
+        back_populates="route",
+        cascade="all, delete-orphan",
+        lazy="joined"
     )
 
     flights: Mapped[List["Flight"]] = relationship(
