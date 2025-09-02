@@ -1,0 +1,20 @@
+@if(routes.length == 0){
+    <h1>No routes found</h1>
+}
+@else{
+    @for(route of routes; track route){
+        <li>{{route.departure_airport.name}}({{route.departure_airport.code}}) - {{route.arrival_airport.name}}({{route.arrival_airport.code}})</li>
+        <button type="button" class="btn btn-red" (click)="deleteRoute(route.id)">Delete</button>
+    }
+}
+
+<div>
+    <form [formGroup]="addRouteForm">
+    <div class="d-flex gap-2">
+        <input type="text" class="form-control w-auto" placeholder="departure_airport" formControlName="departure_airport">
+        <input type="text" class="form-control w-auto" placeholder="arrival_airport" formControlName="arrival_airport">
+
+        <button type="button" class="btn btn-dark" (click)="addRoute()">Add route</button> 
+        </div>
+      </form>
+</div>
