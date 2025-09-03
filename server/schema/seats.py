@@ -9,7 +9,7 @@ class SeatSchema(ma.SQLAlchemySchema):
     nSeat = ma.Integer()
     flight = ma.Nested('FlightSchema', only=('id', 'departure_time', 'arrival_time'))
     aircraft_class = ma.Nested('AircraftClassSchema', only=('id', 'name', 'price_multiplier'))
-    occupied = ma.Boolean()
+    # state = ma.Enum
     label = ma.String()
 
 

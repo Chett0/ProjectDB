@@ -6,3 +6,4 @@ __pycache__/
 server/__pycache__/
 server/app/config
 .vscode/
+server/migrations

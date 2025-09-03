@@ -1,10 +1,10 @@
 from flask import jsonify, request, Blueprint
 from app.extensions import db
-from models import Flight, Route, Airport
+from models import Flight, Route, Airport, AircraftClass, Seat, SeatState
 # from flask_restful import Resource
 from schema import flights_schema, flight_schema, FlightSchema
 from datetime import datetime
-from sqlalchemy import func
+from sqlalchemy import func, desc
 from marshmallow import Schema, fields
 
 class SearchFlightsSchema(Schema):
@@ -28,20 +28,50 @@ def create_flight():
 
         departure_time = datetime.strptime(data["departure_time"], "%Y-%m-%d %H:%M")     
         arrival_time = datetime.strptime(data["arrival_time"], "%Y-%m-%d %H:%M")
+        base_price = data["base_price"]
+        duration_seconds = (arrival_time - departure_time).total_seconds()
 
         new_flight = Flight(
             route_id=route_id,
             aircraft_id=aircraft_id,
             departure_time=departure_time,
-            arrival_time=arrival_time
+            arrival_time=arrival_time,
+            base_price=base_price,
+            duration_seconds=duration_seconds
         )
 
         db.session.add(new_flight)
+
+        classes = AircraftClass.query.filter_by(aircraft_id=aircraft_id).order_by(desc(AircraftClass.price_multiplier)).all()
+
+        letter = 'A'
+        rowNumber = 1
+
+        for c in classes:
+            for p in range(c.nSeats):
+                new_seat = Seat(
+                    number= str(rowNumber) + letter,
+                    flight_id=new_flight.id,
+                    class_id=c.id,
+                    state=SeatState.AVAILABLE,
+                    price=base_price*c.price_multiplier
+                )
+
+                db.session.add(new_seat)
+
+                letter = chr(ord(letter) + 1)
+                if letter == 'G':
+                    rowNumber+=1
+                    letter = 'A'
+
+
         db.session.commit()
 
         return jsonify({"message":"Flight created successfully"}), 201
 
     except Exception as e:
+        print(e)
+        db.session.rollback()
         return jsonify({"message":"Error creating flight"}), 500
     
 

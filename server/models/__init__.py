@@ -8,7 +8,7 @@ from .airlineRoute import AirlineRoute
 from .flights import Flight
 from .tickets import Ticket
 from .classes import AircraftClass
-from .seats import Seat
+from .seats import Seat, SeatState
 from .extras import Extra
 
 __all__ = [
@@ -21,8 +21,8 @@ __all__ = [
     'UserRole', 
     'Passenger',
     'Flight',
-    'Ticket',
     'AircraftClass',
-    'Seat'
+    'Seat',
+    'SeatState',
     'Extra'
 ]

@@ -1,6 +1,10 @@
 from app.extensions import db
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-from typing import List
+from typing import List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .aircrafts import Aircraft
+    from .airlineRoute import AirlineRoute
 
 class Airline(db.Model):
     __tablename__ = 'airlines'

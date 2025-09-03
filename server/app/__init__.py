@@ -11,6 +11,10 @@ from apis.flights import flights_bp
 from apis.locations import locations_bp
 from apis.tickets import tickets_bp
 
+
+from models import Flight, Ticket
+from models import *
+
 # For migrations
 
 def create_app_with_migration():
@@ -26,7 +30,6 @@ def create_app_with_migration():
     ma.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
-    from models import Aircraft, Airline, Route, Airport
     migrate = Migrate(app, db)
 
     return app

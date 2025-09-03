@@ -1,12 +1,13 @@
 from app.extensions import db
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 from datetime import datetime
-from typing import Optional, List
-from .flights import Flight
-from .passenger import Passenger
-from .seats import Seat
-from .extras import Extra
+from typing import Optional, List, TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from .seats import Seat
+    from .extras import Extra
+    from .flights import Flight
+    from .passenger import Passenger
 
 class Ticket(db.Model):
     __tablename__ = 'tickets'
@@ -28,8 +29,8 @@ class Ticket(db.Model):
         foreign_keys=[passenger_id]
     )
 
-    seat_id: Mapped[Optional[int]] = mapped_column(db.ForeignKey('seats.nSeat', ondelete='SET NULL'), nullable=True, unique=True, index=True)
-    seat: Mapped[Optional['Seat']] = relationship('Seat', foreign_keys=[seat_id])
+    # seat_id: Mapped[Optional[int]] = mapped_column(db.ForeignKey('seats.id', ondelete='SET NULL'), nullable=True, index=True)
+    # seat: Mapped[Optional['Seat']] = relationship('Seat', foreign_keys=[seat_id])
 
     final_cost: Mapped[float] = mapped_column(db.Numeric(10, 2), nullable=False)
     purchase_date: Mapped[datetime] = mapped_column(db.DateTime, default=datetime.utcnow, nullable=False)

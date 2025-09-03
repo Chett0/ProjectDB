@@ -1,8 +1,10 @@
 from flask import jsonify, request, Blueprint
 from app.extensions import db, ma
-from models import Aircraft
+from models import Aircraft, AircraftClass
 from schema import aircraft_schema, aircrafts_schema
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
+from middleware.auth import roles_required
+from models import UserRole
 
 aircrafts_bp = Blueprint('aircraft', __name__)
 
@@ -21,28 +23,47 @@ def get_aircrafts_by_airline():
     
 
 @aircrafts_bp.route('/aircrafts', methods=['POST'])
+@roles_required([UserRole.AIRLINE.value])
 def create_aircraft():
-    #airline_code from jwt token
-    airline_id = 1
     try:
+        airline_id = get_jwt_identity()
         data = request.get_json()
 
         model = data['model']
         nSeats = data['nSeats']
+        classes = data['classes']
+
+        if(not model or not nSeats or not classes):
+            return jsonify({'message': 'Missing field for creating aircraft'}), 403
+        
     
-        new_airline = Aircraft(
+        new_aircraft = Aircraft(
             model=model,
             nSeats=nSeats,
             airline_id=airline_id
         )
 
-        db.session.add(new_airline)
+        db.session.add(new_aircraft)
+        db.session.flush()
+
+        for c in classes:
+            new_class = AircraftClass(
+                name = c["name"],
+                nSeats = c["nSeats"],
+                price_multiplier = c["price_multiplier"],
+                aircraft_id = new_aircraft.id
+            )
+
+            db.session.add(new_class)
+
+
         db.session.commit()
 
         return jsonify({'message': 'Aircraft created successfully'}), 201
 
-    except Exception as e:
+    except Exception as e:  
         print(e)
+        db.session.rollback()
         return jsonify({"message":"Error retrieving aircraft"}), 500
     
 

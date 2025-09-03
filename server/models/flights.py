@@ -28,8 +28,8 @@ class Flight(db.Model):
 
     departure_time : Mapped[datetime] = mapped_column(db.DateTime, nullable=False)
     arrival_time : Mapped[datetime] = mapped_column(db.DateTime, nullable=False)
-    base_price: Mapped[float] = mapped_column(db.Numeric(10,2), nullable=False, default=0)
-    duration: Mapped[int] = mapped_column(nullable=False, default=0)
+    base_price: Mapped[float] = mapped_column(db.Numeric, nullable=False)
+    duration_seconds: Mapped[int] = mapped_column(nullable=False)
 
 
 

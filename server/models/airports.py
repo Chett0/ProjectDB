@@ -1,6 +1,9 @@
 from app.extensions import db
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-from typing import List
+from typing import List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .routes import Route
   
 class Airport(db.Model):
     __tablename__ = 'airports'

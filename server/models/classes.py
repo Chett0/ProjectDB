@@ -18,7 +18,7 @@ class AircraftClass(db.Model):
     aircraft: Mapped['Aircraft'] = relationship('Aircraft', back_populates='classes', foreign_keys=[aircraft_id])
 
     name: Mapped[str] = mapped_column(db.String(50), nullable=False)
-    seats_total: Mapped[int] = mapped_column(nullable=False)
+    nSeats: Mapped[int] = mapped_column(nullable=False)
     price_multiplier: Mapped[Decimal] = mapped_column(db.Numeric(5,2), nullable=False, default=1)
     
     extras: Mapped[List['Extra']] = relationship('Extra', secondary='class_extras', back_populates='classes')
