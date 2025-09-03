@@ -3,7 +3,7 @@ from app.extensions import db, bcrypt
 from models import User, Airline, UserRole, Passenger
 from flask_jwt_extended import create_access_token
 
-from server.middleware.auth import roles_required
+from middleware.auth import roles_required
 
 
 auth_bp = Blueprint('auth', __name__)

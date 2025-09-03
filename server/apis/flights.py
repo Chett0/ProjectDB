@@ -7,7 +7,7 @@ from datetime import datetime
 from sqlalchemy import func, desc
 from marshmallow import Schema, fields
 
-from server.middleware.auth import roles_required
+from middleware.auth import roles_required
 
 class SearchFlightsSchema(Schema):
     first_flight = fields.Nested('FlightSchema')

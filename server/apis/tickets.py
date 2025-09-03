@@ -1,12 +1,12 @@
 from flask import jsonify, request, Blueprint
 from app.extensions import db
-from models import Ticket, Flight, Passenger, UserRole
+from models import Ticket, Flight, Passenger, UserRole, Seat, SeatState, BookingState
 from schema import ticket_schema, tickets_schema
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from flask_jwt_extended import get_jwt_identity
 
-from server.middleware.auth import roles_required
+from middleware.auth import roles_required
 
 
 tickets_bp = Blueprint('tickets', __name__)
@@ -22,9 +22,9 @@ def create_ticket():
         flight_id = data.get('flight_id')
         final_cost = data.get('final_cost')
         extras = data.get('extras')
-        purchase_date = data.get('purchase_date')
+        seat_number = data.get('seat_number')
 
-        if not flight_id or not passenger_id or final_cost is None:
+        if not flight_id or not passenger_id or not final_cost:
             return jsonify({"message": "flight_id, passenger_id and final_cost are required"}), 400
 
         flight = db.session.get(Flight, flight_id)
@@ -37,21 +37,24 @@ def create_ticket():
                 raise InvalidOperation()
         except (InvalidOperation, ValueError):
             return jsonify({"message": "final_cost must be a non-negative number"}), 400
-
-        pd = None
-        if purchase_date:
-            try:
-                pd = datetime.fromisoformat(purchase_date)
-            except Exception:
-                return jsonify({"message": "purchase_date must be ISO format"}), 400
+            
+        seat = Seat.query.filter_by(number=seat_number, flight_id=flight_id).first()
+        if not seat:
+            return jsonify({"message": "Seat not found"}), 404
+        
+        if seat.state != SeatState.AVAILABLE:
+            return jsonify({"message": "Seat not available"}), 404
 
         new_ticket = Ticket(
             flight_id=flight_id,
             passenger_id=passenger_id,
             final_cost=cost,
-            purchase_date=pd if pd is not None else datetime.date(),
+            seat=seat.id,
+            state=BookingState.PENDING,
             extras=extras
         )
+
+        seat.state = SeatState.RESERVED
 
         db.session.add(new_ticket)
         db.session.commit()
@@ -61,6 +64,23 @@ def create_ticket():
     except Exception as e:
         print(e)
         return jsonify({"message": "Error creating ticket"}), 500
+    
+
+@tickets_bp.route('/tickets/confirm', methods=['POST'])
+@roles_required([UserRole.PASSENGER.value])
+def confirm_ticket(ticket_id):
+    try: 
+        passenger_id = get_jwt_identity()
+        ticket = Ticket.query.filter_by(id=ticket_id, passenger_id=passenger_id)
+        if not ticket:
+            return jsonify({"message": "Ticket not found"}), 404
+        
+        ticket.state = BookingState.CONFIRMED
+        ticket.purchase_date = datetime.now()
+        return jsonify({"message": "Ticket confirmed successfully"}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Internal server error while conferming tickets"}), 500
 
 
 @tickets_bp.route('/tickets', methods=['GET'])
