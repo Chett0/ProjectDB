@@ -1,11 +1,13 @@
 from flask import jsonify, request, Blueprint
 from app.extensions import db
-from models import Flight, Route, Airport, AircraftClass, Seat, SeatState
+from models import Flight, Route, Airport, AircraftClass, Seat, SeatState, UserRole
 # from flask_restful import Resource
 from schema import flights_schema, flight_schema, FlightSchema
 from datetime import datetime
 from sqlalchemy import func, desc
 from marshmallow import Schema, fields
+
+from server.middleware.auth import roles_required
 
 class SearchFlightsSchema(Schema):
     first_flight = fields.Nested('FlightSchema')
@@ -19,6 +21,7 @@ search_flights_shcema = SearchFlightsSchema(many=True)
 flights_bp = Blueprint('flight', __name__)
 
 @flights_bp.route('/flights', methods=['POST'])
+@roles_required([UserRole.AIRLINE.value])
 def create_flight():
     try:
         data = request.get_json()
@@ -200,11 +203,14 @@ def get_flights():
 
 
 @flights_bp.route('/flights/<int:flight_id>', methods=['GET'])
+@roles_required([UserRole.AIRLINE.value])
 def get_flight_by_id(flight_id):  
     try:
         flight = Flight.query.filter_by(id=flight_id).first()
         if not flight:
             return jsonify({"message": "Flight not found"}), 404
+        
+        
         
         return jsonify({"message":"Flight retrieved successfully", "flight": flight_schema.dump(flight)}), 200
     
@@ -232,3 +238,15 @@ def sort_journeys(journeys, sort_params):
             journeys.sort(key=lambda x: x["total_price"], reverse=True)
         elif(sort_params["sort_by"]=="duration"):
             journeys.sort(key=lambda x: x["total_duration"], reverse=True)
+
+
+
+
+def get_seats_flight(flight_id):
+    try:
+        seats = Seat.query.filter_by(flight_id=flight_id).all()
+        return seats
+
+    except Exception as e:
+        print(e)
+        return None

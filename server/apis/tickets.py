@@ -1,21 +1,25 @@
 from flask import jsonify, request, Blueprint
 from app.extensions import db
-from models import Ticket, Flight, Passenger
+from models import Ticket, Flight, Passenger, UserRole
 from schema import ticket_schema, tickets_schema
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
+from flask_jwt_extended import get_jwt_identity
+
+from server.middleware.auth import roles_required
 
 
 tickets_bp = Blueprint('tickets', __name__)
 
 
 @tickets_bp.route('/tickets', methods=['POST'])
+@roles_required([UserRole.PASSENGER.value])
 def create_ticket():
     try:
+        passenger_id = get_jwt_identity()
         data = request.get_json() or {}
 
         flight_id = data.get('flight_id')
-        passenger_id = data.get('passenger_id')
         final_cost = data.get('final_cost')
         extras = data.get('extras')
         purchase_date = data.get('purchase_date')
@@ -26,10 +30,6 @@ def create_ticket():
         flight = db.session.get(Flight, flight_id)
         if not flight:
             return jsonify({"message": "Flight not found"}), 404
-
-        passenger = db.session.get(Passenger, passenger_id)
-        if not passenger:
-            return jsonify({"message": "Passenger not found"}), 404
 
         try:
             cost = Decimal(str(final_cost))
@@ -49,7 +49,7 @@ def create_ticket():
             flight_id=flight_id,
             passenger_id=passenger_id,
             final_cost=cost,
-            purchase_date=pd if pd is not None else datetime.utcnow(),
+            purchase_date=pd if pd is not None else datetime.date(),
             extras=extras
         )
 
@@ -64,18 +64,19 @@ def create_ticket():
 
 
 @tickets_bp.route('/tickets', methods=['GET'])
+@roles_required([UserRole.PASSENGER.value])
 def get_tickets():
     try:
+        passenger_id = get_jwt_identity()
+
         page_number = request.args.get('page', 1, type=int)
         limit = request.args.get('limit', 10, type=int)
-        passenger_id = request.args.get('passenger_id', type=int)
-        flight_id = request.args.get('flight_id', type=int)
+
+        if not passenger_id:
+            return jsonify({"message": "Passenger is required"}), 404
 
         query = Ticket.query
-        if passenger_id:
-            query = query.filter_by(passenger_id=passenger_id)
-        if flight_id:
-            query = query.filter_by(flight_id=flight_id)
+        query = query.filter_by(passenger_id=passenger_id)
 
         total_items = query.count()
         total_pages = (total_items + limit - 1) // limit if total_items > 0 else 0
@@ -95,9 +96,12 @@ def get_tickets():
 
 
 @tickets_bp.route('/tickets/<int:ticket_id>', methods=['GET'])
+@roles_required([UserRole.PASSENGER.value])
 def get_ticket_by_id(ticket_id):
     try:
-        ticket = db.session.get(Ticket, ticket_id)
+        passenger_id = get_jwt_identity()
+        
+        ticket = Ticket.query.filter_by(id=ticket_id, passenger=passenger_id)
         if not ticket:
             return jsonify({"message": "Ticket not found"}), 404
 
@@ -106,6 +110,10 @@ def get_ticket_by_id(ticket_id):
     except Exception as e:
         print(e)
         return jsonify({"message": "Error retrieving ticket"}), 500
+
+
+
+
 
 
 @tickets_bp.route('/tickets/<int:ticket_id>', methods=['PATCH'])
