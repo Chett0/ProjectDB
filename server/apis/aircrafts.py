@@ -10,9 +10,10 @@ aircrafts_bp = Blueprint('aircraft', __name__)
 
 
 @aircrafts_bp.route('/aircrafts', methods=['GET'])
+@roles_required([UserRole.AIRLINE.value])
 def get_aircrafts_by_airline():
-    airline_id = 1
     try:
+        airline_id = get_jwt_identity()
         aircrafts = Aircraft.query.filter_by(airline_id=airline_id).all() 
 
         return jsonify({"message":"Aircrafts retrieved successfully", "aircrafts": aircrafts_schema.dump(aircrafts)}), 200
@@ -68,14 +69,13 @@ def create_aircraft():
     
 
 @aircrafts_bp.route('/aircrafts/<int:aircraft_id>', methods=['GET'])
+@roles_required([UserRole.AIRLINE.value])
 def get_aircraft_by_id(aircraft_id):  
-    airline_id = 1
     try:
+        airline_id = get_jwt_identity()
         aircraft = Aircraft.query.filter_by(id=aircraft_id, airline_id=airline_id).first()
         if not aircraft:
             return jsonify({"message": "Aircraft not found"}), 404
-        
-        
         
         return jsonify({"message":"Aircraft deleted successfully", "aircraft": aircraft_schema.dump(aircraft)}), 200
     
@@ -84,9 +84,10 @@ def get_aircraft_by_id(aircraft_id):
     
 
 @aircrafts_bp.route('/aircrafts/<int:aircraft_id>', methods=['DELETE'])
+@roles_required([UserRole.AIRLINE.value])
 def delete_aircraft_by_id(aircraft_id):  
-    airline_id = 1
     try:
+        airline_id = get_jwt_identity()
         aircraft = Aircraft.query.filter_by(id=aircraft_id, airline_id=airline_id).first()
         if not aircraft:
             return jsonify({"message": "Aircraft not found"}), 404

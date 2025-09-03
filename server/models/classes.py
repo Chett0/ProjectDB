@@ -5,7 +5,7 @@ from typing import List, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .aircrafts import Aircraft
-    from .extras import Extra
+    from .extras import ClassExtra
 
 
 
@@ -21,4 +21,7 @@ class AircraftClass(db.Model):
     nSeats: Mapped[int] = mapped_column(nullable=False)
     price_multiplier: Mapped[Decimal] = mapped_column(db.Numeric(5,2), nullable=False, default=1)
     
-    extras: Mapped[List['Extra']] = relationship('Extra', secondary='class_extras', back_populates='classes')
+    aircraft_class_extra: Mapped[List['ClassExtra']] = relationship(
+        'ClassExtra', 
+        back_populates='aircraft_class'
+    )

@@ -10,18 +10,45 @@ if TYPE_CHECKING:
 
 
 # association table for ticket and extra (many-to-many)
-ticket_extras = db.Table(
-    'ticket_extras',
-    db.Column('ticket_id', db.Integer, db.ForeignKey('tickets.id', ondelete='CASCADE'), primary_key=True),
-    db.Column('extra_id', db.Integer, db.ForeignKey('extras.id', ondelete='CASCADE'), primary_key=True),
-)
+class TicketExtra(db.Model):
+    __tablename__ = 'ticket_extra'
+
+    ticket_id: Mapped[int] = mapped_column(db.ForeignKey("tickets.id", ondelete="CASCADE"),primary_key=True)
+    
+    ticket : Mapped["Ticket"] = relationship(
+        "Ticket",
+        back_populates="ticket_extra",
+        foreign_keys=[ticket_id]
+    )
+    
+    extra_id: Mapped[int] = mapped_column(db.ForeignKey("extras.id", ondelete="CASCADE"),primary_key=True)
+    
+    extra : Mapped["Extra"] = relationship(
+        "Extra",
+        back_populates="ticket_extra",
+        foreign_keys=[extra_id]
+    )
+
 
 # association table for class and extra (many-to-many)
-class_extras = db.Table(
-    'class_extras',
-    db.Column('class_id', db.Integer, db.ForeignKey('aircraft_classes.id', ondelete='CASCADE'), primary_key=True),
-    db.Column('extra_id', db.Integer, db.ForeignKey('extras.id', ondelete='CASCADE'), primary_key=True),
-)
+class ClassExtra(db.Model):
+    __tablename__ = 'class_extra'
+
+    aircraft_class_id: Mapped[int] = mapped_column(db.ForeignKey("aircraft_classes.id", ondelete="CASCADE"),primary_key=True)
+    
+    aircraft_class : Mapped["AircraftClass"] = relationship(
+        "AircraftClass",
+        back_populates="aircraft_class_extra",
+        foreign_keys=[aircraft_class_id]
+    )
+    
+    extra_id: Mapped[int] = mapped_column(db.ForeignKey("extras.id", ondelete="CASCADE"),primary_key=True)
+    
+    extra : Mapped["Extra"] = relationship(
+        "Extra",
+        back_populates="aircraft_class_extra",
+        foreign_keys=[extra_id]
+    )
 
 
 class Extra(db.Model):
@@ -31,5 +58,12 @@ class Extra(db.Model):
     name: Mapped[str] = mapped_column(db.String(100), nullable=False)
     price: Mapped[Decimal] = mapped_column(db.Numeric(10,2), nullable=False, default=0)
 
-    tickets: Mapped[List['Ticket']] = relationship('Ticket', secondary=ticket_extras, back_populates='extras')
-    classes: Mapped[List['AircraftClass']] = relationship('AircraftClass', secondary=class_extras, back_populates='extras')
+
+    ticket_extra: Mapped[List['TicketExtra']] = relationship(
+        'TicketExtra', 
+        back_populates='extra'
+    )
+    aircraft_class_extra: Mapped[List['ClassExtra']] = relationship(
+        'ClassExtra', 
+        back_populates='extra'
+    )

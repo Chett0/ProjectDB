@@ -1,6 +1,6 @@
 from flask import jsonify, request, Blueprint
 from app.extensions import db
-from models import Ticket, Flight, Passenger, UserRole, Seat, SeatState, BookingState
+from models import Ticket, Flight, Passenger, UserRole, Seat, SeatState, BookingState, TicketExtra
 from schema import ticket_schema, tickets_schema
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
@@ -51,12 +51,23 @@ def create_ticket():
             final_cost=cost,
             seat=seat.id,
             state=BookingState.PENDING,
-            extras=extras
         )
 
         seat.state = SeatState.RESERVED
 
         db.session.add(new_ticket)
+        db.session.flush()
+
+        for extra_id in extras:
+            # assuming we are passing extra id and don't need a check for existence
+            extra_ticket = TicketExtra(
+                ticket_id = new_ticket.id,
+                extra_id = extra_id
+            )
+
+            db.add(extra_ticket)
+
+
         db.session.commit()
 
         return jsonify({"message": "Ticket created successfully", "ticket": ticket_schema.dump(new_ticket)}), 201
@@ -66,7 +77,7 @@ def create_ticket():
         return jsonify({"message": "Error creating ticket"}), 500
     
 
-@tickets_bp.route('/tickets/confirm', methods=['POST'])
+@tickets_bp.route('/tickets/<int:ticket_id>', methods=['POST'])
 @roles_required([UserRole.PASSENGER.value])
 def confirm_ticket(ticket_id):
     try: 

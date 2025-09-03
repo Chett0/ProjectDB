@@ -6,7 +6,7 @@ from enum import Enum
 
 if TYPE_CHECKING:
     from .seats import Seat
-    from .extras import Extra
+    from .extras import TicketExtra
     from .flights import Flight
     from .passenger import Passenger
 
@@ -41,7 +41,14 @@ class Ticket(db.Model):
     final_cost: Mapped[float] = mapped_column(db.Numeric(10, 2), nullable=False)
     purchase_date: Mapped[datetime] = mapped_column(db.DateTime, nullable=True)
 
-    state: Mapped[BookingState] = mapped_column(db.Enum(BookingState), nullable=False)
+    state: Mapped[BookingState] = mapped_column(db.Enum(BookingState, name="bookingstate"), nullable=False)
+    #CREATE TYPE bookingstate AS ENUM ('Pending', 'Confirmed', 'Cancelled');
     
-    extras: Mapped[List['Extra']] = relationship('Extra', secondary='ticket_extras', back_populates='tickets')
+    ticket_extra: Mapped[List['TicketExtra']] = relationship(
+        'TicketExtra', 
+        back_populates='ticket'
+    )
+
+
+
 
