@@ -8,6 +8,7 @@ from sqlalchemy import func, desc
 from marshmallow import Schema, fields
 
 from middleware.auth import roles_required
+from models.seats import get_free_seats_for_flight, get_occupied_seats_for_flight
 
 class SearchFlightsSchema(Schema):
     first_flight = fields.Nested('FlightSchema')
@@ -250,3 +251,86 @@ def get_seats_flight(flight_id):
     except Exception as e:
         print(e)
         return None
+
+
+def get_free_seats_for_flight(flight_id: int):
+    try:
+        seats = Seat.query.filter_by(flight_id=flight_id, state=SeatState.AVAILABLE).all()
+        return seats
+    except Exception as e:
+        print(f"Error fetching free seats for flight {flight_id}: {e}")
+        return []
+
+
+def get_occupied_seats_for_flight(flight_id: int):
+    try:
+        seats = Seat.query.filter(Seat.flight_id == flight_id, Seat.state != SeatState.AVAILABLE).all()
+        return seats
+    except Exception as e:
+        print(f"Error fetching occupied seats for flight {flight_id}: {e}")
+        return []
+
+
+def search_return_journeys(departure_airport_code: str, arrival_airport_code: str, return_date: str, layovers: int = 1):
+    
+    if not departure_airport_code or not arrival_airport_code:
+        raise ValueError('Both departure and arrival airport codes are required')
+
+    if not return_date:
+        raise ValueError('Return date required')
+
+    dep_airport = Airport.query.filter_by(code=arrival_airport_code).first()
+    if not dep_airport:
+        raise ValueError('Departure airport for return not found')
+
+    arr_airport = Airport.query.filter_by(code=departure_airport_code).first()
+    if not arr_airport:
+        raise ValueError('Arrival airport for return not found')
+
+    formatted_return_date = datetime.strptime(return_date, "%Y-%m-%d")
+    flights_query = Flight.query.where(func.date(Flight.departure_time) == formatted_return_date.date())
+
+    journeys = []
+
+    direct_route = Route.query.filter_by(departure_airport_id=dep_airport.id, arrival_airport_id=arr_airport.id).first()
+    if direct_route:
+        direct_flights = flights_query.filter_by(route_id=direct_route.id).all()
+        for flight in direct_flights:
+            flight_duration = (flight.arrival_time - flight.departure_time).total_seconds() // 3600
+            journeys.append({
+                'first_flight': flight,
+                'total_duration': flight_duration
+            })
+
+    if layovers:
+        min_connection_seconds = 2 * 3600
+        max_connection_seconds = 12 * 3600
+
+        departure_routes = Route.query.where(
+            (Route.departure_airport_id == dep_airport.id) &
+            (Route.arrival_airport_id != arr_airport.id)
+        ).all()
+
+        arrival_routes = Route.query.where(
+            (Route.arrival_airport_id == arr_airport.id) &
+            (Route.departure_airport_id != dep_airport.id)
+        ).all()
+
+        for dep_route in departure_routes:
+            for arr_route in arrival_routes:
+                if dep_route.arrival_airport_id == arr_route.departure_airport_id:
+                    first_flights = flights_query.filter_by(route_id=dep_route.id).all()
+                    second_flights = flights_query.filter_by(route_id=arr_route.id).all()
+
+                    for first_flight in first_flights:
+                        for second_flight in second_flights:
+                            layovers_time_seconds = (second_flight.departure_time - first_flight.arrival_time).total_seconds()
+                            if min_connection_seconds <= layovers_time_seconds <= max_connection_seconds:
+                                total_journey_duration = (second_flight.arrival_time - first_flight.departure_time).total_seconds() // 3600
+                                journeys.append({
+                                    'first_flight': first_flight,
+                                    'second_flight': second_flight,
+                                    'total_duration': total_journey_duration
+                                })
+
+    return journeys

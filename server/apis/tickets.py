@@ -193,4 +193,4 @@ def delete_ticket(ticket_id):
 
     except Exception as e:
         print(e)
-        return jsonify({"message": "Error deleting ticket"}), 500
+        return jsonify({"message": "Error deleting ticket"}), 500    

@@ -31,4 +31,3 @@ class Seat(db.Model):
     state: Mapped[SeatState] = mapped_column(db.Enum(SeatState, name="seatstate"), nullable=False)
 
     price: Mapped[int] = mapped_column(nullable=True)
-
