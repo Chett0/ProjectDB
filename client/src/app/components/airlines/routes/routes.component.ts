@@ -40,7 +40,7 @@ export class RoutesComponent implements OnInit{
     }
     this.airlinesService.addRoute(newRoute).subscribe({
         next: response => {
-          console.log(response)
+          this.routes.push(response.route);
         },
         error: (err) => {
           console.error(err);

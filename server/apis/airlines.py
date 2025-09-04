@@ -1,6 +1,6 @@
 from flask import jsonify, request, Blueprint
 from app.extensions import db, ma
-from models import Airline, Route, Airport, AirlineRoute, UserRole
+from models import Airline, Route, Airport, AirlineRoute, UserRole, Extra
 from flask_restful import Resource
 from schema import route_schema, routes_schema
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
@@ -114,5 +114,36 @@ def delete_route_by_id(route_id):
         return jsonify({"message": "Error deleting route"}), 500
     
 
+
+# Extras 
+
+
+@airlines_bp.route('/extras', methods=['POST'])
+@roles_required([UserRole.AIRLINE.value])
+def create_extra():
+    try:
+        airline_id = get_jwt_identity()
+        data = request.get_json()
+
+        name = data["name"]
+        price = data["price"]
+
+        if(not name or not price):
+            return jsonify({"message:" "Missing required fields for creating extra"}), 409
+        
+        new_extra = Extra(
+            name=name,
+            price=price,
+            airline_id=airline_id
+        )
+
+        db.session.add(new_extra)
+        db.session.commit()
+
+        return jsonify({"message":"Extra created successfully"}), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({"message":"Error creating extra"}), 500
 
 

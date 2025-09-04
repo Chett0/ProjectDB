@@ -5,6 +5,7 @@ from typing import List, TYPE_CHECKING
 if TYPE_CHECKING:
     from .aircrafts import Aircraft
     from .airlineRoute import AirlineRoute
+    from .extras import Extra
 
 class Airline(db.Model):
     __tablename__ = 'airlines'
@@ -22,4 +23,9 @@ class Airline(db.Model):
     airlines_routes: Mapped[List["AirlineRoute"]] = relationship(
         "AirlineRoute",
         back_populates="airline",
+    )
+
+    extras : Mapped[List["Extra"]] = relationship(
+        "Extra",
+        back_populates="airline"
     )

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .tickets import Ticket
     from .classes import AircraftClass
+    from .airlines import Airline
 
 
 # association table for ticket and extra (many-to-many)
@@ -30,26 +31,6 @@ class TicketExtra(db.Model):
     )
 
 
-# association table for class and extra (many-to-many)
-class ClassExtra(db.Model):
-    __tablename__ = 'class_extra'
-
-    aircraft_class_id: Mapped[int] = mapped_column(db.ForeignKey("aircraft_classes.id", ondelete="CASCADE"),primary_key=True)
-    
-    aircraft_class : Mapped["AircraftClass"] = relationship(
-        "AircraftClass",
-        back_populates="aircraft_class_extra",
-        foreign_keys=[aircraft_class_id]
-    )
-    
-    extra_id: Mapped[int] = mapped_column(db.ForeignKey("extras.id", ondelete="CASCADE"),primary_key=True)
-    
-    extra : Mapped["Extra"] = relationship(
-        "Extra",
-        back_populates="aircraft_class_extra",
-        foreign_keys=[extra_id]
-    )
-
 
 class Extra(db.Model):
     __tablename__ = 'extras'
@@ -63,7 +44,11 @@ class Extra(db.Model):
         'TicketExtra', 
         back_populates='extra'
     )
-    aircraft_class_extra: Mapped[List['ClassExtra']] = relationship(
-        'ClassExtra', 
-        back_populates='extra'
+    
+    airline_id: Mapped[int] = mapped_column(db.ForeignKey('airlines.id'), nullable=False)
+
+    airline : Mapped["Airline"] = relationship(
+        "Airline",
+        back_populates="extras",
+        foreign_keys=[airline_id]
     )

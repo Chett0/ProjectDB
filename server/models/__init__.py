@@ -9,7 +9,7 @@ from .flights import Flight
 from .tickets import Ticket, BookingState
 from .classes import AircraftClass
 from .seats import Seat, SeatState
-from .extras import Extra, TicketExtra, ClassExtra
+from .extras import Extra, TicketExtra
 
 __all__ = [
     'Airline', 
@@ -26,7 +26,6 @@ __all__ = [
     'SeatState',
     'Extra',
     'TicketExtra',
-    'ClassExtra',
     'Ticket',
     'BookingState'
 ]
