@@ -1,0 +1,121 @@
+/* Admin Home Modern Horizontal Layout */
+.admin-home-bg {
+  min-height: 100vh;
+  background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-home-flex {
+  display: flex;
+  flex-direction: row;
+  gap: 3.5rem;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 6px 32px rgba(99,102,241,0.13);
+  padding: 2.5rem 2.5rem 2.5rem 2.5rem;
+  max-width: 900px;
+  width: 100%;
+  align-items: center;
+}
+
+.admin-home-info {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+}
+.admin-title {
+  color: #312e81;
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+.admin-desc {
+  color: #64748b;
+  font-size: 1.13rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.airline-form-wide {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  background: #f1f5f9;
+  border-radius: 14px;
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  box-shadow: 0 2px 12px rgba(100,116,139,0.07);
+}
+.form-row {
+  display: flex;
+  gap: 1.2rem;
+}
+.form-group {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+}
+.form-group.full-width {
+  flex: 2 1 0;
+}
+.airline-form-wide label {
+  color: #334155;
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+}
+.airline-form-wide .form-control {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #e0e7ff;
+  transition: border-color 0.2s;
+}
+.airline-form-wide .form-control:focus {
+  border-color: #6366f1;
+  outline: none;
+  background: #fff;
+}
+.btn.btn-primary.btn-wide {
+  background: linear-gradient(90deg, #6366f1 0%, #60a5fa 100%);
+  color: #fff;
+  border: none;
+  padding: 0.7rem 0;
+  border-radius: 7px;
+  font-size: 1.13rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  margin-top: 0.7rem;
+  width: 100%;
+  box-shadow: 0 2px 8px #6366f133;
+}
+.btn.btn-primary.btn-wide:hover {
+  background: linear-gradient(90deg, #4f46e5 0%, #2563eb 100%);
+}
+
+@media (max-width: 900px) {
+  .admin-home-flex {
+    flex-direction: column;
+    gap: 2rem;
+    padding: 1.2rem 0.5rem 1rem 0.5rem;
+    max-width: 98vw;
+  }
+  .airline-form-wide {
+    padding: 1.2rem 0.5rem 1rem 0.5rem;
+  }
+  .admin-title {
+    font-size: 1.3rem;
+  }
+  .admin-logo {
+    width: 60px;
+    height: 60px;
+  }
+}

@@ -1,0 +1,41 @@
+<div class="admin-home-bg">
+  <div class="admin-home-flex">
+    <div class="admin-home-info">
+      <h2 class="admin-title">Gestione Compagnie Aeree</h2>
+      <p class="admin-desc">Aggiungi nuove compagnie aeree al sistema. Compila i dati e premi "Aggiungi compagnia".<br>Le credenziali verranno generate automaticamente.</p>
+      <img src="assets/plane-logo.png" alt="Logo app" style="height:100px;"/>
+    </div>
+    <form class="airline-form-wide">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="airlineName">Nome compagnia</label>
+          <input id="airlineName" type="text" class="form-control" placeholder="Nome compagnia" [(ngModel)]="airlineName" name="airlineName" required>
+        </div>
+        <div class="form-group">
+          <label for="airlineCode">Codice</label>
+          <input id="airlineCode" type="text" class="form-control" placeholder="Codice" [(ngModel)]="airlineCode" name="airlineCode" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="airlineEmail">Email compagnia</label>
+          <input id="airlineEmail" type="email" class="form-control" placeholder="Email compagnia" [(ngModel)]="airlineEmail" name="airlineEmail" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="airlinePassword">Password</label>
+          <input id="airlinePassword" type="password" class="form-control" placeholder="Password" [(ngModel)]="airlinePassword" name="airlinePassword" required>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary btn-wide" (click)="addAirline()">Aggiungi compagnia</button>
+      <div *ngIf="feedbackMsg" [ngClass]="{'success-msg': feedbackType==='success', 'error-msg': feedbackType==='error'}" style="margin-top: 1rem; font-weight: bold; font-size: 1.1rem;">
+        {{ feedbackMsg }}
+      </div>
+      <style>
+        .success-msg { color: #1ca12e; }
+        .error-msg { color: #c82333; }
+      </style>
+    </form>
+  </div>
+</div>
