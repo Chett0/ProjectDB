@@ -1,20 +1,85 @@
-@if(routes.length == 0){
-    <h1>No routes found</h1>
-}
-@else{
-    @for(route of routes; track route){
-        <li>{{route.departure_airport.name}}({{route.departure_airport.code}}) - {{route.arrival_airport.name}}({{route.arrival_airport.code}})</li>
-        <button type="button" class="btn btn-red" (click)="deleteRoute(route.id)">Delete</button>
-    }
-}
-
-<div>
-    <form [formGroup]="addRouteForm">
-    <div class="d-flex gap-2">
-        <input type="text" class="form-control w-auto" placeholder="departure_airport" formControlName="departure_airport">
-        <input type="text" class="form-control w-auto" placeholder="arrival_airport" formControlName="arrival_airport">
-
-        <button type="button" class="btn btn-dark" (click)="addRoute()">Add route</button> 
+<div class="routes-container">
+    <div class="header d-flex space-between align-center">
+        <h2>Tratte</h2>
+        <div class="search">
+            <input type="search" class="input-search" placeholder="Cerca per città, codice o id..." [formControl]="searchControl" aria-label="Cerca tratte">
         </div>
-      </form>
+    </div>
+
+    <div *ngIf="loading" class="status">
+        <div class="spinner" aria-hidden="true"></div>
+        <span>Caricamento in corso...</span>
+    </div>
+
+    <div *ngIf="errorMessage" class="status error">{{ errorMessage }}</div>
+
+    <div *ngIf="!loading">
+        <div *ngIf="filteredRoutes.length === 0" class="no-data">Nessuna tratta trovata</div>
+
+        <table *ngIf="filteredRoutes.length > 0" class="routes-table" role="table">
+            <thead>
+                <tr>
+                    <th>Partenza</th>
+                    <th>Arrivo</th>
+                    <th class="col-actions">Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let route of filteredRoutes; trackBy: trackByRoute" role="row">
+                    <td>
+                        <div class="airport">
+                            <div class="name">{{ route.departure_airport?.name || '-' }}</div>
+                            <div class="code">{{ route.departure_airport?.code || '' }}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="airport">
+                            <div class="name">{{ route.arrival_airport?.name || '-' }}</div>
+                            <div class="code">{{ route.arrival_airport?.code || '' }}</div>
+                        </div>
+                    </td>
+                    <td class="col-actions">
+                        <button class="btn btn-danger" (click)="deleteRoute(route)" [disabled]="deletingId === route.id">
+                            <span *ngIf="deletingId !== route.id">Elimina</span>
+                            <span *ngIf="deletingId === route.id" class="btn-loading">Eliminando...</span>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <hr>
+
+    <div class="add-form">
+        <h3>Aggiungi nuova tratta</h3>
+        <form [formGroup]="addRouteForm" (ngSubmit)="addRoute()" novalidate>
+            <div class="form-row">
+                <label>
+                    Partenza
+                    <input type="text" formControlName="departure_airport" maxlength="3" placeholder="ICAO o IATA" aria-label="Aeroporto di partenza">
+                </label>
+                <label>
+                    Arrivo
+                    <input type="text" formControlName="arrival_airport" maxlength="3" placeholder="ICAO o IATA" aria-label="Aeroporto di arrivo">
+                </label>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" [disabled]="submitting">
+                        <span *ngIf="!submitting">Aggiungi</span>
+                        <span *ngIf="submitting">Aggiungo...</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="validation-messages">
+                <div *ngIf="addRouteForm.get('departure_airport')?.touched && addRouteForm.get('departure_airport')?.invalid" class="validation">
+                    Partenza richiesta (max 3 caratteri).
+                </div>
+                <div *ngIf="addRouteForm.get('arrival_airport')?.touched && addRouteForm.get('arrival_airport')?.invalid" class="validation">
+                    Arrivo richiesto (max 3 caratteri).
+                </div>
+            </div>
+        </form>
+    </div>
+
 </div>

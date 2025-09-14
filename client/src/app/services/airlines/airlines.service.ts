@@ -10,8 +10,8 @@ export class AirlinesService {
 
   constructor(private http : HttpClient) { }
 
-  getAirlinesInfo(){
-    
+  getAirlinesInfo() {
+    return this.http.get<any>(`${enviroment.apiUrl}/airlines/me`);
   }
 
 
@@ -23,6 +23,10 @@ export class AirlinesService {
     return this.http.get<any>(`${enviroment.apiUrl}/routes`);
   }
 
+  deleteAircraft(aircraftId: number) {
+    return this.http.delete<any>(`${enviroment.apiUrl}/aircrafts/${aircraftId}`);
+  }
+
   addRoute(route : Route){
     return this.http.post<any>(`${enviroment.apiUrl}/routes`, route);
   }
@@ -31,4 +35,7 @@ export class AirlinesService {
     return this.http.delete<any>(`${enviroment.apiUrl}/routes/${routeId}`)
   }
 
+  addAircraft(aircraft: { model: string; nSeats: number; classes?: any[] }) {
+    return this.http.post<any>(`${enviroment.apiUrl}/aircrafts`, aircraft);
+  }
 }

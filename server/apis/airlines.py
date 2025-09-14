@@ -1,13 +1,28 @@
 from flask import jsonify, request, Blueprint
 from app.extensions import db, ma
-from models import Airline, Route, Airport, AirlineRoute, UserRole, Extra
+from models import Airline, Route, Airport, AirlineRoute, UserRole, Extra, User
 from flask_restful import Resource
-from schema import route_schema, routes_schema
+from schema import route_schema, routes_schema, airline_schema
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from sqlalchemy.orm import joinedload
 from middleware.auth import roles_required
 
 airlines_bp = Blueprint('airline', __name__)
+
+
+@airlines_bp.route('/airlines/me', methods=['GET'])
+@jwt_required()
+@roles_required([UserRole.AIRLINE.value])
+def get_my_airline():
+    try:
+        user_id = get_jwt_identity()
+        airline = Airline.query.filter_by(id=user_id).first()
+        if not airline:
+            return jsonify({'message': 'Airline not found'}), 404
+        return jsonify(airline_schema.dump(airline)), 200
+    except Exception as e:
+        print(e)
+        return jsonify({'message': 'Error retrieving airline info'}), 500
 
 # Routes 
 

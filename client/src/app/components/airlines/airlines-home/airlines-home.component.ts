@@ -12,17 +12,21 @@ import { AirlinesService } from '../../../services/airlines/airlines.service';
 })
 export class AirlinesHomeComponent implements OnInit{
 
-  // homeRoute : string = '';
-  aircraftsRoute : string = 'aircrafts';
-  routesRoute : string = 'routes';
+  homeRoute: string = '.';
+  aircraftsRoute: string = 'aircrafts';
+  flightsRoute: string = 'flights';
+  routesRoute: string = 'routes';
+  airlineName: string = '';
 
   constructor(private airlinesService : AirlinesService, private router : Router, private route : ActivatedRoute) {}
 
   ngOnInit(): void {
-      this.airlinesService.getAircrafts().subscribe({})
+    this.airlinesService.getAirlinesInfo().subscribe((info: any) => {
+      this.airlineName = info?.name || 'Compagnia Aerea';
+    });
   }
 
-  navigateTo(route : string) {
+  navigateTo(route: string) {
     this.router.navigate([route], { relativeTo: this.route });
   }
 
