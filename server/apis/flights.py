@@ -8,7 +8,7 @@ from sqlalchemy import func, desc
 from marshmallow import Schema, fields
 
 from middleware.auth import roles_required
-from models.seats import get_free_seats_for_flight, get_occupied_seats_for_flight
+#from models.seats import get_free_seats_for_flight, get_occupied_seats_for_flight
 
 class SearchFlightsSchema(Schema):
     first_flight = fields.Nested('FlightSchema')

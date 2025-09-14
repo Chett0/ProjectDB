@@ -21,8 +21,24 @@
           <!-- <input type="date" class="form-control w-auto" formControlName="arrival_date"> -->
 
           <button type="button" class="btn btn-dark" (click)="searchFlights()">Search</button>
-          
         </div>
       </form>
+
+      <!-- Lista voli trovati -->
+<div *ngIf="flights && flights.length > 0">
+  <h3>Voli trovati:</h3>
+  <div *ngFor="let flight of flights" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+    <p><strong>Compagnia:</strong> {{ flight.first_flight.aircraft.airline.name }}</p>
+    <p><strong>Partenza:</strong> {{ flight.first_flight.route.departure_airport.city }} alle {{ flight.first_flight.departure_time | date:'shortTime' }}</p>
+    <p><strong>Arrivo:</strong> {{ flight.first_flight.route.arrival_airport.city }} alle {{ flight.first_flight.arrival_time | date:'shortTime' }}</p>
+    <p><strong>Durata:</strong> {{ flight.total_duration }} ore</p>
+    <p><strong>Prezzo:</strong> €{{ flight.first_flight.base_price }}</p>
+  </div>
+</div>
+
+<!-- Nessun volo trovato -->
+<div *ngIf="flights && flights.length === 0 && !loading">
+  <p>Nessun volo trovato.</p>
+</div>
   </div>
 </div>
