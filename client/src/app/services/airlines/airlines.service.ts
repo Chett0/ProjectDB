@@ -1,41 +1,40 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Aircraft, Route } from '../../../types/users/airlines';
+// import { Aircraft, Route } from '../../../types/users/airlines';
 import { enviroment } from '../../enviroments/enviroments';
+import { Observable, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AirlinesService {
 
+
   constructor(private http : HttpClient) { }
+
 
   getAirlinesInfo() {
     return this.http.get<any>(`${enviroment.apiUrl}/airlines/me`);
   }
 
-
-  getAircrafts(){
-    return this.http.get<Aircraft[]>(`${enviroment.apiUrl}/aircrafts`);
+  getAllAirlines() {
+    return this.http.get<any>(`${enviroment.apiUrl}/airlines`);
   }
 
-  getRoutes(){
-    return this.http.get<any>(`${enviroment.apiUrl}/routes`);
+  getAirlinesCount() {
+    return this.http.get<any>(`${enviroment.apiUrl}/airlines/count`);
   }
 
-  deleteAircraft(aircraftId: number) {
-    return this.http.delete<any>(`${enviroment.apiUrl}/aircrafts/${aircraftId}`);
+  getFlightsCountAll() {
+    return this.http.get<any>(`${enviroment.apiUrl}/flights/count-all`);
+  }
+  
+  getAirlineFlightsCount() {
+    return this.http.get<any>(`${enviroment.apiUrl}/flights/count`);
   }
 
-  addRoute(route : Route){
-    return this.http.post<any>(`${enviroment.apiUrl}/routes`, route);
-  }
-
-  deleteRoute(routeId : number){
-    return this.http.delete<any>(`${enviroment.apiUrl}/routes/${routeId}`)
-  }
-
-  addAircraft(aircraft: { model: string; nSeats: number; classes?: any[] }) {
-    return this.http.post<any>(`${enviroment.apiUrl}/aircrafts`, aircraft);
+  getPassengersCount() {
+    return this.http.get<any>(`${enviroment.apiUrl}/passengers/count`);
   }
 }

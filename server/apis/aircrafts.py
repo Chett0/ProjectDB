@@ -102,3 +102,15 @@ def delete_aircraft_by_id(aircraft_id):
     
     except Exception as e:
         return jsonify({"message": "Error retrieving aircraft"}), 500
+
+
+@aircrafts_bp.route('/aircrafts/count', methods=['GET'])
+@roles_required([UserRole.AIRLINE.value])
+def get_aircrafts_count():
+    try:
+        airline_id = get_jwt_identity()
+        count = Aircraft.query.filter_by(airline_id=airline_id).count()
+        return jsonify({"count": count}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error retrieving aircraft count"}), 500
