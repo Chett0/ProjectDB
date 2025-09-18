@@ -1,4 +1,4 @@
-from .airlines import AirlineSchema, airline_schema
+from .airlines import AirlineSchema, airline_schema, airlines_schema
 from .aircrafts import AircraftSchema, aircraft_schema, aircrafts_schema
 from .airports import AirportSchema, airport_schema, airports_schema
 from .routes import RouteSchema, route_schema, routes_schema
@@ -11,6 +11,7 @@ from .extras import ExtraSchema, extra_schema, extras_schema
 __all__ = [
     'AirlineSchema',
     'airline_schema',
+    'airlines_schema',
     'AircraftSchema', 
     'aircraft_schema',
     'aircrafts_schema',

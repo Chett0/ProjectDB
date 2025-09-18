@@ -3,7 +3,7 @@ from flask import jsonify, request, Blueprint
 from app.extensions import db, ma
 from models import Airline, Route, Airport, AirlineRoute, UserRole, Extra, User
 from flask_restful import Resource
-from schema import route_schema, routes_schema, airline_schema
+from schema import route_schema, routes_schema, airline_schema, airlines_schema
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from sqlalchemy.orm import joinedload
 from middleware.auth import roles_required
@@ -48,6 +48,42 @@ def get_routes():
         return jsonify({
                 "message":"Error retrieving routes"
             }), 500
+    
+
+
+@airlines_bp.route('/airlines', methods=['GET'])
+@roles_required([UserRole.ADMIN.value])
+def get_all_airlines():
+    try:
+        airlines = Airline.query.all()
+        return jsonify({"message": "Airlines retrieved successfully", "airlines": airlines_schema.dump(airlines)}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error retrieving airlines"}), 500
+    
+
+
+@airlines_bp.route('/airlines/count', methods=['GET'])
+@roles_required([UserRole.ADMIN.value])
+def get_airlines_count():
+    try:
+        count = Airline.query.count()
+        return jsonify({"message": "Airlines count retrieved", "count": count}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error retrieving airlines count"}), 500
+    
+
+
+@airlines_bp.route('/routes/count', methods=['GET'])
+@roles_required([UserRole.ADMIN.value])
+def get_routes_count():
+    try:
+        count = Route.query.count()
+        return jsonify({"message": "Routes count retrieved", "count": count}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error retrieving routes count"}), 500
     
 
 @airlines_bp.route('/routes', methods=['POST'])

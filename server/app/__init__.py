@@ -10,6 +10,7 @@ from apis.aircrafts import aircrafts_bp
 from apis.flights import flights_bp
 from apis.locations import locations_bp
 from apis.tickets import tickets_bp
+from apis.passengers import passengers_bp
 
 
 from models import Flight, Ticket
@@ -19,7 +20,9 @@ from models import *
 
 def create_app_with_migration():
     app = Flask(__name__)
-    CORS(app, origins=["http://localhost:4200"])           
+    # Allow cross-origin requests from the frontend dev server and allow Authorization header
+    # so browser preflight (OPTIONS) doesn't block requests with Authorization.
+    CORS(app, resources={r"/api/*": {"origins": ["http://localhost:4200"]}}, supports_credentials=True, allow_headers=["Content-Type", "Authorization"])
     app.config.from_mapping(
         SECRET_KEY = "5791628bb0b13ce0c676dfde280ba245"
     )     
@@ -42,6 +45,7 @@ app.register_blueprint(aircrafts_bp, url_prefix='/api')
 app.register_blueprint(flights_bp, url_prefix='/api')
 app.register_blueprint(locations_bp, url_prefix='/api')
 app.register_blueprint(tickets_bp, url_prefix='/api')
+app.register_blueprint(passengers_bp, url_prefix='/api')
 
 if __name__ == '__main__':
    app.run()    # flask --app app run

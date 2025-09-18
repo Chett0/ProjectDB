@@ -9,22 +9,47 @@
 .login-container {
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  padding: 2.5rem 2rem 2rem 2rem;
-  max-width: 370px;
+  box-shadow: 0 8px 32px rgba(16,24,40,0.08);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  max-width: 520px;
   width: 100%;
 }
-
+.logo-circle {
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+}
 .login-title {
   text-align: center;
-  margin-bottom: 1.5rem;
-  color: #1e293b;
-  font-weight: 600;
-  font-size: 1.6rem;
+  margin-bottom: 0.25rem;
+  color: #0f1724;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.login-subtitle {
+  text-align: center;
+  margin-bottom: 1.2rem;
+  color: #475569;
+  font-size: 0.98rem;
 }
 
 .form-group {
   margin-bottom: 1.2rem;
+}
+
+.two-cols { display:flex; gap:12px; }
+.two-cols .form-group { flex:1; }
+.two-cols .form-group .form-control { padding:0.5rem 0.6rem; font-size: 1rem; }
+.two-cols .form-group label { font-size: 1rem; }
+
+@media (max-width:560px) {
+  .two-cols { flex-direction:column; }
 }
 
 .form-group label {
@@ -53,7 +78,7 @@
   display: flex;
   gap: 0.7rem;
   justify-content: center;
-  margin-top: 1.2rem;
+  margin-top: 1rem;
 }
 
 .btn {
@@ -72,6 +97,8 @@
 .btn-primary:hover {
   background: #4f46e5;
 }
+.btn.full { width:100%; padding:0.75rem 1rem; border-radius:10px }
+
 .btn-outline-secondary {
   background: #fff;
   color: #6366f1;

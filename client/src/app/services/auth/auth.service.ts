@@ -19,8 +19,13 @@ export class AuthService {
 
   private apiUrl : string = 'http://localhost:5000/api'
 
+
   login(user : User) {
     return this.http.post<AuthResp>(`${this.apiUrl}/login`, user);
+  }
+
+  logout() {
+    localStorage.removeItem('access_token');
   }
 
   registerPassenger(passenger : PassengerAsUser) {
