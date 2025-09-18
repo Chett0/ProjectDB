@@ -2,22 +2,11 @@ from flask import jsonify, request, Blueprint
 from app.extensions import db
 from models import Flight, Route, Airport, AircraftClass, Seat, SeatState, UserRole
 # from flask_restful import Resource
-from schema import flights_schema, flight_schema, FlightSchema
+from schema import flights_schema, flight_schema, journeys_schema
 from datetime import datetime
 from sqlalchemy import func, desc
-from marshmallow import Schema, fields
 
 from middleware.auth import roles_required
-from models.seats import get_free_seats_for_flight, get_occupied_seats_for_flight
-
-class SearchFlightsSchema(Schema):
-    first_flight = fields.Nested('FlightSchema')
-    second_flight = fields.Nested('FlightSchema')
-    total_duration = fields.Float()
-    total_price = fields.Float()
-
-search_flight_shcema = SearchFlightsSchema()
-search_flights_shcema = SearchFlightsSchema(many=True)
 
 flights_bp = Blueprint('flight', __name__)
 
@@ -90,7 +79,7 @@ def get_flights():
         arrival_airport_code = request.args.get('to')
         layovers = request.args.get('layovers', 1, type=int)
         departure_date = request.args.get('departure_date')
-        round_trip = request.args.get('round_trip', 0, type=int)
+        # round_trip = request.args.get('round_trip', 0, type=int)
         # arrival_date = request.args.get('arrival_date')
 
         sort = {'sort_by' : sort_by, 'order' : order}
@@ -114,63 +103,13 @@ def get_flights():
             return jsonify({"message":"Departure date required"}), 404
         formatted_departure_date = datetime.strptime(departure_date, "%Y-%m-%d")
         flights_query = flights_query.where(func.date(Flight.departure_time) == formatted_departure_date.date())
-        
-        # if arrival_date:
-        #     formatted_arrival_date = datetime.strptime(arrival_date, "%Y-%m-%d")
-        #     flights_query = flights_query.where(Flight.arrival_time.date() == departure_date.date())
 
-        direct_route = Route.query.filter_by(
-            departure_airport_id=departure_airport.id,
-            arrival_airport_id=arrival_airport.id
-        ).first()
-
-        journeys = []
-
-        if direct_route:
-            direct_flights = flights_query.filter_by(route_id=direct_route.id).all()
-            for flight in direct_flights:
-                flight_duration = (flight.arrival_time - flight.departure_time).total_seconds() // 3600
-                # flight.flight_type = 'direct'
-                journeys.append({
-                    "first_flight":flight,
-                    "total_duration":flight_duration
-                })
-
-
-        if(layovers):
-
-            min_connection_seconds = 2 * 3600
-            max_connection_seconds = 12 * 3600
-
-            departure_routes = Route.query.where(
-                (Route.departure_airport_id == departure_airport.id) &
-                (Route.arrival_airport_id != arrival_airport.id)).all()
-
-            arrival_routes = Route.query.where(
-                (Route.arrival_airport_id == arrival_airport.id) &
-                (Route.departure_airport_id != departure_airport.id)).all()
-
-            for dep_route in departure_routes:
-                for arr_route in arrival_routes:
-
-                    if dep_route.arrival_airport_id == arr_route.departure_airport_id:
-                        first_flights = flights_query.filter_by(route_id=dep_route.id).all()
-                        second_flights = flights_query.filter_by(route_id=arr_route.id).all()
-
-                        for first_flight in first_flights:
-                            for second_flight in second_flights:
-
-                                layovers_time_seconds = (second_flight.departure_time - first_flight.arrival_time).total_seconds()
-
-                                if layovers_time_seconds >= min_connection_seconds and layovers_time_seconds <= max_connection_seconds:
-
-                                    total_journey_duration = (second_flight.arrival_time - first_flight.departure_time).total_seconds() // 3600
-
-                                    journeys.append({
-                                        "first_flight":first_flight, 
-                                        "second_flight":second_flight,
-                                        "total_duration":total_journey_duration
-                                    })
+        journeys = search_flights(
+            flights_query=flights_query,
+            departure_airport=departure_airport,
+            arrival_airport=arrival_airport,
+            layovers=layovers
+        )
 
         total_flights_number = len(journeys)
         if total_flights_number == 0:
@@ -183,18 +122,15 @@ def get_flights():
         total_pages = (total_flights_number + limit - 1) // limit 
         offset = (page_number - 1) * limit
 
-        # flights = flights_query.offset(offset=offset).limit(limit=limit).all()
-
         sort_journeys(journeys, sort)
 
         journeys[offset:offset + limit]
 
         return jsonify({
-            "message":"Fligths retrieved successfully",
-            "flights":search_flights_shcema.dump(journeys),
-            "total_pages":total_pages
-        }), 200
-
+                "message":"Fligths retrieved successfully",
+                "flights":journeys_schema.dump(journeys),
+                "total_pages":total_pages
+            }), 200
 
 
     except Exception as e:
@@ -213,7 +149,11 @@ def get_flight_by_id(flight_id):
         
         
         
-        return jsonify({"message":"Flight retrieved successfully", "flight": flight_schema.dump(flight)}), 200
+        return jsonify({
+                "message":"Flight retrieved successfully", 
+                "flight": 
+                flight_schema.dump(flight)
+            }), 200
     
     except Exception as e:
         return jsonify({"message": "Error retrieving flight"}), 500
@@ -271,66 +211,97 @@ def get_occupied_seats_for_flight(flight_id: int):
         return []
 
 
-def search_return_journeys(departure_airport_code: str, arrival_airport_code: str, return_date: str, layovers: int = 1):
-    
-    if not departure_airport_code or not arrival_airport_code:
-        raise ValueError('Both departure and arrival airport codes are required')
 
-    if not return_date:
-        raise ValueError('Return date required')
+def get_direct_flights(
+        flights_query,
+        route
+):
 
-    dep_airport = Airport.query.filter_by(code=arrival_airport_code).first()
-    if not dep_airport:
-        raise ValueError('Departure airport for return not found')
+    flights = []
 
-    arr_airport = Airport.query.filter_by(code=departure_airport_code).first()
-    if not arr_airport:
-        raise ValueError('Arrival airport for return not found')
+    direct_flights = flights_query.filter_by(route_id=route.id).all()
+    for flight in direct_flights:
+        flight_duration = (flight.arrival_time - flight.departure_time).total_seconds() // 3600
+        # flight.flight_type = 'direct'
+        flights.append({
+            "first_flight":flight,
+            "total_duration":flight_duration
+        })
 
-    formatted_return_date = datetime.strptime(return_date, "%Y-%m-%d")
-    flights_query = Flight.query.where(func.date(Flight.departure_time) == formatted_return_date.date())
+    return flights
+
+
+
+def get_layovers_flights(
+    flights_query,
+    departure_airport,
+    arrival_airport
+):
 
     journeys = []
 
-    direct_route = Route.query.filter_by(departure_airport_id=dep_airport.id, arrival_airport_id=arr_airport.id).first()
+    min_connection_seconds = 2 * 3600
+    max_connection_seconds = 12 * 3600
+
+    departure_routes = Route.query.where(
+        (Route.departure_airport_id == departure_airport.id) &
+        (Route.arrival_airport_id != arrival_airport.id)).all()
+
+    arrival_routes = Route.query.where(
+        (Route.arrival_airport_id == arrival_airport.id) &
+        (Route.departure_airport_id != departure_airport.id)).all()
+
+    for dep_route in departure_routes:
+        for arr_route in arrival_routes:
+
+            if dep_route.arrival_airport_id == arr_route.departure_airport_id:
+                first_flights = flights_query.filter_by(route_id=dep_route.id).all()
+                second_flights = flights_query.filter_by(route_id=arr_route.id).all()
+
+                for first_flight in first_flights:
+                    for second_flight in second_flights:
+
+                        layovers_time_seconds = (second_flight.departure_time - first_flight.arrival_time).total_seconds()
+
+                        if layovers_time_seconds >= min_connection_seconds and layovers_time_seconds <= max_connection_seconds:
+
+                            total_journey_duration = (second_flight.arrival_time - first_flight.departure_time).total_seconds() // 3600
+
+                            journeys.append({
+                                "first_flight":first_flight, 
+                                "second_flight":second_flight,
+                                "total_duration":total_journey_duration
+                            })
+
+                
+    return journeys
+
+
+
+def search_flights(
+        flights_query, 
+        departure_airport,
+        arrival_airport,
+        layovers
+    ):
+    
+    direct_route = Route.query.filter_by(
+            departure_airport_id=departure_airport.id,
+            arrival_airport_id=arrival_airport.id
+        ).first()
+
+    journeys = []
     if direct_route:
-        direct_flights = flights_query.filter_by(route_id=direct_route.id).all()
-        for flight in direct_flights:
-            flight_duration = (flight.arrival_time - flight.departure_time).total_seconds() // 3600
-            journeys.append({
-                'first_flight': flight,
-                'total_duration': flight_duration
-            })
+        journeys.extend(get_direct_flights(
+            flights_query=flights_query,
+            route=direct_route
+        ))
 
-    if layovers:
-        min_connection_seconds = 2 * 3600
-        max_connection_seconds = 12 * 3600
-
-        departure_routes = Route.query.where(
-            (Route.departure_airport_id == dep_airport.id) &
-            (Route.arrival_airport_id != arr_airport.id)
-        ).all()
-
-        arrival_routes = Route.query.where(
-            (Route.arrival_airport_id == arr_airport.id) &
-            (Route.departure_airport_id != dep_airport.id)
-        ).all()
-
-        for dep_route in departure_routes:
-            for arr_route in arrival_routes:
-                if dep_route.arrival_airport_id == arr_route.departure_airport_id:
-                    first_flights = flights_query.filter_by(route_id=dep_route.id).all()
-                    second_flights = flights_query.filter_by(route_id=arr_route.id).all()
-
-                    for first_flight in first_flights:
-                        for second_flight in second_flights:
-                            layovers_time_seconds = (second_flight.departure_time - first_flight.arrival_time).total_seconds()
-                            if min_connection_seconds <= layovers_time_seconds <= max_connection_seconds:
-                                total_journey_duration = (second_flight.arrival_time - first_flight.departure_time).total_seconds() // 3600
-                                journeys.append({
-                                    'first_flight': first_flight,
-                                    'second_flight': second_flight,
-                                    'total_duration': total_journey_duration
-                                })
+    if(layovers):
+        journeys.extend(get_layovers_flights(
+            flights_query=flights_query,
+            departure_airport=departure_airport,
+            arrival_airport=arrival_airport
+        ))
 
     return journeys
