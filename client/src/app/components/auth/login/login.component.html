@@ -1,18 +1,25 @@
 <div class="login-bg">
   <div class="login-container">
     <form [formGroup]="loginForm" class="login-form">
+      <div class="logo-circle">
+        <img src="/assets/plane-logo.png" alt="logo" height="64" />
+      </div>
       <h2 class="login-title">Accedi al tuo account</h2>
+      <p class="login-subtitle">Inserisci le tue credenziali per continuare</p>
+
       <div class="form-group">
         <label for="email">Email</label>
-        <input id="email" type="email" class="form-control" placeholder="Inserisci la tua email" formControlName="email" required>
+        <input id="email" type="email" class="form-control" placeholder="La tua email" formControlName="email" required>
       </div>
+
       <div class="form-group">
         <label for="password">Password</label>
-        <input id="password" type="password" class="form-control" placeholder="Inserisci la password" formControlName="password" required>
+        <input id="password" type="password" class="form-control" placeholder="La tua password" formControlName="password" required>
       </div>
+
       <div *ngIf="loginError" class="login-error">{{ loginError }}</div>
       <div class="login-actions">
-        <button type="button" class="btn btn-primary" (click)="login()">Login</button>
+        <button type="button" class="btn btn-primary full" (click)="login()">Accedi</button>
       </div>
       <div class="login-hint">
         <span>Non hai un account? <a (click)="navigateToRegister()">Registrati ora</a></span>

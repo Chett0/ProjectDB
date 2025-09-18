@@ -1,76 +1,71 @@
-<<div class="aircrafts-page">
-  <!-- Header -->
-  <header class="aircrafts-header">
-    <div class="aircrafts-header-content">
-      <span class="aircrafts-header-title">Gestione Aerei</span>
-      <span class="aircrafts-header-sub">Visualizza, cerca e aggiungi i tuoi aerei</span>
+<div class="aircrafts-page">
+  <div class="aircrafts-header-row">
+    <span class="aircrafts-header-title">Gestione Aerei</span>
+    <div class="aircrafts-search-box">
+      <input type="text" [formControl]="searchControl" placeholder="Cerca..." class="aircrafts-search-input" />
     </div>
-  </header>
+    <button class="add-aircraft-btn" (click)="openAddModal()">+ Aggiungi Aereo</button>
+  </div>
 
-
-  <!-- Aggiunta Nuovo Aereo -->
-  <section class="aircrafts-add-section">
-    <form (ngSubmit)="addAircraft()" class="aircrafts-add-form" autocomplete="off">
-  <h3>Aggiungi nuovo aereo</h3>
-  <div *ngIf="addSuccess" class="aircrafts-success">{{ addSuccess }}</div>
-      <div class="aircrafts-form-fields">
-        <input type="text" [(ngModel)]="newModel" name="model" required placeholder="Modello (es: Boeing 737)" />
-        <input type="number" [(ngModel)]="newSeats" name="nSeats" required min="1" placeholder="Numero posti" />
-      </div>
-      <!-- Classi input -->
-      <div class="aircrafts-classes-section">
-        <h4>Classi (max 4)</h4>
-        <div *ngFor="let c of classes; let i = index" class="aircrafts-class-block">
-          <h5 class="aircrafts-class-title">Classe {{ i + 1 }}:</h5>
-          <div class="aircrafts-class-fields">
-            <input type="text" [(ngModel)]="c.name" name="class-name-{{i}}" placeholder="Nome classe (es: Economy)" required />
-            <input type="number" [(ngModel)]="c.nSeats" name="class-nSeats-{{i}}" placeholder="Posti" min="1" required />
-            <input type="number" step="0.01" [(ngModel)]="c.price_multiplier" name="class-price-{{i}}" placeholder="Moltiplicatore prezzo (es: 1.0)" min="0.01" required />
+  <!-- Modale aggiunta aereo -->
+  <div *ngIf="showAddModal" class="aircrafts-modal-backdrop">
+    <div class="aircrafts-modal">
+      <button class="aircrafts-modal-close" (click)="closeAddModal()" aria-label="Chiudi">&times;</button>
+      <form (ngSubmit)="addAircraft()" class="aircrafts-add-form" autocomplete="off">
+        <h3>Aggiungi nuovo aereo</h3>
+        <div *ngIf="addSuccess" class="aircrafts-success">{{ addSuccess }}</div>
+        <div class="aircrafts-form-fields">
+          <input type="text" [(ngModel)]="newModel" name="model" required placeholder="Modello (es: Boeing 737)" />
+          <input type="number" [(ngModel)]="newSeats" name="nSeats" required min="1" placeholder="Numero posti" />
+        </div>
+        <div class="aircrafts-classes-section">
+          <h4>Classi (max 4)</h4>
+          <div *ngFor="let c of classes; let i = index" class="aircrafts-class-block">
+            <h5 class="aircrafts-class-title">Classe {{ i + 1 }}:</h5>
+            <div class="aircrafts-class-fields">
+              <input type="text" [(ngModel)]="c.name" name="class-name-{{i}}" placeholder="Nome classe (es: Economy)" required />
+              <input type="number" [(ngModel)]="c.nSeats" name="class-nSeats-{{i}}" placeholder="Posti" min="1" required />
+              <input type="number" step="0.01" [(ngModel)]="c.price_multiplier" name="class-price-{{i}}" placeholder="Moltiplicatore prezzo (es: 1.0)" min="0.01" required />
+            </div>
+            <div class="aircrafts-class-actions">
+              <button type="button" (click)="removeClass(i)" class="aircrafts-remove-class">Rimuovi</button>
+            </div>
           </div>
-          <div class="aircrafts-class-actions">
-            <button type="button" (click)="removeClass(i)" class="aircrafts-remove-class">Rimuovi</button>
+          <div class="aircrafts-add-class-row">
+            <button type="button" (click)="addClass()" [disabled]="classes.length >= 4">Aggiungi classe</button>
           </div>
         </div>
-        <div class="aircrafts-add-class-row">
-          <button type="button" (click)="addClass()" [disabled]="classes.length >= 4">Aggiungi classe</button>
-        </div>
-      </div>
-      <button type="submit" [disabled]="addLoading">{{ addLoading ? 'Aggiunta...' : 'Aggiungi aereo' }}</button>
-      <div *ngIf="addError" class="aircrafts-error">{{addError}}</div>
-    </form>
-  </section>
+        <button type="submit" [disabled]="addLoading">{{ addLoading ? 'Aggiunta...' : 'Aggiungi aereo' }}</button>
+        <div *ngIf="addError" class="aircrafts-error">{{addError}}</div>
+      </form>
+    </div>
+  </div>
 
   <!-- Ricerca -->
-  <section class="aircrafts-search-section">
-    <div class="aircrafts-search-box-group">
-      <div class="aircrafts-search-box">
-        <input type="text" [formControl]="searchControl" placeholder="Cerca modello, ID, posti..." class="aircrafts-search-input" />
-        <span class="aircrafts-search-icon">🔍</span>
-      </div>
-      
-    </div>
-  </section>
+  
 
   <!-- Lista Aerei -->
   <section class="aircrafts-list-section">
     <div *ngIf="loading" class="aircrafts-loading">Caricamento...</div>
     <div *ngIf="error" class="aircrafts-error">{{error}}</div>
-    <div *ngIf="!loading && filteredAircrafts.length" class="aircrafts-table-wrapper">
-      <table class="aircrafts-table">
-        <thead>
-          <tr><th>ID</th><th>Modello</th><th>Posti</th><th>Azioni</th></tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let a of filteredAircrafts">
-            <td>{{a.id}}</td>
-            <td>{{a.model}}</td>
-            <td>{{a.nSeats}}</td>
-            <td>
-              <button type="button" class="aircrafts-delete-btn" (click)="deleteAircraft(a)">Elimina</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div *ngIf="!loading && filteredAircrafts.length">
+      <div class="aircrafts-list">
+        <div class="aircraft-card" *ngFor="let a of filteredAircrafts">
+          <div class="aircraft-card-icon">
+            <svg width="32" height="32" fill="none" viewBox="0 0 24 24">
+              <path d="M6 19a4 4 0 1 1 0-8 5.5 5.5 0 0 1 10.9 1.1A3.5 3.5 0 1 1 18 19H6z" fill="#2b74ff"/>
+              <ellipse cx="12" cy="19" rx="6" ry="2" fill="#fff" fill-opacity=".7"/>
+            </svg>
+          </div>
+          <div class="aircraft-card-info">
+            <div class="aircraft-card-title">{{ a.model }}</div>
+          </div>
+          <div class="aircraft-card-meta">
+            <div class="aircraft-card-seats">{{ a.nSeats }}<span>Posti</span></div>
+            <button type="button" class="btn danger" (click)="deleteAircraft(a)">Elimina</button>
+          </div>
+        </div>
+      </div>
     </div>
     <div *ngIf="!loading && !filteredAircrafts.length" class="aircrafts-empty">Nessun aereo trovato.</div>
   </section>

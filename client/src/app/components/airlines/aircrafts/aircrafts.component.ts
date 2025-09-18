@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AirlinesService } from '../../../services/airlines/airlines.service';
+import { AircraftsService } from '../../../services/airlines/aircrafts.service';
 
 @Component({
   selector: 'app-aircrafts',
@@ -25,12 +25,12 @@ export class AircraftsComponent implements OnInit {
   addLoading = false;
   addError = '';
   addSuccess: string | null = null;
+  showAddModal = false;
 
-
-  constructor(private airlinesService: AirlinesService) {}
+  constructor(private aircraftsService: AircraftsService) {}
 
   ngOnInit() {
-    this.fetchAircrafts();
+  this.fetchAircrafts();
     this.searchControl.valueChanges.subscribe(value => {
       this.applyFilter(String(value || '').trim().toLowerCase());
     });
@@ -39,7 +39,7 @@ export class AircraftsComponent implements OnInit {
   fetchAircrafts() {
     this.loading = true;
     this.error = '';
-    this.airlinesService.getAircrafts().subscribe({
+  this.aircraftsService.getAircrafts().subscribe({
       next: (data: any) => {
         // The backend sometimes returns an object { message, aircrafts: [...] }
         // Normalize to always have an array to avoid runtime errors.
@@ -55,6 +55,18 @@ export class AircraftsComponent implements OnInit {
     });
   }
 
+  openAddModal() {
+    this.showAddModal = true;
+  }
+  closeAddModal() {
+    this.showAddModal = false;
+    this.addError = '';
+    this.addSuccess = null;
+    this.newModel = '';
+    this.newSeats = '';
+    this.classes = [];
+    this.addLoading = false;
+  }
 
   addAircraft() {
     if (!this.newModel || !this.newSeats) {
@@ -79,15 +91,12 @@ export class AircraftsComponent implements OnInit {
     const payload: any = { model: this.newModel, nSeats: Number(this.newSeats) };
     if (this.classes && this.classes.length) payload.classes = this.classes.map(c => ({ name: c.name, nSeats: c.nSeats, price_multiplier: c.price_multiplier }));
 
-    this.airlinesService.addAircraft(payload).subscribe({
+  this.aircraftsService.addAircraft(payload).subscribe({
       next: (res: any) => {
-        this.newModel = '';
-        this.newSeats = '';
-        this.classes = [];
         this.addSuccess = 'Aereo aggiunto con successo.';
         setTimeout(() => this.addSuccess = null, 4000);
         this.addLoading = false;
-        this.tab = 'list';
+        this.closeAddModal();
         this.fetchAircrafts();
       },
       error: () => {
@@ -114,9 +123,8 @@ export class AircraftsComponent implements OnInit {
     }
     this.filteredAircrafts = this.aircrafts.filter(a => {
       const model = (a.model || '').toLowerCase();
-      const id = String(a.id || '');
       const seats = String(a.nSeats || '');
-      return model.includes(filter) || id.includes(filter) || seats.includes(filter);
+      return model.includes(filter) || seats.includes(filter);
     });
   }
 
@@ -124,7 +132,7 @@ export class AircraftsComponent implements OnInit {
     const confirmed = window.confirm(`Sei sicuro di voler eliminare l'aereo: ${aircraft.model} (ID ${aircraft.id})?`);
     if (!confirmed) return;
 
-    this.airlinesService.deleteAircraft(aircraft.id).subscribe({
+  this.aircraftsService.deleteAircraft(aircraft.id).subscribe({
       next: () => {
         this.aircrafts = this.aircrafts.filter(a => a.id !== aircraft.id);
         this.applyFilter((this.searchControl.value || '').trim().toLowerCase());

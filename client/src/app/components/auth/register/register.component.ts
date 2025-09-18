@@ -23,6 +23,7 @@ export class RegisterComponent implements OnInit {
     this.registerForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
+      confirmPassword: ['', Validators.required],
       name: ['', Validators.required],
       surname: ['', Validators.required]
     });
@@ -30,13 +31,17 @@ export class RegisterComponent implements OnInit {
 
   register(): void {
     this.registerError = '';
-    const {email, password, name, surname} = this.registerForm.value as any;
+    const {email, password, name, surname, confirmPassword} = this.registerForm.value as any;
     if(!email || !password || !name || !surname) {
       this.registerError = 'Tutti i campi sono obbligatori.';
       return;
     }
     if(this.registerForm.get('email')?.invalid) {
       this.registerError = 'Inserisci un indirizzo email valido.';
+      return;
+    }
+    if(password !== confirmPassword) {
+      this.registerError = 'Le password non coincidono.';
       return;
     }
     const passenger : PassengerAsUser = {

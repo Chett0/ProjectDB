@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AirlinesService } from '../../../services/airlines/airlines.service';
+import { RoutesService } from '../../../services/airlines/routes.service';
 import { Route, RouteAirport } from '../../../../types/users/airlines';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -13,17 +13,15 @@ import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angula
 })
 export class RoutesComponent implements OnInit{
 
-  constructor(private airlinesService : AirlinesService, private router : Router) {}
+  constructor(private routesService : RoutesService, private router : Router) {}
 
-  // State
   routes : RouteAirport[] = [];
   filteredRoutes : RouteAirport[] = [];
   loading = false;
   submitting = false;
   deletingId: number | null = null;
   errorMessage: string | null = null;
-
-  // Search / filter
+  showAddModal: boolean = false;
   searchControl = new FormControl('');
 
   addRouteForm = new FormGroup({
@@ -42,7 +40,7 @@ export class RoutesComponent implements OnInit{
   loadRoutes() {
     this.loading = true;
     this.errorMessage = null;
-    this.airlinesService.getRoutes().subscribe({
+  this.routesService.getRoutes().subscribe({
       next: response => {
         this.routes = response.routes || [];
         this.filteredRoutes = this.routes.slice();
@@ -68,7 +66,6 @@ export class RoutesComponent implements OnInit{
     });
   }
 
-  // TrackBy for *ngFor performance
   trackByRoute(_index: number, r: RouteAirport) {
     return r.id;
   }
@@ -87,11 +84,9 @@ export class RoutesComponent implements OnInit{
     this.submitting = true;
     this.errorMessage = null;
 
-    this.airlinesService.addRoute(newRoute).subscribe({
+  this.routesService.addRoute(newRoute).subscribe({
       next: response => {
-        const added = response.route as RouteAirport;
-        this.routes.unshift(added);
-        this.applyFilter((this.searchControl.value || '').trim().toLowerCase());
+        this.loadRoutes();
         this.addRouteForm.reset();
         this.submitting = false;
       },
@@ -110,10 +105,9 @@ export class RoutesComponent implements OnInit{
     this.deletingId = route.id;
     this.errorMessage = null;
 
-    this.airlinesService.deleteRoute(route.id).subscribe({
+  this.routesService.deleteRoute(route.id).subscribe({
       next: response => {
         console.log('deleteRoute success response:', response);
-        // Remove locally
         this.routes = this.routes.filter(r => r.id !== route.id);
         this.applyFilter((this.searchControl.value || '').trim().toLowerCase());
         this.deletingId = null;
