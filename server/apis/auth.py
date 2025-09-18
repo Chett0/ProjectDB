@@ -1,7 +1,7 @@
 from flask import jsonify, request, Blueprint
 from app.extensions import db, bcrypt
 from models import User, Airline, UserRole, Passenger
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_jwt_identity
 import secrets
 import string
 from middleware.auth import roles_required
@@ -153,23 +153,64 @@ def login():
             return jsonify({
                     "message": "Wrong credential"
                 }), 409
-
+        
         access_token = create_access_token(
             identity=str(user.id), 
             additional_claims={
                 "role": user.role.value,
                 "email": user.email
             },
-            
         )
 
-        return jsonify(
-            message = 'Login successfully', 
+        if user.must_change_password:
+            return jsonify({
+                "message": "Password needs to changed"
+            }, 
             access_token=access_token, 
             role=user.role.value
+            ), 303
+
+        return jsonify(
+                message = 'Login successfully', 
+                access_token=access_token, 
+                role=user.role.value
             ), 200
     except Exception as e:
-        print(e, flush=True)
+        print(e)
         return jsonify({
-                "message": "Error user login"
+                "message": "Internal error user login"
+            }), 500
+
+
+@auth_bp.route("/password", methods=["PUT"])
+@roles_required([UserRole.AIRLINE.value])
+def change_password():
+    try:
+        airline_id = get_jwt_identity()
+        data = request.get_json()
+
+        new_password = data["password"]
+
+        if not new_password:
+            return jsonify({
+                "message": "Missing required password"
+            }), 400
+
+        user = User.query.filter_by(id=airline_id).first()
+        hashed_password = bcrypt.generate_password_hash(password=new_password).decode('utf-8')
+        
+        user.password = hashed_password
+        user.must_change_password = False
+
+        db.session.commit()
+
+        return jsonify({
+            "message": "Password change successful"
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print(e)
+        return jsonify({
+                "message": "Internal error changing password"
             }), 500

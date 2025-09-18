@@ -16,5 +16,7 @@ class User(db.Model):
     password: Mapped[str] = mapped_column(db.String(100), nullable=False)
     role : Mapped[UserRole] = mapped_column(db.Enum(UserRole), nullable=False)
 
-    active: Mapped[bool] = mapped_column(default=True)
+    active: Mapped[bool] = mapped_column(db.Boolean, default=True, nullable=False)
     deletion_time : Mapped[datetime] = mapped_column(db.DateTime, nullable=True, default=None)
+
+    must_change_password: Mapped[bool] = mapped_column(db.Boolean, default=False, nullable=False)

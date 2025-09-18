@@ -29,5 +29,5 @@ class Aircraft(db.Model):
         back_populates='aircraft'
     )
 
-    active: Mapped[bool] = mapped_column(default=True)
+    active: Mapped[bool] = mapped_column(db.Boolean, default=True, nullable=False)
     deletion_time : Mapped[datetime] = mapped_column(db.DateTime, nullable=True, default=None)
