@@ -103,7 +103,8 @@ def register_airline():
         new_user = User(
             email=email,
             password=hashed_password,
-            role=UserRole.AIRLINE
+            role=UserRole.AIRLINE,
+            must_change_password=True
         )
 
         db.session.add(new_user)
@@ -163,11 +164,10 @@ def login():
         )
 
         if user.must_change_password:
-            return jsonify({
-                "message": "Password needs to changed"
-            }, 
-            access_token=access_token, 
-            role=user.role.value
+            return jsonify(
+                message="Password has to be changed",
+                access_token=access_token, 
+                role=user.role.value
             ), 303
 
         return jsonify(
