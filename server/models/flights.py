@@ -14,7 +14,7 @@ class Flight(db.Model):
 
     id : Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     
-    route_id : Mapped[int] = mapped_column(db.ForeignKey("routes.id"))
+    route_id : Mapped[int] = mapped_column(db.ForeignKey("routes.id", ondelete='CASCADE'))
     route : Mapped["Route"] = relationship(
         "Route", 
         foreign_keys=[route_id]
@@ -30,6 +30,9 @@ class Flight(db.Model):
     arrival_time : Mapped[datetime] = mapped_column(db.DateTime, nullable=False)
     base_price: Mapped[float] = mapped_column(db.Numeric, nullable=False)
     duration_seconds: Mapped[int] = mapped_column(nullable=False)
+
+    active: Mapped[bool] = mapped_column(default=True)
+    deletion_time : Mapped[datetime] = mapped_column(db.DateTime, nullable=True, default=None)
 
 
 

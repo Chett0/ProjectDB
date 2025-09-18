@@ -9,3 +9,9 @@ Migration:
     flask db init
     flask db migrate
     flask db upgrade
+
+
+Trigger:
+
+    - il campo active viene messo a true, allora deletion_time deve essere nullo
+    - se il deletion_time supera un certo limite allora va rimossa la riga?

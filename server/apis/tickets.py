@@ -73,6 +73,7 @@ def create_ticket():
         return jsonify({"message": "Ticket created successfully", "ticket": ticket_schema.dump(new_ticket)}), 201
 
     except Exception as e:
+        db.session.rollback()
         print(e)
         return jsonify({"message": "Error creating ticket"}), 500
     
@@ -184,13 +185,19 @@ def delete_ticket(ticket_id):
     try:
         ticket = db.session.get(Ticket, ticket_id)
         if not ticket:
-            return jsonify({"message": "Ticket not found"}), 404
+            return jsonify({
+                    "message": "Ticket not found"
+                }), 404
 
         db.session.delete(ticket)
         db.session.commit()
 
-        return jsonify({"message": "Ticket deleted successfully"}), 200
+        return jsonify({
+                "message": "Ticket deleted successfully"
+            }), 200
 
     except Exception as e:
         print(e)
-        return jsonify({"message": "Error deleting ticket"}), 500    
+        return jsonify({
+                "message": "Error deleting ticket"
+            }), 500    

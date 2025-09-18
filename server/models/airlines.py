@@ -1,3 +1,4 @@
+from datetime import datetime
 from app.extensions import db
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 from typing import List, TYPE_CHECKING
@@ -29,3 +30,4 @@ class Airline(db.Model):
         "Extra",
         back_populates="airline"
     )
+

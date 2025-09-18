@@ -95,7 +95,8 @@ def delete_aircraft_by_id(aircraft_id):
         # if dependent_flight:
         #     return jsonify({"message": "Cannot delete aircraft: there are flights that reference this aircraft. Remove those flights first."}), 409
 
-        db.session.delete(aircraft)
+        # db.session.delete(aircraft)
+        aircraft.active = False
         db.session.commit()
         
         return jsonify({"message":"Aircraft deleted successfully", "aircraft": aircraft_schema.dump(aircraft)}), 200

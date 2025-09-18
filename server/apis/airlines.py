@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import jsonify, request, Blueprint
 from app.extensions import db, ma
 from models import Airline, Route, Airport, AirlineRoute, UserRole, Extra, User
@@ -18,11 +19,15 @@ def get_my_airline():
         user_id = get_jwt_identity()
         airline = Airline.query.filter_by(id=user_id).first()
         if not airline:
-            return jsonify({'message': 'Airline not found'}), 404
+            return jsonify({
+                    'message': 'Airline not found'
+                }), 404
         return jsonify(airline_schema.dump(airline)), 200
     except Exception as e:
         print(e)
-        return jsonify({'message': 'Error retrieving airline info'}), 500
+        return jsonify({
+                'message': 'Error retrieving airline info'
+            }), 500
 
 # Routes 
 
@@ -31,13 +36,18 @@ def get_my_airline():
 def get_routes():
     try:
         user_id = get_jwt_identity()
-        routes = Route.query.outerjoin(AirlineRoute).filter_by(airline_id=user_id).all()
+        routes = Route.query.outerjoin(AirlineRoute).filter_by(airline_id=user_id, active=True).all()
 
-        return jsonify({"message":"Routes retrieved successfully", "routes": routes_schema.dump(routes)}), 200
+        return jsonify({
+                "message":"Routes retrieved successfully", 
+                "routes": routes_schema.dump(routes)
+            }), 200
 
     except Exception as e:
         print(e)
-        return jsonify({"message":"Error retrieving routes"}), 500
+        return jsonify({
+                "message":"Error retrieving routes"
+            }), 500
     
 
 @airlines_bp.route('/routes', methods=['POST'])
@@ -52,7 +62,9 @@ def create_route():
 
         departure_airport = Airport.query.filter_by(code=departure_airport_code).first()
         if(not departure_airport):
-            return jsonify({"message": "Airport not exists"}), 409
+            return jsonify({
+                    "message": "Airport not exists"
+                }), 409
         departure_airport_id = departure_airport.id
         arrival_airport_id = Airport.query.filter_by(code=arrival_airport_code).first().id
 
@@ -74,21 +86,34 @@ def create_route():
         existing_airline_route = AirlineRoute.query.filter_by(airline_id=airline_id, route_id=existing_route.id).first()
 
         if existing_airline_route:
-            return jsonify({"message": "Route already registered"}), 409
+            if not existing_airline_route.active:
+                existing_airline_route.active = True
+            else:
+                return jsonify({
+                        "message": "Route already registered"
+                    }), 409
         
-        new_airline_route = AirlineRoute(
-            airline_id=airline_id,
-            route_id=existing_route.id
-        )
+        else:
+            new_airline_route = AirlineRoute(
+                airline_id=airline_id,
+                route_id=existing_route.id
+            )
+            
+            db.session.add(new_airline_route)
         
-        db.session.add(new_airline_route)
         db.session.commit()
 
-        return jsonify({'message': 'Route created successfully', "routes": route_schema.dump(existing_route)}), 201
+        return jsonify({
+                'message': 'Route created successfully', 
+                "routes": route_schema.dump(existing_route)
+            }), 201
 
     except Exception as e:
+        db.session.rollback()
         print(e)
-        return jsonify({"message":"Error creating routes"}), 500
+        return jsonify({
+                "message":"Internal error creating routes"
+            }), 500
     
 
 @airlines_bp.route('/routes/<int:route_id>', methods=['GET'])
@@ -98,14 +123,22 @@ def get_route_by_id(route_id):
         airline_id = get_jwt_identity()
         existing_route = AirlineRoute.query.filter_by(airline_id=airline_id, route_id=route_id).first()
         if not existing_route:
-            return jsonify({"message": "Route not found"}), 404
+            return jsonify({
+                    "message": "Route not found"
+                }), 404
         
         route = Route.query.filter_by(id=route_id).first()
         
-        return jsonify({"message":"Route deleted successfully", "route": route_schema.dump(route)}), 200
+        return jsonify({
+                "message":"Route retrieved successfully", 
+                "route": route_schema.dump(route)
+            }), 200
     
     except Exception as e:
-        return jsonify({"message": "Error retrieving route"}), 500
+        print(e)
+        return jsonify({
+                "message": "Internal error retrieving route"
+            }), 500
     
 
 @airlines_bp.route('/routes/<int:route_id>', methods=['DELETE'])
@@ -115,18 +148,23 @@ def delete_route_by_id(route_id):
         airline_id = get_jwt_identity()
         existing_route = AirlineRoute.query.filter_by(airline_id=airline_id, route_id=route_id).first()
         if not existing_route:
-            return jsonify({"message": "Route not found"}), 404
+            return jsonify({
+                    "message": "Route not found"
+                }), 404
         
-        route = Route.query.filter_by(id=route_id).first()
-        
-        db.session.delete(route)
+        existing_route.active = False
+        existing_route.deletion_time = datetime.now()
         db.session.commit()
         
-        return jsonify({"message":"Route deleted successfully", "route": route_schema.dump(route)}), 200
+        return jsonify({
+                "message":"Route deleted successfully"
+            }), 200
     
     except Exception as e:
         print(e)
-        return jsonify({"message": "Error deleting route"}), 500
+        return jsonify({
+                "message": "Internal error deleting route"
+            }), 500
     
 
 

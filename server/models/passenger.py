@@ -1,3 +1,4 @@
+from datetime import datetime
 from app.extensions import db
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 from typing import List
@@ -9,5 +10,3 @@ class Passenger(db.Model):
 
     name: Mapped[str] = mapped_column(db.String(50), nullable=False)
     surname: Mapped[str] = mapped_column(db.String(50), nullable=False)
-
-    

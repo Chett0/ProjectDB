@@ -2,9 +2,9 @@ from flask import jsonify, request, Blueprint
 from app.extensions import db, bcrypt
 from models import User, Airline, UserRole, Passenger
 from flask_jwt_extended import create_access_token
-
+import secrets
+import string
 from middleware.auth import roles_required
-
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -19,9 +19,16 @@ def register_passenger():
         surname = data["surname"]
         password = data["password"]
 
+        if not password or not email or not name or not surname:
+            return jsonify({
+                    "message": "Missing required fields"
+                }), 400
+
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
-            return jsonify({"message": "Email already in use"}), 409
+            return jsonify({
+                    "message": "Email already in use"
+                }), 409
 
         hashed_password = bcrypt.generate_password_hash(password=password).decode('utf-8')
 
@@ -43,14 +50,16 @@ def register_passenger():
         db.session.add(new_passenger)
         db.session.commit()
         
-        return jsonify({"message": "User registered successfully"}), 201
+        return jsonify({
+                "message": "Passenger registered successfully"
+            }), 201
     except Exception as e:
+        db.session.rollback()
         print(e)
-        return jsonify({"message": "Error in airline registration"}), 500
+        return jsonify({
+                "message": "Error in passenger registration"
+            }), 500
     
-
-import secrets
-import string
 
 def generate_random_password(length=12):
 
@@ -67,23 +76,29 @@ def generate_random_password(length=12):
 
 
 @auth_bp.route('/airlines/register', methods=['POST'])
-@roles_required([UserRole.ADMIN.value])
+# @roles_required([UserRole.ADMIN.value])   For debugging
 def register_airline():
     try:
         data = request.get_json()
         email = data["email"]
         name = data["name"] 
         code = data["code"]
-        password = data.get("password")
+        # password = data.get("password")
+
+        if not email or not name or not code:
+            return jsonify({
+                    "message": "Missing required fields"
+                }), 400
 
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
-            return jsonify({"message": "Email already in use"}), 409
+            return jsonify({
+                    "message": "Email already in use"
+                }), 409
 
-        if not password:
-            return jsonify({"message": "Password richiesta"}), 400
+        random_password = generate_random_password()
 
-        hashed_password = bcrypt.generate_password_hash(password=password).decode('utf-8')
+        hashed_password = bcrypt.generate_password_hash(password=random_password).decode('utf-8')
 
         new_user = User(
             email=email,
@@ -103,10 +118,15 @@ def register_airline():
         db.session.add(new_airline)
         db.session.commit()
 
-        return jsonify({"message": "User registered successfully"}), 201
+        return jsonify({
+                    "message": "Airline registered successfully",
+                    "Password": random_password
+                }), 201
     except Exception as e:
         print(e)
-        return jsonify({"message": "Error in airline registration"}), 500
+        return jsonify({
+                "message": "Internal error on airline registration"
+            }), 500
     
 
 @auth_bp.route("/login", methods=["POST"])
@@ -118,22 +138,38 @@ def login():
 
         user = User.query.filter_by(email=email).first()
         if not user:
-            return jsonify({"message": "User not exists"}), 409
+            return jsonify({
+                    "message": "User not exists"
+                }), 404
+        
+        if not user.active:
+            return jsonify({
+                    "message": "User not active"
+                }), 401
         
         check = bcrypt.check_password_hash(user.password, password)
 
         if not check:
-            return jsonify({"message": "Wrong credential"}), 409
+            return jsonify({
+                    "message": "Wrong credential"
+                }), 409
 
         access_token = create_access_token(
             identity=str(user.id), 
             additional_claims={
                 "role": user.role.value,
                 "email": user.email
-            }
+            },
+            
         )
 
-        return jsonify(message = 'Login successfully', access_token=access_token, role=user.role.value), 200
+        return jsonify(
+            message = 'Login successfully', 
+            access_token=access_token, 
+            role=user.role.value
+            ), 200
     except Exception as e:
         print(e, flush=True)
-        return jsonify({"message": "Error user login"}), 500
+        return jsonify({
+                "message": "Error user login"
+            }), 500

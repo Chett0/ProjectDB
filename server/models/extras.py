@@ -1,3 +1,4 @@
+from datetime import datetime
 from app.extensions import db
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 from decimal import Decimal
@@ -52,3 +53,6 @@ class Extra(db.Model):
         back_populates="extras",
         foreign_keys=[airline_id]
     )
+
+    active: Mapped[bool] = mapped_column(default=True)
+    deletion_time : Mapped[datetime] = mapped_column(db.DateTime, nullable=True, default=None)
