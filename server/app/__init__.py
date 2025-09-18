@@ -1,3 +1,4 @@
+from datetime import timedelta
 from flask import Flask
 from app.config import Config
 from flask_migrate import Migrate
@@ -26,6 +27,9 @@ def create_app_with_migration():
     app.config.from_mapping(
         SECRET_KEY = "5791628bb0b13ce0c676dfde280ba245"
     )     
+
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(seconds=15)
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
     
     app.config.from_object(Config)
 
@@ -39,13 +43,15 @@ def create_app_with_migration():
 
 app = create_app_with_migration()
 
-app.register_blueprint(airlines_bp, url_prefix='/api')
-app.register_blueprint(auth_bp, url_prefix='/api')
-app.register_blueprint(aircrafts_bp, url_prefix='/api')
-app.register_blueprint(flights_bp, url_prefix='/api')
-app.register_blueprint(locations_bp, url_prefix='/api')
-app.register_blueprint(tickets_bp, url_prefix='/api')
-app.register_blueprint(passengers_bp, url_prefix='/api')
+url_prefix = '/api'
+
+app.register_blueprint(airlines_bp, url_prefix=url_prefix)
+app.register_blueprint(auth_bp, url_prefix=url_prefix)
+app.register_blueprint(aircrafts_bp, url_prefix=url_prefix)
+app.register_blueprint(flights_bp, url_prefix=url_prefix)
+app.register_blueprint(locations_bp, url_prefix=url_prefix)
+app.register_blueprint(tickets_bp, url_prefix=url_prefix)
+app.register_blueprint(passengers_bp, url_prefix=url_prefix)
 
 if __name__ == '__main__':
    app.run()    # flask --app app run

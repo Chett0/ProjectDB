@@ -1,7 +1,13 @@
 from flask import jsonify, request, Blueprint
 from app.extensions import db, bcrypt
 from models import User, Airline, UserRole, Passenger
-from flask_jwt_extended import create_access_token, get_jwt_identity
+from flask_jwt_extended import (
+    create_access_token,
+    get_jwt, 
+    get_jwt_identity, 
+    create_refresh_token,
+    jwt_required
+)
 import secrets
 import string
 from middleware.auth import roles_required
@@ -155,23 +161,32 @@ def login():
                     "message": "Wrong credential"
                 }), 409
         
+        additional_claims = {
+            "role": user.role.value,
+            "email": user.email
+        }
+        
         access_token = create_access_token(
             identity=str(user.id), 
-            additional_claims={
-                "role": user.role.value,
-                "email": user.email
-            },
+            additional_claims=additional_claims
+        )
+
+        refresh_token = create_refresh_token(
+            identity=str(user.id), 
+            additional_claims=additional_claims
         )
 
         if user.must_change_password:
             return jsonify(
                 message="Password has to be changed",
                 access_token=access_token, 
+                refresh_token=refresh_token,
                 role=user.role.value
             ), 303
 
         return jsonify(
                 message = 'Login successfully', 
+                refresh_token=refresh_token,
                 access_token=access_token, 
                 role=user.role.value
             ), 200
@@ -180,6 +195,25 @@ def login():
         return jsonify({
                 "message": "Internal error user login"
             }), 500
+
+
+@auth_bp.route("/refresh", methods=["POST"])
+@jwt_required(refresh=True)
+def refresh():
+    current_user_id = get_jwt_identity()
+    claims = get_jwt()
+
+    new_access_token = create_access_token(
+        identity=current_user_id,
+        additional_claims={
+                "role": claims.get("role"),
+                "email": claims.get("email")
+            },
+    )
+    return jsonify(
+            message="Refreshed token succesffully",
+            access_token=new_access_token
+        )
 
 
 @auth_bp.route("/password", methods=["PUT"])
