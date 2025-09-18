@@ -27,4 +27,8 @@ export class AuthService {
     return this.http.post<void>(`${this.apiUrl}/passengers/register`, passenger);
   }
 
+  registerAirline(airline: { email: string; password: string; name: string; code: string }) {
+    return this.http.post<void>(`${this.apiUrl}/airlines/register`, airline);
+  }
+
 }

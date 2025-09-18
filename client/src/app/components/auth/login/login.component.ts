@@ -3,11 +3,11 @@ import { FormGroup, FormControl, ReactiveFormsModule, FormsModule} from '@angula
 import { User } from '../../../../types/users/auth';
 import { AuthService } from '../../../services/auth/auth.service';
 import { ActivatedRoute, Router, RouterLink, RouterModule, RouterOutlet} from '@angular/router';
-
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, ],
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -15,25 +15,36 @@ export class LoginComponent {
 
   loginForm = new FormGroup({
     email : new FormControl(''),
-    password : new FormControl('')
+     password : new FormControl('')
   })
+
+  loginError: string = '';
 
   constructor(private authService : AuthService, private router : Router) {}
 
-
   login() : void {
+    this.loginError = '';
     const email = this.loginForm.value.email;
     const password = this.loginForm.value.password;
     if(email && password){
-      console.log("Login...")
       const user : User = {email : email, password : password};
       this.authService.login(user).subscribe({
-        next: response => {
+        next: (response: any) => {
           localStorage.setItem('access_token', response.access_token)
-          this.router.navigate([`${response.role.toLowerCase()}s`])
+          if (response.role && response.role.toUpperCase() === 'ADMIN') {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate([`${response.role.toLowerCase()}s`]);
+          }
         },
-        error: (err) => {
-          console.error(err);
+        error: (err: any) => {
+          if (err?.error?.message === 'User not exists') {
+            this.loginError = 'Email non registrata.';
+          } else if (err?.error?.message === 'Wrong credential') {
+            this.loginError = 'Password errata.';
+          } else {
+            this.loginError = 'Errore di login. Riprova.';
+          }
         }
       });
     }

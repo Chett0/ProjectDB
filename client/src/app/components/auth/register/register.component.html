@@ -1,19 +1,32 @@
-<div>
-  <div class="container">
-    <form [formGroup]="registerForm">
-    <div class="d-flex gap-2">
-        <input type="text" class="form-control w-auto" placeholder="email" formControlName="email">
-        <input type="text" class="form-control w-auto" placeholder="password" formControlName="password">
+<div class="login-bg">
+  <div class="login-container">
+    <form [formGroup]="registerForm" class="login-form">
+      <h2 class="login-title">Crea un nuovo account</h2>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" class="form-control" placeholder="Inserisci la tua email" formControlName="email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" type="password" class="form-control" placeholder="Crea una password" formControlName="password" required>
+      </div>
+      <div class="form-group">
+        <label for="name">Nome</label>
+        <input id="name" type="text" class="form-control" placeholder="Il tuo nome" formControlName="name" required>
+      </div>
+      <div class="form-group">
+        <label for="surname">Cognome</label>
+        <input id="surname" type="text" class="form-control" placeholder="Il tuo cognome" formControlName="surname" required>
+      </div>
+      <div *ngIf="registerError" class="login-error">{{ registerError }}</div>
+      <div class="login-actions">
+        <button type="button" class="btn btn-primary" (click)="register()">Registrati</button>
+      </div>
+      <div class="login-hint">
+        <span>Hai già un account? <a (click)="navigateToLogin()">Accedi ora</a></span>
+      </div>
+    </form>
 
-        
-        <input type="text" class="form-control w-auto" placeholder="name" formControlName="name">
-        <input type="text" class="form-control w-auto" placeholder="surname" formControlName="surname">
 
-        <button type="button" class="btn btn-dark" (click)="register()">Register</button>
-        <button type="button" class="btn btn-dark" (click)="navigateToLogin()">Login</button>
-        
-          
-        </div>
-      </form>
   </div>
 </div>

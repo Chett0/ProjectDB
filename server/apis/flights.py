@@ -7,6 +7,19 @@ from datetime import datetime
 from sqlalchemy import func, desc
 
 from middleware.auth import roles_required
+<<<<<<< HEAD
+=======
+#from models.seats import get_free_seats_for_flight, get_occupied_seats_for_flight
+
+class SearchFlightsSchema(Schema):
+    first_flight = fields.Nested('FlightSchema')
+    second_flight = fields.Nested('FlightSchema')
+    total_duration = fields.Float()
+    total_price = fields.Float()
+
+search_flight_shcema = SearchFlightsSchema()
+search_flights_shcema = SearchFlightsSchema(many=True)
+>>>>>>> refs/remotes/origin/master
 
 flights_bp = Blueprint('flight', __name__)
 

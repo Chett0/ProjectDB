@@ -1,6 +1,6 @@
 from flask import jsonify, request, Blueprint
 from app.extensions import db, ma
-from models import Aircraft, AircraftClass
+from models import Aircraft, AircraftClass, Flight
 from schema import aircraft_schema, aircrafts_schema
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from middleware.auth import roles_required
@@ -91,11 +91,14 @@ def delete_aircraft_by_id(aircraft_id):
         aircraft = Aircraft.query.filter_by(id=aircraft_id, airline_id=airline_id).first()
         if not aircraft:
             return jsonify({"message": "Aircraft not found"}), 404
-        
+        # dependent_flight = Flight.query.filter_by(aircraft_id=aircraft_id).first()
+        # if dependent_flight:
+        #     return jsonify({"message": "Cannot delete aircraft: there are flights that reference this aircraft. Remove those flights first."}), 409
+
         db.session.delete(aircraft)
         db.session.commit()
         
-        return jsonify({"message":"Aircraft retrieved successfully", "aircraft": aircraft_schema.dump(aircraft)}), 200
+        return jsonify({"message":"Aircraft deleted successfully", "aircraft": aircraft_schema.dump(aircraft)}), 200
     
     except Exception as e:
         return jsonify({"message": "Error retrieving aircraft"}), 500

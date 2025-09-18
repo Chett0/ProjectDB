@@ -20,4 +20,7 @@ class AircraftClass(db.Model):
     name: Mapped[str] = mapped_column(db.String(50), nullable=False)
     nSeats: Mapped[int] = mapped_column(nullable=False)
     price_multiplier: Mapped[Decimal] = mapped_column(db.Numeric(5,2), nullable=False, default=1)
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
