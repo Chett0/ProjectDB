@@ -17,7 +17,9 @@ def get_locations():
         query = request.args.get('query', "")
 
         if not query:
-            return jsonify({"message":"No query passed"}), 200
+            return jsonify({
+                    "message":"No query passed"
+                }), 200
         
         locations = Airport.query.filter(
             (Airport.code.ilike(f"{query}%")) | 
@@ -33,4 +35,6 @@ def get_locations():
     
     except Exception as e:
         print(e)
-        return jsonify({"message":"Error retrieving locations"}), 400
+        return jsonify({
+                "message":"Error retrieving locations"
+            }), 400

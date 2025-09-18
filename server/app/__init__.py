@@ -28,7 +28,7 @@ def create_app_with_migration():
         SECRET_KEY = "5791628bb0b13ce0c676dfde280ba245"
     )     
 
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(seconds=15)
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
     
     app.config.from_object(Config)

@@ -248,3 +248,39 @@ def change_password():
         return jsonify({
                 "message": "Internal error changing password"
             }), 500
+    
+
+
+
+
+@auth_bp.route("/user/<int:user_id>", methods=["PUT"])
+@roles_required([UserRole.ADMIN.value])
+def delete_user(user_id):
+    try:
+        user = User.query.filter_by(id=user_id, active=True)
+
+        if not user:
+            return jsonify({
+                    "message": "User not found"
+                }), 404
+        
+        if not user.active:
+            return jsonify({
+                    "message": "User not active"
+                }), 410
+        
+        user.active = False 
+        db.session.commit()
+
+        return jsonify({
+                    "message": "User deleted successfully"
+                }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print(e)
+        return jsonify({
+            "message": "Internal error deleting user"
+        }), 500
+
+

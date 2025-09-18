@@ -11,7 +11,12 @@ passengers_bp = Blueprint('passenger', __name__)
 def get_passengers_count():
     try:
         count = Passenger.query.count()
-        return jsonify({"message": "Passengers count retrieved", "count": count}), 200
+        return jsonify({
+                "message": "Passengers count retrieved", 
+                "count": count
+            }), 200
     except Exception as e:
         print(e)
-        return jsonify({"message": "Error retrieving passengers count"}), 500
+        return jsonify({
+                "message": "Internal error retrieving passengers count"
+            }), 500
