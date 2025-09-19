@@ -21,21 +21,5 @@ export const JWT_Interceptor: HttpInterceptorFn = (req, next) => {
         }
       });
     }
-    return next(authRequest).pipe(
-      catchError((error : HttpErrorResponse) => {
-        if(error.status === 401) {
-          return authService.refreshToken().pipe(
-            switchMap(() => {
-              const newToken = authService.getAccessToken();
-              const newReq = req.clone({
-                setHeaders: { Authorization: `Bearer ${newToken}` }
-              });
-              return next(newReq);
-            })
-          )
-        }
-
-        return throwError(() => error);
-      })
-    );
+    return next(authRequest);
   }
