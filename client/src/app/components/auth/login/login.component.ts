@@ -30,7 +30,7 @@ export class LoginComponent {
       const user : User = {email : email, password : password};
       this.authService.login(user).subscribe({
         next: (response: any) => {
-          localStorage.setItem('access_token', response.access_token)
+          // localStorage.setItem('access_token', response.access_token)
           if (response.role && response.role.toUpperCase() === 'ADMIN') {
             this.router.navigate(['/admin']);
           } else {

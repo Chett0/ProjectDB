@@ -1,34 +1,41 @@
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { catchError, Observable, switchMap, throwError } from 'rxjs';
+import { AuthService } from '../../services/auth/auth.service';
 
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const token = localStorage.getItem('access_token');
-  if (token) {
-    req = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+export const JWT_Interceptor: HttpInterceptorFn = (req, next) => {
 
-    console.log(req.headers);
+  if (req.url.includes('/refresh')) {
+    return next(req); // Non intercettare il refresh stesso
   }
-  return next(req);
-};
 
-@Injectable()
-export class JwtInterceptor implements HttpInterceptor 
-{
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> 
-  {
-    let token = localStorage.getItem('access_token');
-    if (token) {
-      request = request.clone({
+    const authService = inject(AuthService);
+
+    const access_token : string | null = authService.getAccessToken();
+    let authRequest = req;
+
+    if (access_token) {
+      authRequest = req.clone({
         setHeaders: {
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${access_token}`
         }
       });
     }
-    return next.handle(request);
+    return next(authRequest).pipe(
+      catchError((error : HttpErrorResponse) => {
+        if(error.status === 401) {
+          return authService.refreshToken().pipe(
+            switchMap(() => {
+              const newToken = authService.getAccessToken();
+              const newReq = req.clone({
+                setHeaders: { Authorization: `Bearer ${newToken}` }
+              });
+              return next(newReq);
+            })
+          )
+        }
+
+        return throwError(() => error);
+      })
+    );
   }
- }
