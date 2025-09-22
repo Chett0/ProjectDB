@@ -31,7 +31,7 @@ class Flight(db.Model):
     base_price: Mapped[float] = mapped_column(db.Numeric, nullable=False)
     duration_seconds: Mapped[int] = mapped_column(nullable=False)
 
-    active: Mapped[bool] = mapped_column(db.Boolean, default=True, nullable=False)
+    active: Mapped[bool] = mapped_column(db.Boolean, default=True, nullable=True)
     deletion_time : Mapped[datetime] = mapped_column(db.DateTime, nullable=True, default=None)
 
 

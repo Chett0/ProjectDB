@@ -1,0 +1,73 @@
+<div class="page">
+  <!-- Header -->
+  <app-header></app-header>
+
+  <!-- Body -->
+  <main class="body">
+    <div class="container">
+      <div *ngIf="flight; else loading">
+        <h3>Flight Details</h3>
+        <p>
+          <strong>From:</strong> {{ flight.route.departure_airport.city }} ({{ flight.route.departure_airport.code }})
+        </p>
+
+        <p>
+          <strong>To:</strong> {{ flight.route.arrival_airport.city }} ({{ flight.route.arrival_airport.code }})
+        </p>
+
+        <p>
+          <strong>Departure:</strong> {{ flight.departure_time}}
+        </p>
+
+        <p>
+          <strong>Arrival:</strong> {{ flight.arrival_time}}
+        </p>
+      </div>
+
+      <ng-template #loading>
+        <p>Caricamento volo...</p>
+      </ng-template>
+
+      <!-- FINE DATI VOLO / INIZIO PASSEGGERI-->
+
+      <div *ngIf="passenger">
+        <p>Id: {{ passenger.id }}</p>
+        <p>Nome: {{ passenger.name }}</p>
+        <p>Cognome: {{ passenger.surname }}</p>
+      </div>
+
+      <div *ngIf="!passenger">
+        <p>Caricamento informazioni passeggero...</p>
+      </div>
+
+      <!-- FINE DATI PASSEGGERI / INIZIO DATI BIGLIETTO-->
+
+      <!-- Select classi -->
+      <select [(ngModel)]="selectedClass" name="classSelect" (ngModelChange)="onClassChange()">
+        <option value="" disabled selected>Seleziona classe</option>
+        <option *ngFor="let cls of classes" [value]="cls.name">{{ cls.name }}</option>
+      </select>
+
+      <!-- Select dei posti -->
+      <select [(ngModel)]="selectedSeat" name="seatSelect" [disabled]="!selectedClass">
+        <option value="" disabled selected>Seleziona posto</option>
+        <option *ngFor="let seat of filteredSeats" [value]="seat.number">
+          {{ seat.number }}
+        </option>
+      </select>
+
+      <!-- Select extras -->
+      <label for="extraSelect">Extra:</label>
+      <select id="extraSelect" [(ngModel)]="selectedExtra" name="extraSelect">
+        <option value="" disabled selected>Seleziona extra</option>
+        <option *ngFor="let extra of extras" [value]="extra.name">{{ extra.name }}</option>
+      </select>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2025 MyFlights. Tutti i diritti riservati.</p>
+  </footer>
+</div>

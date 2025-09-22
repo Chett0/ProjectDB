@@ -6,10 +6,13 @@ class SeatSchema(ma.SQLAlchemySchema):
     class Meta:
         model = Seat
 
-    nSeat = ma.Integer()
+    id = ma.auto_field()
+    number = ma.auto_field()
+    state = ma.auto_field()
+    price = ma.auto_field()
+
     flight = ma.Nested('FlightSchema', only=('id', 'departure_time', 'arrival_time'))
     aircraft_class = ma.Nested('AircraftClassSchema', only=('id', 'name', 'price_multiplier'))
-    # state = ma.Enum
     label = ma.String()
 
 
