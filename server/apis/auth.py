@@ -39,7 +39,7 @@ def register_passenger():
         hashed_password = bcrypt.generate_password_hash(password=password).decode('utf-8')
 
         new_user = User(
-            email=email,
+            email=email, 
             password=hashed_password,
             role=UserRole.PASSENGER
         )
@@ -152,7 +152,7 @@ def login():
         if not user.active:
             return jsonify({
                     "message": "User not active"
-                }), 401
+                }), 404
         
         check = bcrypt.check_password_hash(user.password, password)
 
