@@ -50,7 +50,7 @@ export class AirlinesService {
     if (!forceRefresh && this.extrasCache && this.extrasCacheTimestamp && (now - this.extrasCacheTimestamp < this.cacheTTL)) {
       return of({ message: 'Extras retrieved successfully (cache)', extras: this.extrasCache });
     }
-    return this.http.get<any>(`${enviroment.apiUrl}/airlines/extras`).pipe(
+    return this.http.get<any>(`${enviroment.apiUrl}/airline/extras`).pipe(
       tap(res => {
         if (res && res.extras) {
           this.extrasCache = res.extras;

@@ -212,7 +212,7 @@ def get_routes_count():
     try:
         airline_id = get_jwt_identity()
         # Conta i route_id distinti associati a questa compagnia
-        count = AirlineRoute.query.filter_by(airline_id=airline_id).distinct(AirlineRoute.route_id).count()
+        count = AirlineRoute.query.filter_by(airline_id=airline_id, active=True).distinct(AirlineRoute.route_id).count()
         return jsonify({"message": "Routes count retrieved", "count": count}), 200
     except Exception as e:
         print(e)
@@ -224,7 +224,7 @@ def get_routes_count():
 @roles_required([UserRole.ADMIN.value])
 def get_flights_count_all():
     try:
-        count = Flight.query.count()
+        count = Flight.query.count(active=True)
         return jsonify({"message": "Total flights count retrieved", "count": count}), 200
     except Exception as e:
         print(e)
@@ -236,7 +236,7 @@ def get_flights_count_all():
 def get_routes_count_all():
     try:
         from models import Route
-        count = Route.query.count()
+        count = Route.query.count(active=True)
         return jsonify({"message": "Total routes count retrieved", "count": count}), 200
     except Exception as e:
         print(e)
