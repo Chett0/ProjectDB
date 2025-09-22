@@ -38,3 +38,31 @@ def get_locations():
         return jsonify({
                 "message":"Error retrieving locations"
             }), 400
+        
+
+@locations_bp.route('/cities', methods = ['GET'])
+def get_cities():
+    try:
+        query = request.args.get('query', "").strip()
+
+        # Evita query troppo brevi
+        if not query or len(query) < 2:
+            return jsonify([]), 200
+
+        # Filtra solo per city, usa DISTINCT per non avere duplicati
+        cities = (
+            Airport.query
+            .filter(Airport.city.ilike(f"{query}%"))
+            .with_entities(Airport.city)
+            .limit(10)
+            .all()
+        )
+
+        # Estrai le città dall'oggetto SQLAlchemy
+        city_list = [c.city for c in cities]
+
+        return jsonify(city_list), 200
+
+    except Exception as e:
+        print("Error retrieving cities:", e)
+        return jsonify({"message": "Error retrieving cities"}), 500

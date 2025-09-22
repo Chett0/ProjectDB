@@ -19,3 +19,6 @@ class AircraftClass(db.Model):
     name: Mapped[str] = mapped_column(db.String(50), nullable=False)
     nSeats: Mapped[int] = mapped_column(nullable=False)
     price_multiplier: Mapped[Decimal] = mapped_column(db.Numeric(5,2), nullable=False, default=1)
+
+    active: Mapped[bool] = mapped_column(db.Boolean, default=True, nullable=True)
+    deletion_time : Mapped[datetime] = mapped_column(db.DateTime, nullable=True, default=None)

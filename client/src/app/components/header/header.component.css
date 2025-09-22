@@ -1,0 +1,27 @@
+.topbar {
+	background: #fff;
+	border-bottom: 1px solid #eef2f6;
+}
+
+.topbar-inner {
+	max-width:1320px;
+	margin:0 auto;
+	padding:14px 22px;
+	display:flex;
+	align-items:center;
+	justify-content:space-between;
+	gap:14px;
+}
+
+.brand { display:flex; align-items:center; gap:14px }
+.brand .logo { width:72px; height:72px; object-fit:contain }
+.brand h1 { font-size:20px; margin:0; color:#0f1724 }
+
+.top-actions { display:flex; gap:10px; align-items:center }
+.btn { background:#2b74ff; color:#fff; border:0; padding:8px 12px; border-radius:8px; cursor:pointer }
+.btn.icon-only { font-size:15px; font-weight:700; padding:8px 14px; color:#0f1724 }
+.logout-btn { width:40px; height:40px; border-radius:50%; background:#2b74ff; border:0; display:inline-flex; align-items:center; justify-content:center; cursor:pointer }
+.logout-btn svg { display:block }
+.logout-btn:hover { background:#235ed6 }
+.btn.ghost { background:#fff; color:#243240; border:1px solid #e6e9ef }
+.btn.icon-only { background:transparent; color:#6b7785 }

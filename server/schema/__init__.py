@@ -7,6 +7,7 @@ from .tickets import TicketSchema, ticket_schema, tickets_schema
 from .classes import AircraftClassSchema, aircraft_class_schema, aircraft_classes_schema
 from .seats import SeatSchema, seat_schema, seats_schema
 from .extras import ExtraSchema, extra_schema, extras_schema
+from .passenger import passenger_schema
 
 __all__ = [
     'AirlineSchema',
@@ -41,5 +42,6 @@ __all__ = [
     'seats_schema',
     'ExtraSchema',
     'extra_schema',
-    'extras_schema'
+    'extras_schema',
+    'passenger_schema'
 ]

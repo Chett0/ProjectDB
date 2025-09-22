@@ -1,44 +1,62 @@
-<div>
+<div class="page">
+  <!-- Header --> 
+		<app-header></app-header>
 
-  <div class="container">
-    <form [formGroup]="searchForm">
-    <div class="d-flex gap-2">
-        <input type="text" class="form-control w-auto" (input)="onInputChange($event)" placeholder="Departure" formControlName="from">
-        <!--@if(airports.length > 0){
-        <ul class="list-group-item list-group-item-action">
-           @for(a of airports; track a.code){
-                    <li>
-                        {{a.name}} ({{a.code}}) - {{a.city}}
-                    </li>
-                }
-                
-              </ul>
-          } -->
-          <input type="text" class="form-control w-auto" (input)="onInputChange($event)" placeholder="Arrival" formControlName="to">
+  <!-- Body -->
+  <main class="body">
+    <div class="container">
 
+      <!-- Form di ricerca -->
+      <form [formGroup]="searchForm" class="search-form">
+        <div class="d-flex gap-2 flex-wrap">
 
+          <!-- Input Partenza -->
+          <input id="from-airport" name="from-airport" list="from-airports" (input)="onInputChange($event)"
+            placeholder="Partenza" class="form-control w-auto" formControlName="from">
+          <datalist id="from-airports">
+            <option *ngFor="let airport of airports" [value]="airport"></option>
+          </datalist>
+
+          <!-- Input Arrivo -->
+          <input id="to-airport" name="to-airport" list="to-airports" (input)="onInputChange($event)"
+            placeholder="Arrivo" class="form-control w-auto" formControlName="to">
+          <datalist id="to-airports">
+            <option *ngFor="let airport of airports" [value]="airport"></option>
+          </datalist>
+
+          <!-- Input Data -->
           <input type="date" class="form-control w-auto" formControlName="departure_date">
-          <!-- <input type="date" class="form-control w-auto" formControlName="arrival_date"> -->
 
-          <button type="button" class="btn btn-dark" (click)="searchFlights()">Search</button>
+          <!-- Bottone ricerca -->
+          <button type="button" class="btn btn-dark" (click)="searchFlights()">Cerca</button>
         </div>
       </form>
 
       <!-- Lista voli trovati -->
-<div *ngIf="flights && flights.length > 0">
-  <h3>Voli trovati:</h3>
-  <div *ngFor="let flight of flights" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-    <p><strong>Compagnia:</strong> {{ flight.first_flight.aircraft.airline.name }}</p>
-    <p><strong>Partenza:</strong> {{ flight.first_flight.route.departure_airport.city }} alle {{ flight.first_flight.departure_time | date:'shortTime' }}</p>
-    <p><strong>Arrivo:</strong> {{ flight.first_flight.route.arrival_airport.city }} alle {{ flight.first_flight.arrival_time | date:'shortTime' }}</p>
-    <p><strong>Durata:</strong> {{ flight.total_duration }} ore</p>
-    <p><strong>Prezzo:</strong> €{{ flight.first_flight.base_price }}</p>
-  </div>
-</div>
+      <div *ngIf="flights && flights.length > 0" class="flights-list">
+        <h3>Voli trovati:</h3>
+        <div *ngFor="let flight of flights" class="flight-card">
+          <p><strong>Compagnia:</strong> {{ flight.first_flight.aircraft.airline.name }}</p>
+          <p><strong>Partenza:</strong> {{ flight.first_flight.route.departure_airport.city }} alle {{
+            flight.first_flight.departure_time | date:'shortTime' }}</p>
+          <p><strong>Arrivo:</strong> {{ flight.first_flight.route.arrival_airport.city }} alle {{
+            flight.first_flight.arrival_time | date:'shortTime' }}</p>
+          <p><strong>Durata:</strong> {{ flight.total_duration }} ore</p>
+          <p><strong>Prezzo:</strong> €{{ flight.first_flight.base_price }}</p>
+           <button class="btn buy-ticket-btn" (click)="onBuyTicket(flight.first_flight.id)">Compra Biglietto</button>
+        </div>
+      </div>
 
-<!-- Nessun volo trovato -->
-<div *ngIf="flights && flights.length === 0 && !loading">
-  <p>Nessun volo trovato.</p>
-</div>
-  </div>
+      <!-- Nessun volo trovato -->
+      <div *ngIf="flights && flights.length === 0 && !loading" class="no-flights">
+        <p>Nessun volo trovato.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+      <p>© 2025 MyFlights. Tutti i diritti riservati.</p>
+  </footer>
 </div>

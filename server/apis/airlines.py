@@ -3,7 +3,7 @@ from flask import jsonify, request, Blueprint
 from app.extensions import db, ma
 from models import Airline, Route, Airport, AirlineRoute, UserRole, Extra, User
 from flask_restful import Resource
-from schema import route_schema, routes_schema, airline_schema, airlines_schema
+from schema import route_schema, routes_schema, airline_schema, airlines_schema, extras_schema
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from sqlalchemy.orm import joinedload
 from middleware.auth import roles_required
@@ -236,32 +236,26 @@ def create_extra():
         return jsonify({"message":"Error creating extra"}), 500
 
 
-@airlines_bp.route('airlines/extras', methods=['GET'])
-@roles_required([UserRole.AIRLINE.value])
-def get_extras():
+@airlines_bp.route('/airline/extras', methods=['GET'])
+def get_extras():  
     try:
-        airline_id = get_jwt_identity()
-        extras = Extra.query.filter_by(airline_id=airline_id).all()
-        extras_list = [
-            {"id": e.id, "name": e.name, "price": e.price} for e in extras
-        ]
-        return jsonify({"message": "Extras retrieved successfully", "extras": extras_list}), 200
+        airline_id = request.args.get('airline_id', type=int)
+        if not airline_id:
+            return jsonify({"message": "Missing airline_id"}), 400
+        
+        extras = Extra.query.filter_by(airline_id = airline_id).all()
+        if not extras:
+            return jsonify({
+                    "message": "No extras found"
+                }), 404
+        
+        return jsonify({
+                "message":"Extras retrieved successfully", 
+                "extras": extras_schema.dump(extras)
+            }), 200
+    
     except Exception as e:
         print(e)
-        return jsonify({"message": "Error retrieving extras"}), 500
-
-
-@airlines_bp.route('/extras/<int:extra_id>', methods=['DELETE'])
-@roles_required([UserRole.AIRLINE.value])
-def delete_extra(extra_id):
-    try:
-        airline_id = get_jwt_identity()
-        extra = Extra.query.filter_by(id=extra_id, airline_id=airline_id).first()
-        if not extra:
-            return jsonify({"message": "Extra not found"}), 404
-        db.session.delete(extra)
-        db.session.commit()
-        return jsonify({"message": "Extra deleted successfully", "id": extra_id}), 200
-    except Exception as e:
-        print(e)
-        return jsonify({"message": "Error deleting extra"}), 500
+        return jsonify({
+                "message": "Internal error retrieving extras"
+            }), 500
