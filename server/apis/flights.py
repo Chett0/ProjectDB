@@ -1,12 +1,20 @@
 from flask import jsonify, request, Blueprint
 from app.extensions import db
-from models import Flight, Route, Airport, AircraftClass, Seat, SeatState, UserRole
-# from flask_restful import Resource
+from models import Flight, Route, Airport, AircraftClass, Seat, SeatState, UserRole, AirlineRoute
 from schema import flights_schema, flight_schema, journeys_schema
 from datetime import datetime
 from sqlalchemy import func, desc
-
 from middleware.auth import roles_required
+from marshmallow import Schema, fields
+
+class SearchFlightsSchema(Schema):
+    first_flight = fields.Nested('FlightSchema')
+    second_flight = fields.Nested('FlightSchema')
+    total_duration = fields.Float()
+    total_price = fields.Float()
+
+search_flight_schema = SearchFlightsSchema()
+search_flights_schema = SearchFlightsSchema(many=True)
 
 flights_bp = Blueprint('flight', __name__)
 

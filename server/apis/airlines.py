@@ -1,4 +1,4 @@
-from datetime import datetime
+
 from flask import jsonify, request, Blueprint
 from app.extensions import db, ma
 from models import Airline, Route, Airport, AirlineRoute, UserRole, Extra, User
@@ -207,7 +207,7 @@ def delete_route_by_id(route_id):
 # Extras 
 
 
-@airlines_bp.route('/extras', methods=['POST'])
+@airlines_bp.route('airlines/extras', methods=['POST'])
 @roles_required([UserRole.AIRLINE.value])
 def create_extra():
     try:
@@ -236,3 +236,32 @@ def create_extra():
         return jsonify({"message":"Error creating extra"}), 500
 
 
+@airlines_bp.route('airlines/extras', methods=['GET'])
+@roles_required([UserRole.AIRLINE.value])
+def get_extras():
+    try:
+        airline_id = get_jwt_identity()
+        extras = Extra.query.filter_by(airline_id=airline_id).all()
+        extras_list = [
+            {"id": e.id, "name": e.name, "price": e.price} for e in extras
+        ]
+        return jsonify({"message": "Extras retrieved successfully", "extras": extras_list}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error retrieving extras"}), 500
+
+
+@airlines_bp.route('/extras/<int:extra_id>', methods=['DELETE'])
+@roles_required([UserRole.AIRLINE.value])
+def delete_extra(extra_id):
+    try:
+        airline_id = get_jwt_identity()
+        extra = Extra.query.filter_by(id=extra_id, airline_id=airline_id).first()
+        if not extra:
+            return jsonify({"message": "Extra not found"}), 404
+        db.session.delete(extra)
+        db.session.commit()
+        return jsonify({"message": "Extra deleted successfully", "id": extra_id}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error deleting extra"}), 500
