@@ -1,13 +1,16 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { SearchFlightsService } from '../../../services/search-flights.service';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormGroup, FormControl, ReactiveFormsModule} from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../../services/auth/auth.service';
+import { Observable } from 'rxjs';
+import { HeaderComponent } from '../../header/header.component';
 
 @Component({
   selector: 'app-search-flights',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, HeaderComponent],
   templateUrl: './search-flights.component.html',
   styleUrls: ['./search-flights.component.css']
 })
@@ -21,12 +24,14 @@ export class SearchFlightsComponent {
   });
   airports : any[] = []
   flights : any[] = []
-  private apiUrl : string = 'http://localhost:5000/'
   loading: boolean = false;
 
   private sf = inject(SearchFlightsService)
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   onInputChange(event : any) :  void {
     if(event && event.target.value.length >= 2){
@@ -43,6 +48,10 @@ export class SearchFlightsComponent {
     }
     else 
       this.airports = []
+  }
+
+  onBuyTicket(flightId: string) {
+    this.router.navigate(['flights', flightId, 'buy-ticket'])
   }
 
   searchFlights(): void {

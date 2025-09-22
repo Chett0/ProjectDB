@@ -2,9 +2,9 @@ from flask import jsonify, request, Blueprint
 from app.extensions import db
 from models import Flight, Route, Airport, AircraftClass, Seat, SeatState, UserRole
 # from flask_restful import Resource
-from schema import flights_schema, flight_schema, journeys_schema
+from schema import flights_schema, flight_schema, journeys_schema, seats_schema
 from datetime import datetime
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, or_
 
 from middleware.auth import roles_required
 
@@ -89,11 +89,23 @@ def get_flights():
                 'message': 'Both departure and arrival airport codes are required'
             }), 400
 
-        departure_airport = Airport.query.filter_by(code=departure_airport_code).first()
+        #modify here if you want to search using other parameters.
+
+        departure_airport = Airport.query.filter(
+            or_(
+                Airport.code.ilike(departure_airport_code),
+                Airport.city.ilike(departure_airport_code)
+            )
+        ).first()
         if not departure_airport:
             return jsonify({"message":"Departure airport not found"}), 404
 
-        arrival_airport = Airport.query.filter_by(code=arrival_airport_code).first()
+        arrival_airport = Airport.query.filter(
+            or_(
+                Airport.code.ilike(arrival_airport_code),
+                Airport.city.ilike(arrival_airport_code)
+            )
+        ).first()
         if not arrival_airport:
             return jsonify({"message":"Arrival airport not found"}), 404
         
@@ -136,6 +148,30 @@ def get_flights():
     except Exception as e:
         print(e)
         return jsonify({"message":"Error retrieving flights"}), 500
+    
+@flights_bp.route('/flight', methods=['GET'])
+def get_flight():
+    try:
+        flight_id = request.args.get('id')
+
+        if not flight_id:
+            return jsonify({
+                'message': 'flight id missing'
+            }), 400
+
+        flight = Flight.query.filter(Flight.id == flight_id).first()
+        if not flight:
+            return jsonify({"message":"Error flight id"}), 404
+
+        return jsonify({
+                "message":"Fligths retrieved successfully",
+                "flight": flight_schema.dump(flight)
+            }), 200
+
+    except Exception as e:
+        print(e)
+        return jsonify({"message":"Error retrieving flights"}), 500
+    
 
 
 from flask_jwt_extended import get_jwt_identity
@@ -362,3 +398,14 @@ def search_flights(
         ))
 
     return journeys
+
+# endpoint per ottenere i posi liberi di un determinato volo
+@flights_bp.route('/flights/free_seats', methods=['GET'])
+def get_free_seats():
+    try:
+        flight_id = request.args.get('flight_id', type=int)
+        seats = Seat.query.filter_by(flight_id=flight_id, state=SeatState.AVAILABLE).all()
+        return seats_schema.dump(seats)
+    except Exception as e:
+        print(f"Error fetching free seats for flight {flight_id}: {e}")
+        return []

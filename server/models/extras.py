@@ -54,5 +54,5 @@ class Extra(db.Model):
         foreign_keys=[airline_id]
     )
 
-    active: Mapped[bool] = mapped_column(db.Boolean, default=True, nullable=False)
+    active: Mapped[bool] = mapped_column(db.Boolean, default=True, nullable=True)
     deletion_time : Mapped[datetime] = mapped_column(db.DateTime, nullable=True, default=None)

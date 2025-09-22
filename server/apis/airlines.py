@@ -3,7 +3,7 @@ from flask import jsonify, request, Blueprint
 from app.extensions import db, ma
 from models import Airline, Route, Airport, AirlineRoute, UserRole, Extra, User
 from flask_restful import Resource
-from schema import route_schema, routes_schema, airline_schema, airlines_schema
+from schema import route_schema, routes_schema, airline_schema, airlines_schema, extras_schema
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 from sqlalchemy.orm import joinedload
 from middleware.auth import roles_required
@@ -236,3 +236,26 @@ def create_extra():
         return jsonify({"message":"Error creating extra"}), 500
 
 
+@airlines_bp.route('/airline/extras', methods=['GET'])
+def get_extras():  
+    try:
+        airline_id = request.args.get('airline_id', type=int)
+        if not airline_id:
+            return jsonify({"message": "Missing airline_id"}), 400
+        
+        extras = Extra.query.filter_by(airline_id = airline_id).all()
+        if not extras:
+            return jsonify({
+                    "message": "No extras found"
+                }), 404
+        
+        return jsonify({
+                "message":"Extras retrieved successfully", 
+                "extras": extras_schema.dump(extras)
+            }), 200
+    
+    except Exception as e:
+        print(e)
+        return jsonify({
+                "message": "Internal error retrieving extras"
+            }), 500

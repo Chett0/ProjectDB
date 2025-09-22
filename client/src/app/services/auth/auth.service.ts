@@ -20,17 +20,27 @@ export interface AuthResp {
 })
 export class AuthService {
 
-  constructor(private http: HttpClient, private token : TokensService) {}
+  private apiUrl : string = 'http://localhost:5000/api'
+  public isLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+  constructor(private http: HttpClient, private token : TokensService) {
+    this.isLoggedIn.next(!!localStorage.getItem('access_token'))
+  }
 
   login(user : User) {
-    return this.http.post<AuthResp>(`${enviroment.apiUrl}/login`, user).pipe(
-      tap((response : AuthResp) => {
+    return this.http.post<AuthResp>(`${this.apiUrl}/login`, user)
+    .pipe(
+      tap((response: AuthResp) => {
         this.token.setTokens(response.access_token, response.refresh_token);
+        localStorage.setItem('access_token', response.access_token);
+        this.isLoggedIn.next(true);
       })
     );
   }
 
   logout() {
+    localStorage.removeItem('access_token');
+    this.isLoggedIn.next(false);
     this.token.clearTokens();
   }
 
@@ -46,4 +56,8 @@ export class AuthService {
     return this.token.getAccessToken();
   }
 
+  //verifica se l'utente è loggato o meno
+  /*isLoggedIn(): boolean {
+    return !!localStorage.getItem('access_token');
+  }*/
 }

@@ -14,7 +14,7 @@ export class SearchFlightsService {
   constructor() {}
 
   searchLocations(query : string) : Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/locations?query=${query}`)
+    return this.http.get<any[]>(`${this.apiUrl}/cities?query=${query}`)
   }  
   
    searchFlights(from: string, to: string, departure_date: string): Observable<any[]> {
@@ -24,5 +24,12 @@ export class SearchFlightsService {
       .set('departure_date', departure_date);
 
     return this.http.get<any[]>(`${this.apiUrl}/flights`, { params });
+  }
+
+  searchFlight(id: string): Observable<any> {
+    let params = new HttpParams()
+      .set('id', id);
+
+    return this.http.get<any[]>(`${this.apiUrl}/flight`, { params });
   }
 }
