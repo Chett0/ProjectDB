@@ -1,3 +1,4 @@
+import traceback
 from flask import jsonify, request, Blueprint
 from app.extensions import db
 from models import Ticket, Flight, Passenger, UserRole, Seat, SeatState, BookingState, TicketExtra
@@ -49,11 +50,12 @@ def create_ticket():
             flight_id=flight_id,
             passenger_id=passenger_id,
             final_cost=cost,
-            seat=seat.id,
-            state=BookingState.PENDING,
+            seat_id=seat.id,
+            state=BookingState.CONFIRMED,
+            purchase_date = datetime.now()
         )
 
-        seat.state = SeatState.RESERVED
+        seat.state = SeatState.BOOKED
 
         db.session.add(new_ticket)
         db.session.flush()
@@ -65,7 +67,7 @@ def create_ticket():
                 extra_id = extra_id
             )
 
-            db.add(extra_ticket)
+            db.session.add(extra_ticket)
 
 
         db.session.commit()
@@ -75,15 +77,16 @@ def create_ticket():
     except Exception as e:
         db.session.rollback()
         print(e)
+        traceback.print_exc()
         return jsonify({"message": "Error creating ticket"}), 500
     
-
+""" no need to confirm, directy buying the ticket
 @tickets_bp.route('/tickets/<int:ticket_id>', methods=['POST'])
 @roles_required([UserRole.PASSENGER.value])
 def confirm_ticket(ticket_id):
     try: 
         passenger_id = get_jwt_identity()
-        ticket = Ticket.query.filter_by(id=ticket_id, passenger_id=passenger_id)
+        ticket = Ticket.query.filter_by(id=ticket_id, passenger_id=passenger_id).first()
         if not ticket:
             return jsonify({"message": "Ticket not found"}), 404
         
@@ -93,7 +96,7 @@ def confirm_ticket(ticket_id):
     except Exception as e:
         print(e)
         return jsonify({"message": "Internal server error while conferming tickets"}), 500
-
+"""
 
 @tickets_bp.route('/tickets', methods=['GET'])
 @roles_required([UserRole.PASSENGER.value])

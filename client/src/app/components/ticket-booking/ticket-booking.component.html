@@ -57,11 +57,22 @@
       </select>
 
       <!-- Select extras -->
-      <label for="extraSelect">Extra:</label>
-      <select id="extraSelect" [(ngModel)]="selectedExtra" name="extraSelect">
-        <option value="" disabled selected>Seleziona extra</option>
-        <option *ngFor="let extra of extras" [value]="extra.name">{{ extra.name }}</option>
-      </select>
+      <div class="extras-options">
+        <label *ngFor="let extra of extras" class="extra-item">
+          <input type="checkbox" [value]="extra.id" (change)="onExtraChange($event)"
+            [checked]="selectedExtras.includes(extra.id)" />
+          {{ extra.name }} (+{{ extra.price }}€)
+        </label>
+      </div>
+
+
+
+      <div class="ticket-cost">
+        <strong>Costo totale:</strong> {{ calculateTotal() | currency:'EUR':'symbol' }}
+      </div>
+
+
+        <button (click)="buyTicket()">Compra Biglietto</button>
 
     </div>
   </main>
