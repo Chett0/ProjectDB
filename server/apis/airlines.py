@@ -271,18 +271,14 @@ def get_extras():
 #         return jsonify({"message": "Internal error retrieving extras"}), 500
     
 #extras per visualizzarli nei biglietti
-@airlines_bp.route('/airline/extra', methods=['GET'])
-def get_extras_t():  
+@airlines_bp.route('/airline/<int:airline_id>/extra', methods=['GET'])
+def get_extras_t(airline_id):  
     try:
-        airline_id = get_jwt_identity()
+        airline_id = airline_id
         if not airline_id:
             return jsonify({"message": "Missing airline_id"}), 400
         
         extras = Extra.query.filter_by(airline_id = airline_id).all()
-        if not extras:
-            return jsonify({
-                    "message": "No extras found"
-                }), 404
         
         return jsonify({
                 "message":"Extras retrieved successfully", 

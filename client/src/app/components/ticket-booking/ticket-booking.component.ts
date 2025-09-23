@@ -186,9 +186,7 @@ export class TicketBookingComponent {
   }
 
   buyTicket() {
-    const token = localStorage.getItem('access_token') || '';
-
-    this.ticketService.buyTicket(Number(this.flightId), this.final_cost!, this.selectedSeat!.number, this.selectedExtras, token)
+    this.ticketService.buyTicket(Number(this.flightId), this.final_cost!, this.selectedSeat!.number, this.selectedExtras)
       .subscribe({
         next: () => this.showModal('successModal'),
         error: (err) => {

@@ -10,13 +10,8 @@ export class TicketBookingService {
 
   constructor(private http: HttpClient) {}
 
-   buyTicket(flightId: number, finalCost: number, seatNumber: string, extras: number[], token: string): Observable<any> {
+   buyTicket(flightId: number, finalCost: number, seatNumber: string, extras: number[]): Observable<any> {
     const url = `${enviroment.apiUrl}/tickets`;
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    });
 
     const body = {
       flight_id: flightId,
@@ -25,6 +20,6 @@ export class TicketBookingService {
       extras: extras
     };
 
-    return this.http.post(url, body, {headers});
+    return this.http.post(url, body);
   }
 }
