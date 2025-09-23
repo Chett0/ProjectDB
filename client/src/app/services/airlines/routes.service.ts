@@ -42,4 +42,8 @@ export class RoutesService {
   getRoutesCount() {
     return this.http.get<any>(`${enviroment.apiUrl}/flights/routes-count`);
   }
+
+  clearCache(){
+    this.routesCache = null;
+  }
 }

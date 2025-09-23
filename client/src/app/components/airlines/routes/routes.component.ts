@@ -38,6 +38,8 @@ export class RoutesComponent implements OnInit{
   }
 
   loadRoutes() {
+    console.log('Loading routes...', this.routes);
+    
     this.loading = true;
     this.errorMessage = null;
   this.routesService.getRoutes().subscribe({
@@ -118,6 +120,11 @@ export class RoutesComponent implements OnInit{
         this.deletingId = null;
       }
     });
+
+    
+
   }
+
+  
 
 }

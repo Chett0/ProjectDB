@@ -33,23 +33,25 @@
 
         <!-- opzioni per i biglietti -->
         <div class="ticket-options">
-          <label>
-            Classe:
-            <select [(ngModel)]="selectedClass" name="classSelect" (ngModelChange)="onClassChange()">
-              <option value="" disabled selected>Seleziona classe</option>
-              <option *ngFor="let cls of classes" [value]="cls.name">{{ cls.name }}</option>
-            </select>
-          </label>
+          
 
-          <label>
-            Posto:
-            <select [(ngModel)]="selectedSeat" name="seatSelect" [disabled]="!selectedClass">
-              <option value="" disabled selected>Seleziona posto</option>
-              <option *ngFor="let seat of filteredSeats" [value]="seat.number">
-                {{ seat.number }}
-              </option>
-            </select>
-          </label>
+          <div class="seat-map">
+  <div *ngFor="let seat of seats" class="row">
+    <button
+      class="seat"
+      [class.selected]="selectedSeat && selectedSeat.id === seat.id"
+      [class.unavailable]="seat.state !== 'AVAILABLE'"
+      [style.background-color]="ticketColors[seat.aircraft_class.name]"
+      (click)="selectSeat(seat)">
+      <!-- {{ seat.number }} -->
+    </button>
+  </div>
+</div>
+
+<br>  
+ <div *ngIf="selectedSeat" class="selection-info">
+      Selected Seat: {{ selectedSeat.number }}
+    </div>
 
           <div class="extras-options">
             <p>Extra:</p>
@@ -81,7 +83,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        L’acquisto è stato completato con successo.
+        L'acquisto è stato completato con successo.
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" (click)="successRedirect()">Chiudi</button>
@@ -99,7 +101,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        L’operazione non è riuscita. Riprova più tardi.
+        L'operazione non è riuscita. Riprova più tardi.
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
@@ -107,37 +109,6 @@
     </div>
   </div>
 </div>
-
-      <!-- FINE DATI PASSEGGERI / INIZIO DATI BIGLIETTO-->
-
-      <!-- Select classi -->
-      <select [(ngModel)]="selectedClass" name="classSelect" (ngModelChange)="onClassChange()">
-        <option value="" disabled selected>Seleziona classe</option>
-        <option *ngFor="let cls of classes" [value]="cls.name">{{ cls.name }}</option>
-      </select>
-
-      <div class="seat-map">
-  <div *ngFor="let seat of seats" class="row">
-    <button
-      class="seat"
-      [class.selected]="selectedSeat && selectedSeat.id === seat.id"
-      [class.unavailable]="seat.state !== 'AVAILABLE'"
-      (click)="selectSeat(seat)">
-      <!-- {{ seat.number }} -->
-    </button>
-  </div>
-</div>
-
-    <div *ngIf="selectedSeat" class="selection-info">
-      Selected Seat: {{ selectedSeat.number }}
-    </div>
-
-      <!-- Select extras -->
-      <label for="extraSelect">Extra:</label>
-      <select id="extraSelect" [(ngModel)]="selectedExtra" name="extraSelect">
-        <option value="" disabled selected>Seleziona extra</option>
-        <option *ngFor="let extra of extras" [value]="extra.name">{{ extra.name }}</option>
-      </select>
 
     </div>
   </main>

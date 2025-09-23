@@ -257,18 +257,18 @@ def get_extras():
         return jsonify({"message": "Internal error retrieving extras"}), 500
     
 #extras per visualizzarli nei biglietti
-@airlines_bp.route('/airline/extra', methods=['GET'])
-def get_extras_t():  
-    try:
-        airline_id = get_jwt_identity()
-        extras = Extra.query.filter_by(airline_id=airline_id, active=True).all()
-        return jsonify({
-            "message": "Extras retrieved successfully",
-            "extras": extras_schema.dump(extras)
-        }), 200
-    except Exception as e:
-        print(e)
-        return jsonify({"message": "Internal error retrieving extras"}), 500
+# @airlines_bp.route('/airline/extra', methods=['GET'])
+# def get_extras_t():  
+#     try:
+#         airline_id = get_jwt_identity()
+#         extras = Extra.query.filter_by(airline_id=airline_id, active=True).all()
+#         return jsonify({
+#             "message": "Extras retrieved successfully",
+#             "extras": extras_schema.dump(extras)
+#         }), 200
+#     except Exception as e:
+#         print(e)
+#         return jsonify({"message": "Internal error retrieving extras"}), 500
     
 #extras per visualizzarli nei biglietti
 @airlines_bp.route('/airline/extra', methods=['GET'])
@@ -309,9 +309,8 @@ def delete_extra(extra_id):
     except Exception as e:
         db.session.rollback()
         print(e)
-        return jsonify({"message": "Internal error deleting extra"}), 500
         return jsonify({
-                "message": "Internal error retrieving extras"
+                "message": "Internal error deleting extras"
             }), 500
     
 

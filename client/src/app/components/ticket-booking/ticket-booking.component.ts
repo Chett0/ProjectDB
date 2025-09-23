@@ -53,6 +53,13 @@ export class TicketBookingComponent {
   flight: any;
   passenger: PassengerInfo | null = null;
 
+  ticketColors: Record<string, string> = {
+    'Economy': 'lightblue',
+    'Business': 'gold',
+    'First Class': 'purple',
+    'Premium': 'red'
+  };
+
 
   constructor(
     private route: ActivatedRoute,
@@ -141,8 +148,6 @@ export class TicketBookingComponent {
       this.selectedSeat = seat;
     else
       this.selectedSeat = null;
-
-    console.log(this.selectedSeat)
   }
 
 
@@ -183,7 +188,7 @@ export class TicketBookingComponent {
   buyTicket() {
     const token = localStorage.getItem('access_token') || '';
 
-    this.ticketService.buyTicket(Number(this.flightId), this.final_cost!, this.selectedSeat, this.selectedExtras, token)
+    this.ticketService.buyTicket(Number(this.flightId), this.final_cost!, this.selectedSeat!.number, this.selectedExtras, token)
       .subscribe({
         next: () => this.showModal('successModal'),
         error: (err) => {

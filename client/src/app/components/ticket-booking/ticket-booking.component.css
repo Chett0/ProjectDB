@@ -53,8 +53,10 @@ html, body {
 }
 
 .seat.selected {
-  outline: 3px solid yellow; 
-  background-color: greenyellow;
+  outline: 3px solid black !important; 
+  background-color: green !important;
+}
+
 .container {
   display: flex;
   justify-content: center;
@@ -66,7 +68,7 @@ html, body {
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.15);
   padding: 20px;
-  width: 400px;
+  width: 40%;
   font-family: 'Arial', sans-serif;
 }
 

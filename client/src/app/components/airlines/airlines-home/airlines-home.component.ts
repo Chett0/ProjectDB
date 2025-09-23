@@ -80,6 +80,8 @@ export class AirlinesHomeComponent implements OnInit{
   onLogout() {
     const confirmed = confirm('Sei sicuro di voler effettuare il logout?');
     if (!confirmed) return;
+    this.routesService.clearCache();
+    this.aircraftsService.clearCache();
     this.authService.logout();
     this.router.navigate(['/login']);
   }
