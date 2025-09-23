@@ -91,11 +91,11 @@ def get_aircraft_by_id(aircraft_id):
         
         if not aircraft.active:
             return jsonify({
-                    "message": "Aircraft deleted"
+                    "message": "Aircraft is not active"
                 }), 410
 
         return jsonify({
-                "message":"Aircraft deleted successfully", 
+                "message":"Aircraft retrieved successfully", 
                 "aircraft": aircraft_schema.dump(aircraft)
             }), 200
     

@@ -10,6 +10,7 @@ import { ClassesService } from '../../services/classes/classes.service';
 import { ExtrasService } from '../../services/airlines/extras.service';
 import { SeatsService } from '../../services/seats/seats.service';
 import { FormsModule } from '@angular/forms';
+import { Seat } from '../../../types/flights/flights';
 
 export interface PassengerInfo {
   id: number;
@@ -28,12 +29,11 @@ export class TicketBookingComponent {
   aircraftId: string | null = null;
   airlineId: string | null = null;
 
-  seats: any[] = [];
+  seats: Seat[] = [];
   classes: any[] = [];
   extras: any[] = [];
 
-  // variabili per ngModel
-  selectedSeat: string = '';
+  selectedSeat: Seat | null = null;
   selectedClass: string = '';
   selectedExtra: string = '';
 
@@ -59,6 +59,7 @@ export class TicketBookingComponent {
 
   ngOnInit(): void {
     //carica informazioni volo
+    this.selectedSeat = null;
     this.flightId = this.route.snapshot.paramMap.get('id')!;
     if (this.flightId) {
       this.searchFlightService.searchFlight(this.flightId).subscribe({
@@ -84,11 +85,20 @@ export class TicketBookingComponent {
         next: (res: any) => {
           this.classes = res.aircraft;
         },
-        error: (err) => console.error('Errore caricamento classi:', err)
-      })
+        error: (err) => {
+          console.error('Errore caricamento classi:', err);
+      }})
     }
 
-    this.seatService.get_free_seats(this.flightId!).subscribe({
+    // this.seatService.get_free_seats(this.flightId!).subscribe({
+    //   next: (res) => {
+    //     this.seats = res;
+    //   },
+    //   error: (err) => console.error('Errore caricamente seats', err)
+    // })
+
+
+    this.seatService.get_seats(this.flightId!).subscribe({
       next: (res) => {
         this.seats = res;
       },
@@ -116,7 +126,17 @@ export class TicketBookingComponent {
   }
 
   onClassChange() {
-    this.selectedSeat = '';
+    this.selectedSeat = null;
+  }
+
+
+  selectSeat(seat: Seat) {
+    if (seat.state !== "Available") return;
+
+    if(!this.selectedSeat || this.selectedSeat.id !== seat.id)
+      this.selectedSeat = seat;
+    else
+      this.selectedSeat = null;
   }
 
 }

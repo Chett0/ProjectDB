@@ -1,35 +1,57 @@
+-- Update aircrafts if and only if they don't have any flights registered in the future
+
 CREATE OR REPLACE FUNCTION check_aircraft_delete()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF TG_OP = 'UPDATE' THEN
-        INSERT INTO audit_log(table_name, operation, old_data, new_data)
-        VALUES (TG_TABLE_NAME, TG_OP, row_to_json(OLD), row_to_json(NEW));
-    ELSIF TG_OP = 'DELETE' THEN
-        INSERT INTO audit_log(table_name, operation, old_data)
-        VALUES (TG_TABLE_NAME, TG_OP, row_to_json(OLD));
+    IF NEW.active = FALSE AND OLD.active = TRUE THEN
+        IF EXISTS (SELECT 1 FROM flights f WHERE f.aircraft_id = OLD.id AND f.arrival_time >= NOW()) THEN
+            RAISE EXCEPTION 'Aircraft cannot be modified';
+        END IF;
+        NEW.deletion_time = NOW()
     END IF;
+
+    IF NEW.active = TRUE AND OLD.active = FALSE THEN 
+        NEW.deletion_time = NULL
+    END IF;
+    
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE TRIGGER aircraft_trg
-AFTER DELETE ON aircrafts
+BEFORE UPDATE ON aircrafts
 FOR EACH ROW
 EXECUTE FUNCTION check_aircraft_delete()
 
 
 
 
+-- Update airline route if and only if they don't have any flights registered in the future
 
-CREATE OR REPLACE FUNCTION update_timestamp()
+CREATE OR REPLACE FUNCTION check_airline_route_delete()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.updated_at = NOW();
+    IF NEW.active = FALSE AND OLD.active = TRUE THEN
+        IF EXISTS (SELECT 1 FROM flights f WHERE f.route = OLD.route_id AND f.arrival_time >= NOW()) THEN
+            RAISE EXCEPTION 'Airline route cannot be modified';
+        END IF;
+        NEW.deletion_time = NOW()
+    END IF;
+
+    IF NEW.active = TRUE AND OLD.active = FALSE THEN 
+        NEW.deletion_time = NULL
+    END IF;
+
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER set_updated_at
-BEFORE UPDATE ON Aircrafts
+CREATE OR REPLACE TRIGGER airline_route_trg
+BEFORE UPDATE ON airlineRoute
 FOR EACH ROW
-EXECUTE FUNCTION update_timestamp();
+EXECUTE FUNCTION check_airline_route_delete()
+
+
+
+
+

@@ -409,3 +409,19 @@ def get_free_seats():
     except Exception as e:
         print(f"Error fetching free seats for flight {flight_id}: {e}")
         return []
+    
+
+@flights_bp.route('/flights/<int:flight_id>/free_seats', methods=['GET'])
+def get_seats(flight_id):
+    try:
+        seats = get_seats_flight(flight_id=flight_id)
+        return jsonify({
+                "message":"Seats retrieved successfully", 
+                "seats": 
+                seats_schema.dump(seats)
+            }), 200
+    except Exception as e:
+        print(f"Error fetching seats for flight {flight_id}: {e}")
+        return jsonify({
+                "message":"Internal error retrieving seats", 
+            }), 500

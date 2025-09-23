@@ -17,4 +17,9 @@ export class SeatsService {
       params: { flight_id : flightId }
     });
   }
+
+
+  get_seats(flightId: string): Observable<any> {
+    return this.http.get<any>(`${enviroment.apiUrl}/flights/${flightId}/free_seats`);
+  }
 }

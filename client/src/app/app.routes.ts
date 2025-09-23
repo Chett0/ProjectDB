@@ -7,6 +7,7 @@ import { AircraftsComponent } from './components/airlines/aircrafts/aircrafts.co
 import { RoutesComponent } from './components/airlines/routes/routes.component';
 import { AdminHomeComponent } from './components/admin/admin-home/admin-home.component';
 import { TicketBookingComponent } from './components/ticket-booking/ticket-booking.component';
+import { adminGuard, authGuard } from './guards/auth.guard';
 
 
 export const routes: Routes = [
@@ -24,7 +25,8 @@ export const routes: Routes = [
     },
     {
         path: 'admin',
-        component: AdminHomeComponent
+        component: AdminHomeComponent,
+        canActivate: [adminGuard]
     },
     {
         path: 'airlines',
@@ -36,7 +38,8 @@ export const routes: Routes = [
         ]
     },{
         path: 'flights/:id/buy-ticket',
-        component: TicketBookingComponent
+        component: TicketBookingComponent,
+        canActivate: [authGuard]
     }
     // {
     //     path: '**','

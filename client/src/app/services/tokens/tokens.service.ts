@@ -4,6 +4,7 @@ import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
 import { AuthResp } from '../auth/auth.service';
 import { enviroment } from '../../enviroments/enviroments';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,7 @@ export class TokensService {
   
   private accessToken : BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
   private refreshTimeout: any;
+  private jwtHelper = new JwtHelperService();
 
   constructor(private http : HttpClient) { }
 
@@ -22,6 +24,13 @@ export class TokensService {
 
   getAccessToken(): string | null {
     return localStorage.getItem('access_token');
+  }
+
+  getUserRole(): string | null {
+    const token = this.getAccessToken();
+    if (!token) return null;
+    const decoded = this.jwtHelper.decodeToken(token);
+    return decoded?.role || null;
   }
 
   clearTokens() : void {
