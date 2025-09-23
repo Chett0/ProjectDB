@@ -33,6 +33,11 @@
       </form>
 
       <!-- Lista voli trovati -->
+
+      <label>
+    <input type="checkbox" [(ngModel)]="layovers"> Layovers
+  </label>
+
       <div *ngIf="flights && flights.length > 0" class="flights-list">
         <h3>Voli trovati:</h3>
         <div *ngFor="let flight of flights" class="flight-card">

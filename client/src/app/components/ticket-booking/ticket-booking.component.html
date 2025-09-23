@@ -48,23 +48,14 @@
         <option *ngFor="let cls of classes" [value]="cls.name">{{ cls.name }}</option>
       </select>
 
-      <!-- Select dei posti -->
-      <!-- <select [(ngModel)]="selectedSeat" name="seatSelect" [disabled]="!selectedClass">
-        <option value="" disabled selected>Seleziona posto</option>
-        <option *ngFor="let seat of filteredSeats" [value]="seat.number">
-          {{ seat.number }}
-        </option>
-      </select> -->
-
       <div class="seat-map">
-  <div *ngFor="let row of seatRows" class="row">
+  <div *ngFor="let seat of seats" class="row">
     <button
-      *ngFor="let seat of row"
       class="seat"
       [class.selected]="selectedSeat && selectedSeat.id === seat.id"
       [class.unavailable]="seat.state !== 'AVAILABLE'"
       (click)="selectSeat(seat)">
-      {{ seat.number }}
+      <!-- {{ seat.number }} -->
     </button>
   </div>
 </div>

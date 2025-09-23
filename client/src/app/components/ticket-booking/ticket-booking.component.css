@@ -28,39 +28,32 @@ html, body {
 
 
 .seat-map {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin: 20px;
-}
-
-.row {
-  display: flex;
-  gap: 5px;
+  display: grid;
+  grid-template-columns: repeat(2, 10px) 30px repeat(3, 10px);
+  gap: 12px;
+  justify-content: center;
 }
 
 .seat {
-  width: 40px;
-  height: 40px;
-  border: 1px solid #888;
-  border-radius: 5px;
-  background-color: #f0f0f0;
+  width: 15px;
+  height: 15px;
+  border-radius: 100%;        /* forma circolare */
+  border: none;
   cursor: pointer;
-  font-weight: bold;
-}
-
-.seat.selected {
-  background-color: #4caf50;
+  background-color: steelblue;    /* default: disponibile */
   color: white;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 5px;
+  padding: 5px;
 }
 
 .seat.unavailable {
-  background-color: #ccc;
+  background-color: gray;    /* se non disponibile */
   cursor: not-allowed;
 }
 
-.selection-info {
-  margin-top: 10px;
-  font-size: 16px;
-  font-weight: bold;
+.seat.selected {
+  outline: 3px solid yellow; 
+  background-color: greenyellow;
 }
