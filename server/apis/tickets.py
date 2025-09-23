@@ -30,6 +30,7 @@ def create_ticket():
 
         flight = db.session.get(Flight, flight_id)
         if not flight:
+            print("Flight not found")
             return jsonify({"message": "Flight not found"}), 404
 
         try:
@@ -41,9 +42,11 @@ def create_ticket():
             
         seat = Seat.query.filter_by(number=seat_number, flight_id=flight_id).first()
         if not seat:
+            print("Seat not found")
             return jsonify({"message": "Seat not found"}), 404
         
         if seat.state != SeatState.AVAILABLE:
+            print("Seat not available")
             return jsonify({"message": "Seat not available"}), 404
 
         new_ticket = Ticket(

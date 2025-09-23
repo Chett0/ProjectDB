@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { PassengerService } from '../../services/passenger/passenger.service';
 
 @Component({
   selector: 'app-header',
@@ -13,14 +14,22 @@ import { CommonModule } from '@angular/common';
 export class HeaderComponent {
 
   isLogged: Observable<boolean> | null = null;
+  passengerName: string | null = null;
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private passengerService: PassengerService
   ) {}
   
   ngOnInit(): void {
     this.isLogged = this.authService.isLoggedIn;
+    this.passengerService.getPassengerInfo().subscribe({
+      next: (data: any) => {
+          this.passengerName = data.passenger.name
+      },
+      error: (err) => console.error(err)
+    })
   }
 
   onLogout() {

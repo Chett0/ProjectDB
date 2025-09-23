@@ -1,84 +1,123 @@
 <div class="page">
-  <!-- Header -->
   <app-header></app-header>
 
-  <!-- Body -->
   <main class="body">
     <div class="container">
-      <div *ngIf="flight; else loading">
-        <h3>Flight Details</h3>
-        <p>
-          <strong>From:</strong> {{ flight.route.departure_airport.city }} ({{ flight.route.departure_airport.code }})
-        </p>
+      <div class="ticket-card" *ngIf="flight; else loading">
+        <!-- Parte header -->
+        <div class="ticket-header">
+          <h3>Dettagli Volo</h3>
+          <p>{{ flight.route.departure_airport.city }} ({{ flight.route.departure_airport.code }}) →
+            {{ flight.route.arrival_airport.city }} ({{ flight.route.arrival_airport.code }})</p>
+        </div>
 
-        <p>
-          <strong>To:</strong> {{ flight.route.arrival_airport.city }} ({{ flight.route.arrival_airport.code }})
-        </p>
+        <!-- informazioni del volo -->
+        <div class="flight-info">
+          <div>
+            <strong>Partenza:</strong>
+            <span>{{ flight.departure_time }}</span>
+          </div>
+          <div>
+            <strong>Arrivo:</strong>
+            <span>{{ flight.arrival_time }}</span>
+          </div>
+        </div>
 
-        <p>
-          <strong>Departure:</strong> {{ flight.departure_time}}
-        </p>
+        <!-- infromazioni del passeggero -->
+        <div class="passenger-info" *ngIf="passenger; else loadingPassenger">
+          <p><strong>Nome:</strong> {{ passenger.name }} {{ passenger.surname }}</p>
+        </div>
+        <ng-template #loadingPassenger>
+          <p>Caricamento informazioni passeggero...</p>
+        </ng-template>
 
-        <p>
-          <strong>Arrival:</strong> {{ flight.arrival_time}}
-        </p>
+        <!-- opzioni per i biglietti -->
+        <div class="ticket-options">
+          <label>
+            Classe:
+            <select [(ngModel)]="selectedClass" name="classSelect" (ngModelChange)="onClassChange()">
+              <option value="" disabled selected>Seleziona classe</option>
+              <option *ngFor="let cls of classes" [value]="cls.name">{{ cls.name }}</option>
+            </select>
+          </label>
+
+          <label>
+            Posto:
+            <select [(ngModel)]="selectedSeat" name="seatSelect" [disabled]="!selectedClass">
+              <option value="" disabled selected>Seleziona posto</option>
+              <option *ngFor="let seat of filteredSeats" [value]="seat.number">
+                {{ seat.number }}
+              </option>
+            </select>
+          </label>
+
+          <div class="extras-options">
+            <p>Extra:</p>
+            <label *ngFor="let extra of extras" class="extra-item">
+              <input type="checkbox" [value]="extra.id" (change)="onExtraChange($event)"
+                [checked]="selectedExtras.includes(extra.id)" />
+              {{ extra.name }} (+{{ extra.price }}€)
+            </label>
+          </div>
+        </div>
+
+        <div class="ticket-cost">
+          <strong>Costo totale:</strong> {{ calculateTotal() | currency:'EUR':'symbol' }}
+        </div>
+        <button class="buy-btn" (click)="buyTicket()">Compra Biglietto</button>
       </div>
 
       <ng-template #loading>
         <p>Caricamento volo...</p>
       </ng-template>
 
-      <!-- FINE DATI VOLO / INIZIO PASSEGGERI-->
-
-      <div *ngIf="passenger">
-        <p>Id: {{ passenger.id }}</p>
-        <p>Nome: {{ passenger.name }}</p>
-        <p>Cognome: {{ passenger.surname }}</p>
+  
+<!-- Modale Successo -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Biglietto acquistato!</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-
-      <div *ngIf="!passenger">
-        <p>Caricamento informazioni passeggero...</p>
+      <div class="modal-body">
+        L’acquisto è stato completato con successo.
       </div>
-
-      <!-- FINE DATI PASSEGGERI / INIZIO DATI BIGLIETTO-->
-
-      <!-- Select classi -->
-      <select [(ngModel)]="selectedClass" name="classSelect" (ngModelChange)="onClassChange()">
-        <option value="" disabled selected>Seleziona classe</option>
-        <option *ngFor="let cls of classes" [value]="cls.name">{{ cls.name }}</option>
-      </select>
-
-      <!-- Select dei posti -->
-      <select [(ngModel)]="selectedSeat" name="seatSelect" [disabled]="!selectedClass">
-        <option value="" disabled selected>Seleziona posto</option>
-        <option *ngFor="let seat of filteredSeats" [value]="seat.number">
-          {{ seat.number }}
-        </option>
-      </select>
-
-      <!-- Select extras -->
-      <div class="extras-options">
-        <label *ngFor="let extra of extras" class="extra-item">
-          <input type="checkbox" [value]="extra.id" (change)="onExtraChange($event)"
-            [checked]="selectedExtras.includes(extra.id)" />
-          {{ extra.name }} (+{{ extra.price }}€)
-        </label>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="successRedirect()">Chiudi</button>
       </div>
+    </div>
+  </div>
+</div>
 
-
-
-      <div class="ticket-cost">
-        <strong>Costo totale:</strong> {{ calculateTotal() | currency:'EUR':'symbol' }}
+<!-- Modale Errore -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Errore</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+      <div class="modal-body">
+        L’operazione non è riuscita. Riprova più tardi.
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
-        <button (click)="buyTicket()">Compra Biglietto</button>
+
+
 
     </div>
   </main>
 
-  <!-- Footer -->
+
+
   <footer class="footer">
-    <p>© 2025 MyFlights. Tutti i diritti riservati.</p>
+    <p>© 2025 ProjectDB. Tutti i diritti riservati.</p>
   </footer>
 </div>
