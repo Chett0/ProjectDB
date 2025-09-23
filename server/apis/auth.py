@@ -179,8 +179,8 @@ def login():
         if user.must_change_password:
             return jsonify(
                 message="Password has to be changed",
-                access_token=access_token, 
-                refresh_token=refresh_token,
+                # access_token=access_token, 
+                # refresh_token=refresh_token,
                 role=user.role.value
             ), 303
 
@@ -217,20 +217,34 @@ def refresh():
 
 
 @auth_bp.route("/password", methods=["PUT"])
-@roles_required([UserRole.AIRLINE.value])
+# @roles_required([UserRole.AIRLINE.value])
 def change_password():
     try:
-        airline_id = get_jwt_identity()
         data = request.get_json()
 
-        new_password = data["password"]
+        email = data["email"]
+        old_password = data["old_password"]
+        new_password = data["new_password"]
 
-        if not new_password:
+        if not new_password or not old_password or not email:
             return jsonify({
-                "message": "Missing required password"
+                "message": "Missing required fields"
             }), 400
 
-        user = User.query.filter_by(id=airline_id).first()
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            return jsonify({
+                "message": "User not found"
+            }), 404
+
+        check = bcrypt.check_password_hash(user.password, old_password)
+
+        if not check:
+            return jsonify({
+                    "message": "Wrong password"
+                }), 409
+
         hashed_password = bcrypt.generate_password_hash(password=new_password).decode('utf-8')
         
         user.password = hashed_password

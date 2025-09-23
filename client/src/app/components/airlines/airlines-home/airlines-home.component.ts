@@ -8,11 +8,13 @@ import { AircraftsService } from '../../../services/airlines/aircrafts.service';
 import { RoutesService } from '../../../services/airlines/routes.service';
 import { AircraftsComponent } from '../aircrafts/aircrafts.component';
 import { RoutesComponent } from '../routes/routes.component';
+import { FlightsComponent } from '../flights/flights.component';
+import { ExtraComponent } from '../extra/extra.component';
 
 
 @Component({
   selector: 'app-airlines-home',
-  imports: [CommonModule, AircraftsComponent, RoutesComponent],
+  imports: [CommonModule, AircraftsComponent, RoutesComponent, FlightsComponent, ExtraComponent],
   templateUrl: './airlines-home.component.html',
   styleUrl: './airlines-home.component.css'
 })

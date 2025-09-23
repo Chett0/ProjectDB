@@ -60,31 +60,27 @@ export class AdminHomeComponent implements OnInit {
   addAirline() {
     this.feedbackMsg = '';
     this.feedbackType = '';
-    if (!this.airlineName || !this.airlineCode || !this.airlineEmail || !this.airlinePassword || !this.airlineConfirmPassword) {
+    if (!this.airlineName || !this.airlineCode || !this.airlineEmail) {
       this.feedbackMsg = 'Compila tutti i campi.';
-      this.feedbackType = 'error';
-      return;
-    }
-    if (this.airlinePassword !== this.airlineConfirmPassword) {
-      this.feedbackMsg = 'Le password non coincidono.';
       this.feedbackType = 'error';
       return;
     }
     const airline = {
       email: this.airlineEmail,
-      password: this.airlinePassword,
       name: this.airlineName,
       code: this.airlineCode
     };
     this.authService.registerAirline(airline).subscribe({
-      next: () => {
-        this.feedbackMsg = 'Compagnia aggiunta!';
+      next: (res: any) => {
+        let passwordMsg = '';
+        if (res && res.Password) {
+          passwordMsg = `\nPassword temporanea: ${res.Password}`;
+        }
+        this.feedbackMsg = 'Compagnia aggiunta!' + passwordMsg;
         this.feedbackType = 'success';
         this.airlineName = '';
         this.airlineCode = '';
         this.airlineEmail = '';
-        this.airlinePassword = '';
-        this.airlineConfirmPassword = '';
         this.loadAirlines();
       },
       error: (err) => {

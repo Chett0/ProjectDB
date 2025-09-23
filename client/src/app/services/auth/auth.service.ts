@@ -1,3 +1,4 @@
+ 
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { User } from '../../../types/users/auth';
@@ -48,7 +49,7 @@ export class AuthService {
     return this.http.post<void>(`${enviroment.apiUrl}/passengers/register`, passenger);
   }
 
-  registerAirline(airline: { email: string; password: string; name: string; code: string }) {
+  registerAirline(airline: { email: string; name: string; code: string }) {
     return this.http.post<void>(`${enviroment.apiUrl}/airlines/register`, airline);
   }
 
@@ -56,8 +57,7 @@ export class AuthService {
     return this.token.getAccessToken();
   }
 
-  //verifica se l'utente è loggato o meno
-  /*isLoggedIn(): boolean {
-    return !!localStorage.getItem('access_token');
-  }*/
+  changePassword(data: { email: string; old_password: string; new_password: string }) {
+    return this.http.put<void>(`${this.apiUrl}/password`, data);
+  }
 }
