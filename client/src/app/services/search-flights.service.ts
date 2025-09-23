@@ -27,9 +27,7 @@ export class SearchFlightsService {
   }
 
   searchFlight(id: string): Observable<any> {
-    let params = new HttpParams()
-      .set('id', id);
-
-    return this.http.get<any[]>(`${this.apiUrl}/flight`, { params });
+    const parsedId : number = parseInt(id); 
+    return this.http.get<any[]>(`${this.apiUrl}/flights/${parsedId}`);
   }
 }

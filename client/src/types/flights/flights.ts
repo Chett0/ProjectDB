@@ -12,7 +12,7 @@ interface AircraftClassSeat {
 
 interface Seat {
     id: number,
-    seat_number: string,
+    number: string,
     state: string,
     price: number,
     flight: FlightSeat,

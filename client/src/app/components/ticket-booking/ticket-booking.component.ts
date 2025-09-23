@@ -29,6 +29,7 @@ export class TicketBookingComponent {
   aircraftId: string | null = null;
   airlineId: string | null = null;
 
+  seatRows : Seat[][] = [];
   seats: Seat[] = [];
   classes: any[] = [];
   extras: any[] = [];
@@ -100,7 +101,10 @@ export class TicketBookingComponent {
 
     this.seatService.get_seats(this.flightId!).subscribe({
       next: (res) => {
-        this.seats = res;
+        this.seats = res.seats;
+        
+        this.chunckSeats(6);
+        console.log(this.seatRows)
       },
       error: (err) => console.error('Errore caricamente seats', err)
     })
@@ -131,12 +135,22 @@ export class TicketBookingComponent {
 
 
   selectSeat(seat: Seat) {
-    if (seat.state !== "Available") return;
+    if (seat.state !== "AVAILABLE") return;
 
     if(!this.selectedSeat || this.selectedSeat.id !== seat.id)
       this.selectedSeat = seat;
     else
       this.selectedSeat = null;
+
+    console.log(this.selectedSeat)
+  }
+
+  chunckSeats(size: number){
+    let i = 0;
+    while(i < this.seats.length){
+      this.seatRows.push(this.seats.slice(i, i + size));
+      i += size;
+    }
   }
 
 }

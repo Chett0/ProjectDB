@@ -20,6 +20,6 @@ export class SeatsService {
 
 
   get_seats(flightId: string): Observable<any> {
-    return this.http.get<any>(`${enviroment.apiUrl}/flights/${flightId}/free_seats`);
+    return this.http.get<any>(`${enviroment.apiUrl}/flights/${flightId}/seats`);
   }
 }
