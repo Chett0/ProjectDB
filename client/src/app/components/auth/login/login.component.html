@@ -17,11 +17,26 @@
         <input id="password" type="password" class="form-control" placeholder="La tua password" formControlName="password" required>
       </div>
 
-      <div *ngIf="loginError" class="login-error">{{ loginError }}</div>
-      <div class="login-actions">
+  <div *ngIf="loginError" [ngClass]="{'login-error': loginMsgType==='error', 'login-success': loginMsgType==='success'}">{{ loginError }}</div>
+
+      <div *ngIf="showChangePassword" class="change-password-section">
+        <div class="form-group">
+          <label for="newPassword">Nuova Password</label>
+          <input id="newPassword" type="password" class="form-control" placeholder="Nuova password" [(ngModel)]="newPassword" [ngModelOptions]="{standalone: true}">
+        </div>
+        <div class="form-group">
+          <label for="confirmNewPassword">Conferma Nuova Password</label>
+          <input id="confirmNewPassword" type="password" class="form-control" placeholder="Conferma nuova password" [(ngModel)]="confirmNewPassword" [ngModelOptions]="{standalone: true}">
+        </div>
+        <div class="login-actions">
+          <button type="button" class="btn btn-primary full" (click)="changePassword()">Cambia Password</button>
+        </div>
+      </div>
+
+      <div class="login-actions" *ngIf="!showChangePassword">
         <button type="button" class="btn btn-primary full" (click)="login()">Accedi</button>
       </div>
-      <div class="login-hint">
+      <div class="login-hint" *ngIf="!showChangePassword">
         <span>Non hai un account? <a (click)="navigateToRegister()">Registrati ora</a></span>
       </div>
     </form>

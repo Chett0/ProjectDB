@@ -1,0 +1,21 @@
+<div class="flights-page">
+	<div class="flights-header-row">
+		<span class="flights-header-title">Gestione Voli</span>
+		<div class="flights-search-box">
+			<input type="text" [formControl]="searchControl" placeholder="Cerca..." class="flights-search-input" />
+		</div>
+		<button class="add-flight-btn" (click)="showAddModal = true">+ Aggiungi Volo</button>
+	</div>
+
+	<!-- Modale aggiunta volo -->
+	<div *ngIf="showAddModal" class="flights-modal-backdrop">
+		<div class="flights-modal">
+			<button class="flights-modal-close" (click)="showAddModal = false" aria-label="Chiudi">&times;</button>
+			<form [formGroup]="addFlightForm" (ngSubmit)="addFlight()" class="flights-add-form" autocomplete="off">
+				<h3>Aggiungi nuovo volo</h3>
+				<!-- Campi form da aggiungere in futuro -->
+				<button type="submit" [disabled]="submitting">{{ submitting ? 'Aggiungo...' : 'Aggiungi volo' }}</button>
+			</form>
+		</div>
+	</div>
+</div>

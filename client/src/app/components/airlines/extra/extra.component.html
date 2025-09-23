@@ -1,0 +1,57 @@
+<div class="extra-page">
+	<div class="extra-header-row">
+		<span class="extra-header-title">Gestione Extra</span>
+		<div class="extra-search-box">
+			<input type="text" [formControl]="searchControl" placeholder="Cerca..." class="extra-search-input" />
+		</div>
+		<button class="add-extra-btn" (click)="showAddModal = true">
+			<svg class="extra-add-icon" width="20" height="20" fill="none" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:6px;">
+				<line x1="8" y1="12" x2="16" y2="12" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+				<line x1="12" y1="8" x2="12" y2="16" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+			</svg>
+			Aggiungi Extra
+		</button>
+	</div>
+
+	<!-- Modale aggiunta extra -->
+	<div *ngIf="showAddModal" class="extra-modal-backdrop">
+		<div class="extra-modal">
+			<button class="extra-modal-close" (click)="showAddModal = false" aria-label="Chiudi">&times;</button>
+			<form [formGroup]="addExtraForm" (ngSubmit)="addExtra()" class="extra-add-form" autocomplete="off">
+				<h3>Aggiungi nuovo extra</h3>
+				<div class="extra-form-fields">
+					<input type="text" formControlName="name" maxlength="50" placeholder="Nome extra" />
+					<input type="number" formControlName="price" min="0" step="0.01" placeholder="Prezzo (€)" />
+				</div>
+				<div class="extra-validation">
+					<div *ngIf="addExtraForm.get('name')?.touched && addExtraForm.get('name')?.invalid">Nome richiesto.</div>
+					<div *ngIf="addExtraForm.get('price')?.touched && addExtraForm.get('price')?.invalid">Prezzo valido richiesto.</div>
+				</div>
+				<button type="submit" [disabled]="submitting">{{ submitting ? 'Aggiungo...' : 'Aggiungi extra' }}</button>
+			</form>
+		</div>
+	</div>
+
+	<!-- Lista Extra -->
+	<section class="extras-list-section">
+		<div *ngIf="loading" class="extras-loading">Caricamento...</div>
+			<div *ngIf="!loading && filteredExtras.length">
+				<div class="extras-list">
+					<div class="extra-card" *ngFor="let e of filteredExtras">
+					<div class="extra-card-icon">
+						<svg width="32" height="32" fill="none" viewBox="0 0 24 24">
+							<circle cx="12" cy="12" r="11" fill="#fff"/>
+							<path d="M8 12h8M12 8v8" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/>
+						</svg>
+					</div>
+					<div class="extra-card-info">
+						<div class="extra-card-title">{{ e.name }}</div>
+						<div class="extra-card-price">€ {{ e.price | number:'1.2-2' }}</div>
+					</div>
+					<button type="button" class="btn extra-delete-btn" (click)="deleteExtra(e)">Rimuovi</button>
+				</div>
+			</div>
+		</div>
+	<div *ngIf="!loading && !filteredExtras.length" class="routes-empty">Nessun extra trovato.</div>
+	</section>
+</div>

@@ -98,17 +98,6 @@
 								</div>
 							</div>
 
-							<div class="form-row two-cols">
-								<div>
-									<label>Password</label>
-									<input type="password" [(ngModel)]="airlinePassword" placeholder="Password" />
-								</div>
-								<div>
-									<label>Conferma Password</label>
-									<input type="password" [(ngModel)]="airlineConfirmPassword" placeholder="Conferma Password" />
-								</div>
-							</div>
-
 							<div class="form-actions">
 								<button class="btn" (click)="addAirline()"><span style="margin-right:8px">+</span> Aggiungi Compagnia</button>
                 <div class="feedback" *ngIf="feedbackMsg" [class.error]="feedbackType==='error'" [class.success]="feedbackType==='success'">{{feedbackMsg}}</div>

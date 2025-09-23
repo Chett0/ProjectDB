@@ -43,23 +43,26 @@
     <section class="controls">
       <div class="tabs" [style.position]="'relative'">
         <div class="tabs-indicator" [ngStyle]="{
-          left: (activeTab * 33.33) + '%',
-          width: '33.33%'
+          left: (activeTab * 25) + '%',
+          width: '25%'
         }"></div>
         <button class="tab" [class.active]="activeTab===0" (click)="activeTab=0">Aerei</button>
         <button class="tab" [class.active]="activeTab===1" (click)="activeTab=1">Voli</button>
         <button class="tab" [class.active]="activeTab===2" (click)="activeTab=2">Tratte</button>
+        <button class="tab" [class.active]="activeTab===3" (click)="activeTab=3">Extra</button>
       </div>
     </section>
     <section *ngIf="activeTab===0">
       <app-aircrafts></app-aircrafts>
     </section>
     <section *ngIf="activeTab===1">
-      <h2>Voli</h2>
-      <!-- Qui andra' la gestione voli -->
+      <app-flights></app-flights>
     </section>
     <section *ngIf="activeTab===2">
       <app-routes></app-routes>
+    </section>
+    <section *ngIf="activeTab===3">
+      <app-extra></app-extra>
     </section>
   </main>
 </div>
