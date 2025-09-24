@@ -4,6 +4,7 @@
   <main class="body">
     <div class="container">
 
+      <!-- serve per iterare su tutti i voli presenti in base agli scali-->
       <div *ngFor="let flightId of flightIds">
         <div class="ticket-card" *ngIf="flights[flightId]?.flight; else loading">
 
@@ -48,7 +49,7 @@
                   [class.unavailable]="seat.state !== 'AVAILABLE'"
                   [style.background-color]="ticketColors[seat.aircraft_class.name]"
                   (click)="selectSeat(flightId, seat)">
-                  {{ seat.number }} 
+                  {{ seat.number }}
                 </button>
               </div>
             </div>
@@ -84,11 +85,14 @@
 
 
 
-          <br>
-      <button class="buy-btn" (click)="buyTicket(flightId)">Compra Biglietto</button>
+        <br>
+
       </div>
 
       <!-- è al di fuori di questo div -->
+        <button class="buy-btn" (click)="buyTickets()">
+          Acquista
+        </button>
 
     </div>
   </main>

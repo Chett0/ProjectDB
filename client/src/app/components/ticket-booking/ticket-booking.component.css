@@ -23,9 +23,6 @@ html, body {
   background: linear-gradient(120deg, #e0e7ff 0%, #f8fafc 100%);
 }
 
-
-
-
 .seat-map {
   display: grid;
   grid-template-columns: repeat(2, 10px) 30px repeat(3, 10px);
@@ -92,6 +89,8 @@ html, body {
   font-size: 14px;
 }
 
+
+
 .passenger-info {
   margin-bottom: 15px;
   font-size: 14px;
@@ -142,4 +141,3 @@ html, body {
 .buy-btn:hover {
   background: #1558b0;
 }
-

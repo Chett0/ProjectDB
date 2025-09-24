@@ -12,7 +12,7 @@ from middleware.auth import roles_required
 
 tickets_bp = Blueprint('tickets', __name__)
 
-
+#endpoint per compare un solo biglietto
 @tickets_bp.route('/tickets', methods=['POST'])
 @roles_required([UserRole.PASSENGER.value])
 def create_ticket():
@@ -82,6 +82,90 @@ def create_ticket():
         print(e)
         traceback.print_exc()
         return jsonify({"message": "Error creating ticket"}), 500
+    
+#endpoint poi comprare più biglietti in caso di scalo 
+@tickets_bp.route('/tickets/bulk', methods=['POST'])
+@roles_required([UserRole.PASSENGER.value])
+def buy_n_ticket():
+    try:
+        passenger_id = get_jwt_identity()
+        data = request.get_json() or {}
+
+        tickets_data = data.get("tickets") 
+        if not tickets_data:
+            return jsonify({"message": "You must provide at least 1 tickets"}), 400
+
+        created_tickets = []
+
+        # Avvia una transazione esplicita
+        with db.session.begin_nested():
+            for ticket_info in tickets_data:
+                flight_id = ticket_info.get("flight_id")
+                final_cost = ticket_info.get("final_cost")
+                extras = ticket_info.get("extras", [])
+                seat_number = ticket_info.get("seat_number")
+
+                if not flight_id or not passenger_id or not final_cost:
+                    raise ValueError("flight_id, passenger_id and final_cost are required")
+
+                flight = db.session.get(Flight, flight_id)
+                if not flight:
+                    raise ValueError(f"Flight {flight_id} not found")
+
+                try:
+                    cost = Decimal(str(final_cost))
+                    if cost < 0:
+                        raise InvalidOperation()
+                except (InvalidOperation, ValueError):
+                    raise ValueError("final_cost must be a non-negative number")
+
+                seat = Seat.query.filter_by(number=seat_number, flight_id=flight_id).first()
+                if not seat:
+                    raise ValueError(f"Seat {seat_number} not found for flight {flight_id}")
+
+                if seat.state != SeatState.AVAILABLE:
+                    raise ValueError(f"Seat {seat_number} not available")
+
+                new_ticket = Ticket(
+                    flight_id=flight_id,
+                    passenger_id=passenger_id,
+                    final_cost=cost,
+                    seat_id=seat.id,
+                    state=BookingState.CONFIRMED,
+                    purchase_date=datetime.now()
+                )
+
+                seat.state = SeatState.BOOKED
+
+                db.session.add(new_ticket)
+                db.session.flush()
+
+                for extra_id in extras:
+                    extra_ticket = TicketExtra(
+                        ticket_id=new_ticket.id,
+                        extra_id=extra_id
+                    )
+                    db.session.add(extra_ticket)
+
+                created_tickets.append(new_ticket)
+
+        #se riuesicamo ad arriva qui allora tutti i biglietti saranno validi
+        db.session.commit()
+
+        return jsonify({
+            "message": "tickets created successfully",
+            "tickets": [ticket_schema.dump(t) for t in created_tickets]
+        }), 201
+
+    except ValueError as ve:
+        db.session.rollback()
+        return jsonify({"message": str(ve)}), 400
+    except Exception as e:
+        db.session.rollback()
+        print(e)
+        traceback.print_exc()
+        return jsonify({"message": "Error creating tickets"}), 500
+
     
 """ no need to confirm, directy buying the ticket
 @tickets_bp.route('/tickets/<int:ticket_id>', methods=['POST'])

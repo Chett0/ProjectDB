@@ -186,6 +186,8 @@ export class TicketBookingComponent {
     }
   }
 
+
+/* vecchia funzione che funzionava solo con un ticket
   buyTicket(flightId: string) {
     const flightData = this.flights[flightId];
     this.ticketService.buyTicket(
@@ -194,6 +196,25 @@ export class TicketBookingComponent {
       flightData.selectedSeat!.number,
       flightData.selectedExtras
     ).subscribe({
+      next: () => this.showModal('successModal'),
+      error: () => this.showModal('errorModal')
+    });
+  }
+*/
+
+  buyTickets() {
+    const tickets = this.flightIds.map(fid => {
+      const flightId = Number(fid);
+      const f = this.flights[flightId];
+      return {
+        flightId: flightId,
+        finalCost: this.calculateTotal(fid),
+        seatNumber: f.selectedSeat!.number,
+        extras: f.selectedExtras
+      };
+    });
+
+    this.ticketService.buyTickets(tickets).subscribe({
       next: () => this.showModal('successModal'),
       error: () => this.showModal('errorModal')
     });
