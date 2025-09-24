@@ -48,7 +48,7 @@ html, body {
 }
 
 .seat.unavailable {
-  background-color: gray;    /* se non disponibile */
+  background-color: gray;
   cursor: not-allowed;
 }
 
@@ -59,8 +59,10 @@ html, body {
 
 .container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;  /* mette le card in colonna */
+  align-items: center;     /* centra le card orizzontalmente */
   padding: 20px;
+  gap: 20px;               /* distanza verticale tra le card */
 }
 
 .ticket-card {
@@ -68,7 +70,7 @@ html, body {
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.15);
   padding: 20px;
-  width: 40%;
+  width: 80%;               /* larghezza della card rispetto al container */
   font-family: 'Arial', sans-serif;
 }
 
@@ -140,3 +142,4 @@ html, body {
 .buy-btn:hover {
   background: #1558b0;
 }
+
