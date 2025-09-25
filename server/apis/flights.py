@@ -96,22 +96,22 @@ def get_flights():
 
         #modify here if you want to search using other parameters.
 
-        departure_airport = Airport.query.filter(
+        departure_airports = Airport.query.filter(
             or_(
                 Airport.code.ilike(departure_airport_code),
                 Airport.city.ilike(departure_airport_code)
             )
-        ).first()
-        if not departure_airport:
+        ).all()
+        if len(departure_airports) == 0:
             return jsonify({"message":"Departure airport not found"}), 404
 
-        arrival_airport = Airport.query.filter(
+        arrival_airports = Airport.query.filter(
             or_(
                 Airport.code.ilike(arrival_airport_code),
                 Airport.city.ilike(arrival_airport_code)
             )
-        ).first()
-        if not arrival_airport:
+        ).all()
+        if len(arrival_airports) == 0:
             return jsonify({"message":"Arrival airport not found"}), 404
         
         flights_query = Flight.query 
@@ -123,8 +123,8 @@ def get_flights():
 
         journeys = search_flights(
             flights_query=flights_query,
-            departure_airport=departure_airport,
-            arrival_airport=arrival_airport,
+            departure_airports=departure_airports,
+            arrival_airports=arrival_airports,
             layovers=layovers,
             min_price=min_price,
             max_price=max_price
@@ -294,16 +294,17 @@ def get_occupied_seats_for_flight(flight_id: int):
 
 def get_direct_flights(
         flights_query,
-        route,
+        routes,
         min_price,
         max_price
 ):
 
     flights = []
+    route_ids = [r.id for r in routes]
 
     direct_flights = flights_query.filter(
         and_(
-            Flight.route_id == route.id, 
+            Flight.route_id.in_(route_ids), 
             Flight.base_price.between(min_price, max_price)
         )
     ).all()
@@ -321,8 +322,8 @@ def get_direct_flights(
 
 def get_layovers_flights(
     flights_query,
-    departure_airport,
-    arrival_airport,
+    departure_airports,
+    arrival_airports,
     min_price,
     max_price
 ):
@@ -332,13 +333,16 @@ def get_layovers_flights(
     min_connection_seconds = 2 * 3600
     max_connection_seconds = 12 * 3600
 
+    departure_airports_id = [dep.id for dep in departure_airports]
+    arrival_airports_id = [arr.id for arr in arrival_airports]
+
     departure_routes = Route.query.where(
-        (Route.departure_airport_id == departure_airport.id) &
-        (Route.arrival_airport_id != arrival_airport.id)).all()
+        (Route.departure_airport_id.in_(departure_airports_id)) &
+        (Route.arrival_airport_id.not_in(arrival_airports_id))).all()
 
     arrival_routes = Route.query.where(
-        (Route.arrival_airport_id == arrival_airport.id) &
-        (Route.departure_airport_id != departure_airport.id)).all()
+        (Route.arrival_airport_id.in_(arrival_airports_id)) &
+        (Route.departure_airport_id.not_in(departure_airports_id))).all()
 
     for dep_route in departure_routes:
         for arr_route in arrival_routes:
@@ -373,23 +377,27 @@ def get_layovers_flights(
 
 def search_flights(
         flights_query, 
-        departure_airport,
-        arrival_airport,
+        departure_airports,
+        arrival_airports,
         layovers,
         min_price,
         max_price
     ):
     
-    direct_route = Route.query.filter_by(
-            departure_airport_id=departure_airport.id,
-            arrival_airport_id=arrival_airport.id,
-        ).first()
+    direct_routes = []
+
+    for dep_airport in departure_airports:
+        for arr_airport in arrival_airports:
+            direct_routes.extend(Route.query.filter_by(
+                    departure_airport_id=dep_airport.id,
+                    arrival_airport_id=arr_airport.id,
+                ).all())
 
     journeys = []
-    if direct_route:
+    if len(direct_routes) > 0:
         journeys.extend(get_direct_flights(
             flights_query=flights_query,
-            route=direct_route,
+            routes=direct_routes,
             min_price=min_price,
             max_price=max_price
         ))
@@ -397,8 +405,8 @@ def search_flights(
     if(layovers):
         journeys.extend(get_layovers_flights(
             flights_query=flights_query,
-            departure_airport=departure_airport,
-            arrival_airport=arrival_airport,
+            departure_airports=departure_airports,
+            arrival_airports=arrival_airports,
             min_price=min_price,
             max_price=max_price
         ))
