@@ -11,6 +11,18 @@ import { tap } from 'rxjs/operators';
 export class AirlinesService {
   private extrasCache: any[] | null = null;
   private extrasCacheTimestamp: number | null = null;
+  private flightCache: any[] | null = null;
+  private flightCacheTimestamp: number | null = null;
+
+
+  clearExtrasCache() {
+    this.extrasCache = null;
+    this.extrasCacheTimestamp = null;
+  }
+  clearFlightsCache() {
+    this.flightCache = null;
+    this.flightCacheTimestamp = null;
+  }
   private readonly cacheTTL = 2 * 60 * 1000; // 2 minuti
 
   constructor(private http : HttpClient) { }
@@ -37,6 +49,28 @@ export class AirlinesService {
 
   getPassengersCount() {
     return this.http.get<any>(`${enviroment.apiUrl}/passengers/count`);
+  }
+
+
+  createFlight(payload: { route_id: number; aircraft_id: number; departure_time: string; arrival_time: string; base_price: number }) {
+    this.flightCache = null;
+    this.flightCacheTimestamp = null;
+    return this.http.post<any>(`${enviroment.apiUrl}/flights`, payload);
+  }
+
+
+  getAirlinesFlights() {
+    const now = Date.now();
+    if (this.flightCache && this.flightCacheTimestamp && (now - this.flightCacheTimestamp < this.cacheTTL)) {
+      return of({ message: 'Flights retrieved successfully (cache)', flights: this.flightCache });
+    }
+    return this.http.get<any>(`${enviroment.apiUrl}/airline/flights`).pipe(
+      tap(res => {
+        const list = Array.isArray(res) ? res : (res as any)?.flights ?? [];
+        this.flightCache = list;
+        this.flightCacheTimestamp = Date.now();
+      })
+    );
   }
 
   createExtra(extra: { name: string; price: number }) {

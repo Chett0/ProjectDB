@@ -10,6 +10,9 @@ import { tap } from 'rxjs/operators';
 })
 export class RoutesService {
   private routesCache: any[] | null = null;
+  clearCache() {
+    this.routesCache = null;
+  }
 
   constructor(private http : HttpClient) { }
 

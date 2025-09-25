@@ -1,11 +1,10 @@
 from flask import jsonify, request, Blueprint
 from app.extensions import db
-from models import Flight, Route, Airport, AircraftClass, Seat, SeatState, UserRole
-# from flask_restful import Resource
+from models import Flight, Route, Airport, Aircraft, AircraftClass, Seat, SeatState, UserRole, Aircraft, AirlineRoute
 from schema import flights_schema, flight_schema, journeys_schema, seats_schema
 from datetime import datetime
 from sqlalchemy import func, desc, or_
-
+from flask_jwt_extended import get_jwt_identity
 from middleware.auth import roles_required
 from marshmallow import Schema, fields
 
@@ -184,34 +183,54 @@ def get_flight():
     
 
 
-from flask_jwt_extended import get_jwt_identity
-from middleware.auth import roles_required
 
 @flights_bp.route('/flights/count', methods=['GET'])
 @roles_required([UserRole.AIRLINE.value])
 def get_flights_count():
     try:
         airline_id = get_jwt_identity()
-        # Trova tutti gli aerei di questa compagnia
-        from models import Aircraft
+
         aircraft_ids = [a.id for a in Aircraft.query.filter_by(airline_id=airline_id).all()]
         if not aircraft_ids:
             return jsonify({"message": "Flights count retrieved", "count": 0}), 200
-        # Conta i voli associati a questi aerei
+        
         count = Flight.query.filter(Flight.aircraft_id.in_(aircraft_ids)).count()
         return jsonify({"message": "Flights count retrieved", "count": count}), 200
     except Exception as e:
         print(e)
         return jsonify({"message": "Error retrieving flights count"}), 500
     
-from models import AirlineRoute
-# Endpoint per il conteggio delle tratte distinte della compagnia
+
+@flights_bp.route('/airline/flights', methods=['GET'])
+@roles_required([UserRole.AIRLINE.value])
+def get_airline_flights():
+    try:
+        airline_id = get_jwt_identity()
+        from models import AirlineRoute
+
+        flights = db.session.query(Flight).join(Aircraft, Flight.aircraft_id == Aircraft.id).join(Route, Flight.route_id == Route.id).join(
+            AirlineRoute, (AirlineRoute.route_id == Route.id) & (AirlineRoute.airline_id == airline_id)
+        ).filter(
+            Aircraft.airline_id == airline_id,
+            Aircraft.active == True,
+            AirlineRoute.active == True
+        ).all()
+
+        if not flights:
+            return jsonify({"message": "Flights retrieved successfully", "flights": []}), 200
+
+        return jsonify({"message": "Flights retrieved successfully", "flights": flights_schema.dump(flights)}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Error retrieving airline flights"}), 500
+    
+
+
 @flights_bp.route('/flights/routes-count', methods=['GET'])
 @roles_required([UserRole.AIRLINE.value])
 def get_routes_count():
     try:
         airline_id = get_jwt_identity()
-        # Conta i route_id distinti associati a questa compagnia
         count = AirlineRoute.query.filter_by(airline_id=airline_id, active=True).distinct(AirlineRoute.route_id).count()
         return jsonify({"message": "Routes count retrieved", "count": count}), 200
     except Exception as e:
@@ -229,6 +248,7 @@ def get_flights_count_all():
     except Exception as e:
         print(e)
         return jsonify({"message": "Error retrieving total flights count"}), 500
+    
 
 # Endpoint per il conteggio totale delle tratte (solo admin)
 @flights_bp.route('/flights/routes-count-all', methods=['GET'])
@@ -241,6 +261,7 @@ def get_routes_count_all():
     except Exception as e:
         print(e)
         return jsonify({"message": "Error retrieving total routes count"}), 500
+    
 
 @flights_bp.route('/flights/<int:flight_id>', methods=['GET'])
 @roles_required([UserRole.AIRLINE.value])
