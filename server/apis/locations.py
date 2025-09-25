@@ -4,7 +4,7 @@ from models import Flight, Route, Airport
 # from flask_restful import Resource
 from schema import airports_schema, airport_schema
 from datetime import datetime
-from sqlalchemy import func
+from sqlalchemy import distinct, func
 from marshmallow import Schema, fields
 
 locations_bp = Blueprint('location', __name__)
@@ -49,20 +49,25 @@ def get_cities():
         if not query or len(query) < 2:
             return jsonify([]), 200
 
-        # Filtra solo per city, usa DISTINCT per non avere duplicati
         cities = (
-            Airport.query
+            db.session.query(distinct(Airport.city))
             .filter(Airport.city.ilike(f"{query}%"))
-            .with_entities(Airport.city)
-            .limit(10)
+            .limit(5)
             .all()
         )
 
-        # Estrai le città dall'oggetto SQLAlchemy
-        city_list = [c.city for c in cities]
+        print(cities)
 
-        return jsonify(city_list), 200
+        # Estrai le città dall'oggetto SQLAlchemy
+        city_list = [c[0] for c in cities]
+
+        return jsonify({
+                "message" : "Cities retrieved successfully",
+                "cities": city_list
+            }), 200
 
     except Exception as e:
         print("Error retrieving cities:", e)
-        return jsonify({"message": "Error retrieving cities"}), 500
+        return jsonify({
+                "message": "Error retrieving cities"
+            }), 500

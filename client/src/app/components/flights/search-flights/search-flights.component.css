@@ -83,3 +83,59 @@ html, body {
   font-style: italic;
   color: #888;
 }
+
+
+
+
+
+.filters {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+button {
+  height: 40px;
+  padding: 0 15px;
+  border: none;
+  background: #2196F3;
+  color: white;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+}
+button:hover {
+  background: #1976D2;
+}
+
+.price-range-container {
+  width: 300px;
+  margin: 20px auto;
+  font-family: Arial, sans-serif;
+}
+
+.slider-container {
+  position: relative;
+  height: 50px;
+}
+
+.slider-container input[type="range"] {
+  position: absolute;
+  width: 100%;
+  pointer-events: none; /* only allow thumb dragging */
+}
+
+.slider-container input[type="range"]::-webkit-slider-thumb {
+  pointer-events: all; /* make thumb draggable */
+  width: 16px;
+  height: 16px;
+  background: #007bff;
+  border-radius: 50%;
+  cursor: pointer;
+}

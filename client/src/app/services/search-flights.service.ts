@@ -3,31 +3,49 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SearchFlightsService {
+  private apiUrl: string = 'http://localhost:5000/api';
 
-  private apiUrl : string = 'http://localhost:5000/api'
-
-  private http = inject(HttpClient)
+  private http = inject(HttpClient);
 
   constructor() {}
 
-  searchLocations(query : string) : Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/cities?query=${query}`)
-  }  
-  
-   searchFlights(from: string, to: string, departure_date: string): Observable<any[]> {
+  searchLocations(query: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/cities?query=${query}`);
+  }
+
+  searchFlights(
+    from: string,
+    to: string,
+    departure_date: string,
+    filters: any
+  ): Observable<any[]> {
     let params = new HttpParams()
       .set('from', from)
       .set('to', to)
       .set('departure_date', departure_date);
 
+    
+    params = params.set('min_price', filters.minPrice)
+                    .set('max_price', filters.maxPrice);
+    if (filters.nonStop) {
+      params = params.set('max_layovers', 0);
+    }
+    if (filters.oneStop) {
+      params = params.set('max_layovers', 1);
+    }
+    if (filters.sort) {
+      params = params.set('sort_by', filters.sort.sort_by);
+      params = params.set('order', filters.sort.order);
+    }
+
     return this.http.get<any[]>(`${this.apiUrl}/flights`, { params });
   }
 
   searchFlight(id: string): Observable<any> {
-    const parsedId : number = parseInt(id); 
+    const parsedId: number = parseInt(id);
     return this.http.get<any[]>(`${this.apiUrl}/flights/${parsedId}`);
   }
 }

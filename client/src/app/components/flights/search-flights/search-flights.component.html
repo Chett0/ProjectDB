@@ -14,14 +14,14 @@
           <input id="from-airport" name="from-airport" list="from-airports" (input)="onInputChange($event)"
             placeholder="Partenza" class="form-control w-auto" formControlName="from">
           <datalist id="from-airports">
-            <option *ngFor="let airport of airports" [value]="airport"></option>
+            <option *ngFor="let city of cities" [value]="city"></option>
           </datalist>
 
           <!-- Input Arrivo -->
           <input id="to-airport" name="to-airport" list="to-airports" (input)="onInputChange($event)"
             placeholder="Arrivo" class="form-control w-auto" formControlName="to">
           <datalist id="to-airports">
-            <option *ngFor="let airport of airports" [value]="airport"></option>
+            <option *ngFor="let city of cities" [value]="city"></option>
           </datalist>
 
           <!-- Input Data -->
@@ -30,13 +30,53 @@
           <!-- Bottone ricerca -->
           <button type="button" class="btn btn-dark" (click)="searchFlights()">Cerca</button>
         </div>
+
       </form>
+
+      
 
       <!-- Lista voli trovati -->
 
-      <label>
-    <input type="checkbox" [(ngModel)]="layovers"> Layovers
-  </label>
+      <div class="filters">
+  <!-- Price Range -->
+  <div class="filter-section">
+    <h3>Price</h3>
+    <label>
+      Min: <input type="number" [(ngModel)]="filters.minPrice" placeholder="0">
+    </label>
+    <label>
+      Max: <input type="number" [(ngModel)]="filters.maxPrice" placeholder="1000">
+    </label>
+  </div>
+
+  <!-- Layovers -->
+  <div class="filter-section">
+    <h3>Layovers</h3>
+    <label>
+      <input type="checkbox" [(ngModel)]="filters.nonStop"> Non-stop
+    </label>
+    <label>
+      <input type="checkbox" [(ngModel)]="filters.oneStop"> 1 stop
+    </label>
+  </div>
+
+  <!-- Sort By -->
+  <!-- <div class="filter-section">
+    <h3>Sort by</h3>
+    <select [(ngModel)]="filters.sortBy">
+      <option value="price-asc">Price (Lowest)</option>
+      <option value="price-desc">Price (Highest)</option>
+      <option value="duration">Duration</option>
+      <option value="departure">Departure Time</option>
+      <option value="arrival">Arrival Time</option>
+    </select>
+  </div> -->
+
+  <button (click)="searchFlights()">Apply Filters</button>
+</div>
+
+
+      
 
       <div *ngIf="flights && flights.length > 0" class="flights-list">
         <h3>Voli trovati:</h3>

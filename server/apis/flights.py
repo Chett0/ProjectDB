@@ -1,10 +1,11 @@
+import traceback
 from flask import jsonify, request, Blueprint
 from app.extensions import db
 from models import Flight, Route, Airport, AircraftClass, Seat, SeatState, UserRole, AirlineRoute
 # from flask_restful import Resource
 from schema import flights_schema, flight_schema, journeys_schema, seats_schema
 from datetime import datetime
-from sqlalchemy import func, desc, or_
+from sqlalchemy import and_, func, desc, or_
 
 from middleware.auth import roles_required
 from flask_jwt_extended import get_jwt_identity
@@ -74,12 +75,15 @@ def get_flights():
     try:
         page_number = request.args.get('page', 1, type=int)
         limit = request.args.get('limit', 10, type=int)
-        sort_by = request.args.get('sort', 'departure_time')
+        sort_by = request.args.get('sort_by', 'departure_time')
         order = request.args.get('order', 'asc').lower()
         departure_airport_code = request.args.get('from')
         arrival_airport_code = request.args.get('to')
-        layovers = request.args.get('layovers', 1, type=int)
+        layovers = request.args.get('max_layovers', 1, type=int)
         departure_date = request.args.get('departure_date')
+
+        min_price = request.args.get('min_price', type=int)
+        max_price = request.args.get('max_price', type=int)
         # round_trip = request.args.get('round_trip', 0, type=int)
         # arrival_date = request.args.get('arrival_date')
 
@@ -121,7 +125,9 @@ def get_flights():
             flights_query=flights_query,
             departure_airport=departure_airport,
             arrival_airport=arrival_airport,
-            layovers=layovers
+            layovers=layovers,
+            min_price=min_price,
+            max_price=max_price
         )
 
         total_flights_number = len(journeys)
@@ -147,7 +153,7 @@ def get_flights():
 
 
     except Exception as e:
-        print(e)
+        traceback.print_exc()
         return jsonify({"message":"Error retrieving flights"}), 500
         
 
@@ -286,21 +292,27 @@ def get_occupied_seats_for_flight(flight_id: int):
         return []
 
 
-
 def get_direct_flights(
         flights_query,
-        route
+        route,
+        min_price,
+        max_price
 ):
 
     flights = []
 
-    direct_flights = flights_query.filter_by(route_id=route.id).all()
+    direct_flights = flights_query.filter(
+        and_(
+            Flight.route_id == route.id, 
+            Flight.base_price.between(min_price, max_price)
+        )
+    ).all()
     for flight in direct_flights:
         flight_duration = (flight.arrival_time - flight.departure_time).total_seconds() // 3600
-        # flight.flight_type = 'direct'
         flights.append({
             "first_flight":flight,
-            "total_duration":flight_duration
+            "total_duration":flight_duration,
+            "total_price": flight.base_price
         })
 
     return flights
@@ -310,7 +322,9 @@ def get_direct_flights(
 def get_layovers_flights(
     flights_query,
     departure_airport,
-    arrival_airport
+    arrival_airport,
+    min_price,
+    max_price
 ):
 
     journeys = []
@@ -341,12 +355,16 @@ def get_layovers_flights(
                         if layovers_time_seconds >= min_connection_seconds and layovers_time_seconds <= max_connection_seconds:
 
                             total_journey_duration = (second_flight.arrival_time - first_flight.departure_time).total_seconds() // 3600
+                            total_journey_price = first_flight.base_price + second_flight.base_price
 
-                            journeys.append({
-                                "first_flight":first_flight, 
-                                "second_flight":second_flight,
-                                "total_duration":total_journey_duration
-                            })
+                            if total_journey_price >= min_price and total_journey_price <= max_price:
+
+                                journeys.append({
+                                    "first_flight":first_flight, 
+                                    "second_flight":second_flight,
+                                    "total_duration":total_journey_duration,
+                                    "total_price": total_journey_price
+                                })
 
                 
     return journeys
@@ -357,26 +375,32 @@ def search_flights(
         flights_query, 
         departure_airport,
         arrival_airport,
-        layovers
+        layovers,
+        min_price,
+        max_price
     ):
     
     direct_route = Route.query.filter_by(
             departure_airport_id=departure_airport.id,
-            arrival_airport_id=arrival_airport.id
+            arrival_airport_id=arrival_airport.id,
         ).first()
 
     journeys = []
     if direct_route:
         journeys.extend(get_direct_flights(
             flights_query=flights_query,
-            route=direct_route
+            route=direct_route,
+            min_price=min_price,
+            max_price=max_price
         ))
 
     if(layovers):
         journeys.extend(get_layovers_flights(
             flights_query=flights_query,
             departure_airport=departure_airport,
-            arrival_airport=arrival_airport
+            arrival_airport=arrival_airport,
+            min_price=min_price,
+            max_price=max_price
         ))
 
     return journeys

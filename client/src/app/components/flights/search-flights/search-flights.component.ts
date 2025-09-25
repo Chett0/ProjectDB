@@ -8,6 +8,11 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { Observable } from 'rxjs';
 import { HeaderComponent } from '../../header/header.component';
 
+export interface PriceRange {
+  min: number;
+  max: number;
+}
+
 @Component({
   selector: 'app-search-flights',
   imports: [ReactiveFormsModule, CommonModule, HeaderComponent, FormsModule],
@@ -22,11 +27,20 @@ export class SearchFlightsComponent {
     departure_date : new FormControl(''),
     arrival_date : new FormControl('')
   });
-  airports : any[] = []
+  cities : any[] = []
   flights : any[] = []
   loading: boolean = false;
 
-  layovers : boolean = false;
+  filters = {
+    minPrice: 0,
+    maxPrice: 10000,
+    nonStop: false,
+    oneStop: true,
+    sort: {
+      sort_by : 'departure_time',  //price, total_duration, departure_time
+      order: 'asc'        //asc desc
+    }     
+  };
 
   private sf = inject(SearchFlightsService)
 
@@ -38,18 +52,18 @@ export class SearchFlightsComponent {
   onInputChange(event : any) :  void {
     if(event && event.target.value.length >= 2){
       this.sf.searchLocations(event.target.value).subscribe({
-        next: (airports) => {
-          this.airports = airports;
-          console.log(airports)
+        next: (res : any) => {
+          this.cities = res.cities;
+          console.log(this.cities)
         },
         error: (error) => {
           console.error('Error fetching airports:', error);
-          this.airports = [];
+          this.cities = [];
         }
       })
     }
     else 
-      this.airports = []
+      this.cities = []
   }
 
   onBuyTicket(flightId: string) {
@@ -64,7 +78,7 @@ export class SearchFlightsComponent {
     }
 
     this.loading = true;
-    this.sf.searchFlights(from, to, departure_date).subscribe({
+    this.sf.searchFlights(from, to, departure_date, this.filters).subscribe({
       next: (res: any) => {
         this.flights = res.flights;
         this.loading = false;
