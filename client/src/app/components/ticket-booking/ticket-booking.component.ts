@@ -27,6 +27,19 @@ export interface TicketData {
   extras: number[];
 }
 
+export interface FlightData {
+  flight: any;
+  seats: Seat[];
+  classes: any[];
+  airlineId: string;
+  extras: any[];
+  selectedSeat: Seat | null;
+  selectedClass: string;
+  selectedExtras: number[];
+  final_cost: number | null;
+}
+
+
 declare var bootstrap: any;
 
 @Component({
@@ -36,30 +49,16 @@ declare var bootstrap: any;
   styleUrl: './ticket-booking.component.css'
 })
 export class TicketBookingComponent {
-  flightId: string | null = null;
-  aircraftId: string | null = null;
-  airlineId: string | null = null;
-  
-  seats: Seat[] = [];
-  classes: any[] = [];
-  extras: any[] = [];
-
-  selectedSeat: Seat | null = null;
-  selectedClass: string = '';
-  selectedExtras: number[] = [];  // array di id scelti
-  final_cost: number | null = null;
-
-
-  flight: any;
+  //array in cui ogni campo contieni le informazione del biglietto
+  flights: { [key: string]: FlightData } = {};
+  flightIds: string[] = [];
   passenger: PassengerInfo | null = null;
-
   ticketColors: Record<string, string> = {
     'Economy': 'lightblue',
     'Business': 'gold',
     'First Class': 'purple',
     'Premium': 'red'
   };
-
 
   constructor(
     private route: ActivatedRoute,
@@ -79,44 +78,46 @@ export class TicketBookingComponent {
 
 
   ngOnInit(): void {
-    //carica informazioni volo
-    this.selectedSeat = null;
-    this.flightId = this.route.snapshot.paramMap.get('id')!;
-    if (this.flightId) {
-      this.searchFlightService.searchFlight(this.flightId).subscribe({
-        next: (res) => {
-          this.flight = res.flight;
-          this.aircraftId = res.flight.aircraft.id;
-          this.airlineId = res.flight.aircraft.airline.id;
+    this.flightIds = this.route.snapshot.queryParamMap.getAll('ids');
+    this.flightIds.forEach(flightId => {
+      this.flights[flightId] = {
+        flight: null,
+        seats: [],
+        classes: [],
+        airlineId: '',
+        extras: [],
+        selectedSeat: null,
+        selectedClass: '',
+        selectedExtras: [],
+        final_cost: null
+      };
 
-          //devo farlo qui dento o mi trovo in errore -> esecuzione non sequenziale
-          this.extrasService.getExtras(this.airlineId!).subscribe({
-            next: (res: any) => {
-              this.extras = res.extras;
-            },
-            error: (err) => console.error('Errore caricamento extras:', err)
-          });
-        },
-        error: (err) => console.error('Errore caricamento volo:', err)
+      // Carica il volo
+      this.searchFlightService.searchFlight(flightId).subscribe(res => {
+        this.flights[flightId].flight = res.flight;
+        const airlineId = res.flight.aircraft.airline.id;
 
+        // Carica extras
+        this.extrasService.getExtras(airlineId).subscribe((res: any) => {
+          this.flights[flightId].extras = res.extras;
+        });
+
+        // Carica classi
+        this.classesService.getClasses(airlineId).subscribe((res: any) => {
+          this.flights[flightId].classes = res.classes;
+        });
+
+        // Carica seats
+        this.seatService.get_seats(flightId).subscribe((res: any) => {
+          this.flights[flightId].seats = res.seats;
+        });
       });
 
-      //carica informazioni della classi
-      this.classesService.getClasses(this.flightId).subscribe({
-        next: (res: any) => {
-          this.classes = res.aircraft;
-        },
-        error: (err) => {
-          console.error('Errore caricamento classi:', err);
-      }})
-    }
+      console.log('Extras:', this.flights[flightId].extras);
+      console.log('Seats:', this.flights[flightId].seats);
 
-    this.seatService.get_seats(this.flightId!).subscribe({
-      next: (res) => {
-        this.seats = res.seats;
-      },
-      error: (err) => console.error('Errore caricamente seats', err)
-    })
+    });
+
 
     //carica informazioni passeggeri
     this.passengerService.getPassengerInfo().subscribe({
@@ -131,69 +132,92 @@ export class TicketBookingComponent {
     })
   }
 
-  get filteredSeats() {
-    if (!this.selectedClass) return this.seats;
-    return this.seats.filter(seat => seat.aircraft_class?.name === this.selectedClass);
+  //dopo aver fatto la init ho i due voli con tutti i rispettivi dati
+
+  getFilteredSeats(flightId: string) {
+    const flightData = this.flights[flightId];
+    if (!flightData.selectedClass) return flightData.seats;
+    return flightData.seats.filter(seat => seat.aircraft_class?.name === flightData.selectedClass);
   }
 
-  onClassChange() {
-    this.selectedSeat = null;
+  onClassChange(flightId: string) {
+    this.flights[flightId].selectedSeat = null;
   }
 
 
-  selectSeat(seat: Seat) {
+  selectSeat(flightId: string, seat: Seat) {
     if (seat.state !== "AVAILABLE") return;
 
-    if(!this.selectedSeat || this.selectedSeat.id !== seat.id)
-      this.selectedSeat = seat;
-    else
-      this.selectedSeat = null;
-  }
-
-
-  calculateTotal(): number {
-    if (!this.flight) return 0;
-
-    const basePrice = this.flight.base_price || 0;
-
-    // trova la classe selezionata
-    const selectedClassObj = this.classes.find(c => c.name === this.selectedClass);
-    const multiplier = selectedClassObj
-      ? parseFloat(selectedClassObj.price_multiplier)
-      : 1;
-
-    // somma i prezzi di tutti gli extra selezionati
-    const selectedExtrasObj = this.extras.filter(e => this.selectedExtras.includes(e.id));
-    const extrasTotal = selectedExtrasObj.reduce((sum: number, extra: any) => {
-      return sum + (parseFloat(extra.price) || 0);
-    }, 0);
-
-    this.final_cost = basePrice * multiplier + extrasTotal
-    return basePrice * multiplier + extrasTotal;
-  }
-
-  onExtraChange(event: Event) {
-    const checkbox = event.target as HTMLInputElement;
-    const value = Number(checkbox.value);
-
-    if (checkbox.checked) {
-      // aggiunge l’extra selezionato
-      this.selectedExtras.push(value);
+    const flightData = this.flights[flightId];
+    if (!flightData.selectedSeat || flightData.selectedSeat.id !== seat.id) {
+      flightData.selectedSeat = seat;
     } else {
-      // rimuove l’extra se deselezionato
-      this.selectedExtras = this.selectedExtras.filter(id => id !== value);
+      flightData.selectedSeat = null;
     }
   }
 
-  buyTicket() {
-    this.ticketService.buyTicket(Number(this.flightId), this.final_cost!, this.selectedSeat!.number, this.selectedExtras)
-      .subscribe({
-        next: () => this.showModal('successModal'),
-        error: (err) => {
-          console.error('Errore acquistando il biglietto', err);
-          this.showModal('errorModal');
-        }
-      });
+
+
+  calculateTotal(flightId: string): number {
+    const flightData = this.flights[flightId];
+    if (!flightData.flight) return 0;
+
+    const basePrice = Number(flightData.flight.base_price) || 0;
+    const selectedClassObj = flightData.classes.find(c => c.name === flightData.selectedClass);
+    const multiplier = selectedClassObj ? Number(selectedClassObj.price_multiplier) : 1;
+
+    const extrasTotal = flightData.extras
+      .filter(e => flightData.selectedExtras.includes(e.id))
+      .reduce((sum: number, extra: any) => sum + (Number(extra.price) || 0), 0);
+
+    flightData.final_cost = basePrice * multiplier + extrasTotal;
+    return flightData.final_cost;
+  }
+
+  onExtraChange(flightId: string, event: Event) {
+    const checkbox = event.target as HTMLInputElement;
+    const value = Number(checkbox.value);
+    const flightData = this.flights[flightId];
+
+    if (checkbox.checked) {
+      flightData.selectedExtras.push(value);
+    } else {
+      flightData.selectedExtras = flightData.selectedExtras.filter(id => id !== value);
+    }
+  }
+
+
+/* vecchia funzione che funzionava solo con un ticket
+  buyTicket(flightId: string) {
+    const flightData = this.flights[flightId];
+    this.ticketService.buyTicket(
+      Number(flightId),
+      flightData.final_cost!,
+      flightData.selectedSeat!.number,
+      flightData.selectedExtras
+    ).subscribe({
+      next: () => this.showModal('successModal'),
+      error: () => this.showModal('errorModal')
+    });
+  }
+*/
+
+  buyTickets() {
+    const tickets = this.flightIds.map(fid => {
+      const flightId = Number(fid);
+      const f = this.flights[flightId];
+      return {
+        flightId: flightId,
+        finalCost: this.calculateTotal(fid),
+        seatNumber: f.selectedSeat!.number,
+        extras: f.selectedExtras
+      };
+    });
+
+    this.ticketService.buyTickets(tickets).subscribe({
+      next: () => this.showModal('successModal'),
+      error: () => this.showModal('errorModal')
+    });
   }
 
   showModal(modalId: string) {

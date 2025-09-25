@@ -43,7 +43,7 @@ export const routes: Routes = [
         path: 'passengers',
         component: PassengersComponent
     },{
-        path: 'flights/:id/buy-ticket',
+        path: 'flights/buy-ticket',
         component: TicketBookingComponent,
         // canActivate: [authGuard]
     }

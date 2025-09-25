@@ -1,6 +1,6 @@
 <div class="page">
-  <!-- Header --> 
-		<app-header></app-header>
+  <!-- Header -->
+  <app-header></app-header>
 
   <!-- Body -->
   <main class="body">
@@ -78,17 +78,68 @@
 
       
 
-      <div *ngIf="flights && flights.length > 0" class="flights-list">
-        <h3>Voli trovati:</h3>
-        <div *ngFor="let flight of flights" class="flight-card">
-          <p><strong>Compagnia:</strong> {{ flight.first_flight.aircraft.airline.name }}</p>
-          <p><strong>Partenza:</strong> {{ flight.first_flight.route.departure_airport.city }} alle {{
-            flight.first_flight.departure_time | date:'shortTime' }}</p>
-          <p><strong>Arrivo:</strong> {{ flight.first_flight.route.arrival_airport.city }} alle {{
-            flight.first_flight.arrival_time | date:'shortTime' }}</p>
-          <p><strong>Durata:</strong> {{ flight.total_duration }} ore</p>
-          <p><strong>Prezzo:</strong> €{{ flight.first_flight.base_price }}</p>
-           <button class="btn buy-ticket-btn" (click)="onBuyTicket(flight.first_flight.id)">Compra Biglietto</button>
+      <!-- strutturiamo bene, i due form con un solo volo oppure se presente anche laltro con due voli-->
+
+      <div *ngFor="let flight of flights" class="card flight-card mb-4 shadow-sm">
+        <div class="card-body">
+          <!-- Titolo -->
+          <h5 class="card-title text-primary">
+            <ng-container *ngIf="flight.second_flight; else diretto">
+               Volo con scalo
+            </ng-container>
+            <ng-template #diretto>Volo diretto</ng-template>
+          </h5>
+
+          <hr>
+
+          <!-- Primo volo -->
+          <div class="mb-3">
+            <h6 class="text-muted">Primo volo</h6>
+            <div class="d-flex justify-content-between">
+              <div>
+                <p class="mb-1"><strong>{{ flight.first_flight.aircraft.airline.name }}</strong></p>
+                <p class="mb-1">
+                  {{ flight.first_flight.route.departure_airport.city }} ({{
+                  flight.first_flight.route.departure_airport.code }})
+                  → {{ flight.first_flight.route.arrival_airport.city }} ({{
+                  flight.first_flight.route.arrival_airport.code }})
+                </p>
+              </div>
+              <div class="text-end">
+                <p class="mb-1">{{ flight.first_flight.departure_time | date:'shortTime' }} → {{
+                  flight.first_flight.arrival_time | date:'shortTime' }}</p>
+                <p class="mb-1 text-success">€{{ flight.first_flight.base_price }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secondo volo (solo se presente) -->
+          <div *ngIf="flight.second_flight" class="mb-3">
+            <h6 class="text-muted">Secondo volo</h6>
+            <div class="d-flex justify-content-between">
+              <div>
+                <p class="mb-1"><strong>{{ flight.second_flight.aircraft.airline.name }}</strong></p>
+                <p class="mb-1">
+                  {{ flight.second_flight.route.departure_airport.city }} ({{
+                  flight.second_flight.route.departure_airport.code }})
+                  → {{ flight.second_flight.route.arrival_airport.city }} ({{
+                  flight.second_flight.route.arrival_airport.code }})
+                </p>
+              </div>
+              <div class="text-end">
+                <p class="mb-1">{{ flight.second_flight.departure_time | date:'shortTime' }} → {{
+                  flight.second_flight.arrival_time | date:'shortTime' }}</p>
+                <p class="mb-1 text-success">€{{ flight.second_flight.base_price }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Info generali -->
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <span><strong>Durata totale:</strong> {{ flight.total_duration }} ore</span>
+            <button class="btn btn-primary btn-sm" (click)="onBuyTicket([flight.first_flight.id, flight.second_flight?.id])">Compra
+              Biglietto</button>
+          </div>
         </div>
       </div>
 
@@ -96,12 +147,11 @@
       <div *ngIf="flights && flights.length === 0 && !loading" class="no-flights">
         <p>Nessun volo trovato.</p>
       </div>
-
     </div>
   </main>
 
   <!-- Footer -->
   <footer class="footer">
-      <p>© 2025 MyFlights. Tutti i diritti riservati.</p>
+    <p>© 2025 MyFlights. Tutti i diritti riservati.</p>
   </footer>
 </div>

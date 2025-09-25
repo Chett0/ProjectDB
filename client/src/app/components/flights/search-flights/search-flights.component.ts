@@ -66,8 +66,12 @@ export class SearchFlightsComponent {
       this.cities = []
   }
 
-  onBuyTicket(flightId: string) {
-    this.router.navigate(['flights', flightId, 'buy-ticket'])
+  onBuyTicket(flightIds: string[]) {
+    const validFlightIds = flightIds.filter(id => id != null); // filtra per i parametri NaN
+    this.router.navigate(
+      ['flights', 'buy-ticket'],
+      { queryParams: {ids: validFlightIds}}
+    )
   }
 
   searchFlights(): void {

@@ -167,7 +167,7 @@ def get_aircraft_classes():
 
         return jsonify({
                 "message":"Aircaft class retrieved successfully", 
-                "aircraft": aircraft_classes_schema.dump(aircraft_class)
+                "classes": aircraft_classes_schema.dump(aircraft_class)
             }), 200
     
     except Exception as e:

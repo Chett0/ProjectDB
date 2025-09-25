@@ -3,118 +3,136 @@
 
   <main class="body">
     <div class="container">
-      <div class="ticket-card" *ngIf="flight; else loading">
-        <!-- Parte header -->
-        <div class="ticket-header">
-          <h3>Dettagli Volo</h3>
-          <p>{{ flight.route.departure_airport.city }} ({{ flight.route.departure_airport.code }}) →
-            {{ flight.route.arrival_airport.city }} ({{ flight.route.arrival_airport.code }})</p>
+
+      <!-- serve per iterare su tutti i voli presenti in base agli scali-->
+      <div *ngFor="let flightId of flightIds">
+        <div class="ticket-card" *ngIf="flights[flightId]?.flight; else loading">
+
+          <!-- Parte header -->
+          <div class="ticket-header">
+            <h3>Dettagli Volo</h3>
+            <p>
+              {{ flights[flightId].flight.route.departure_airport.city }} ({{
+              flights[flightId].flight.route.departure_airport.code }}) →
+              {{ flights[flightId].flight.route.arrival_airport.city }} ({{
+              flights[flightId].flight.route.arrival_airport.code }})
+            </p>
+          </div>
+
+          <!-- informazioni del volo -->
+          <div class="flight-info">
+            <div>
+              <strong>Partenza:</strong>
+              <span>{{ flights[flightId].flight.departure_time }}</span>
+            </div>
+            <div>
+              <strong>Arrivo:</strong>
+              <span>{{ flights[flightId].flight.arrival_time }}</span>
+            </div>
+          </div>
+
+          <!-- informazioni del passeggero -->
+          <div class="passenger-info" *ngIf="passenger; else loadingPassenger">
+            <p><strong>Nome:</strong> {{ passenger.name }} {{ passenger.surname }}</p>
+          </div>
+          <ng-template #loadingPassenger>
+            <p>Caricamento informazioni passeggero...</p>
+          </ng-template>
+
+          <!-- opzioni per i biglietti -->
+          <div class="ticket-options">
+
+            <!-- Seat map -->
+            <div class="seat-map">
+              <div *ngFor="let seat of getFilteredSeats(flightId)" class="row">
+                <button class="seat" [class.selected]="flights[flightId].selectedSeat?.id === seat.id"
+                  [class.unavailable]="seat.state !== 'AVAILABLE'"
+                  [style.background-color]="ticketColors[seat.aircraft_class.name]"
+                  (click)="selectSeat(flightId, seat)">
+                  {{ seat.number }}
+                </button>
+              </div>
+            </div>
+
+            <br>
+            <div *ngIf="flights[flightId].selectedSeat" class="selection-info">
+              Selected Seat: {{ flights[flightId].selectedSeat?.number }}
+            </div>
+
+            <!-- Extras -->
+            <div class="extras-options">
+              <p>Extra:</p>
+              <label *ngFor="let extra of flights[flightId].extras" class="extra-item">
+                <input type="checkbox" [value]="extra.id" (change)="onExtraChange(flightId, $event)"
+                  [checked]="flights[flightId].selectedExtras.includes(extra.id)" />
+                {{ extra.name }} (+{{ extra.price }}€)
+              </label>
+            </div>
+
+          </div>
+
+          <!-- Costo e pulsante acquisto -->
+          <div class="ticket-cost">
+            <strong>Costo totale:</strong> {{ calculateTotal(flightId) | currency:'EUR':'symbol' }}
+          </div>
         </div>
 
-        <!-- informazioni del volo -->
-        <div class="flight-info">
-          <div>
-            <strong>Partenza:</strong>
-            <span>{{ flight.departure_time }}</span>
-          </div>
-          <div>
-            <strong>Arrivo:</strong>
-            <span>{{ flight.arrival_time }}</span>
-          </div>
-        </div>
 
-        <!-- infromazioni del passeggero -->
-        <div class="passenger-info" *ngIf="passenger; else loadingPassenger">
-          <p><strong>Nome:</strong> {{ passenger.name }} {{ passenger.surname }}</p>
-        </div>
-        <ng-template #loadingPassenger>
-          <p>Caricamento informazioni passeggero...</p>
+
+        <ng-template #loading>
+          <p>Caricamento volo...</p>
         </ng-template>
 
-        <!-- opzioni per i biglietti -->
-        <div class="ticket-options">
-          
 
-          <div class="seat-map">
-  <div *ngFor="let seat of seats" class="row">
-    <button
-      class="seat"
-      [class.selected]="selectedSeat && selectedSeat.id === seat.id"
-      [class.unavailable]="seat.state !== 'AVAILABLE'"
-      [style.background-color]="ticketColors[seat.aircraft_class.name]"
-      (click)="selectSeat(seat)">
-      <!-- {{ seat.number }} -->
-    </button>
-  </div>
-</div>
 
-<br>  
- <div *ngIf="selectedSeat" class="selection-info">
-      Selected Seat: {{ selectedSeat.number }}
-    </div>
+        <br>
 
-          <div class="extras-options">
-            <p>Extra:</p>
-            <label *ngFor="let extra of extras" class="extra-item">
-              <input type="checkbox" [value]="extra.id" (change)="onExtraChange($event)"
-                [checked]="selectedExtras.includes(extra.id)" />
-              {{ extra.name }} (+{{ extra.price }}€)
-            </label>
-          </div>
-        </div>
-
-        <div class="ticket-cost">
-          <strong>Costo totale:</strong> {{ calculateTotal() | currency:'EUR':'symbol' }}
-        </div>
-        <button class="buy-btn" (click)="buyTicket()">Compra Biglietto</button>
       </div>
 
-      <ng-template #loading>
-        <p>Caricamento volo...</p>
-      </ng-template>
-
-  
-<!-- Modale Successo -->
-<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Biglietto acquistato!</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        L'acquisto è stato completato con successo.
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="successRedirect()">Chiudi</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modale Errore -->
-<div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Errore</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        L'operazione non è riuscita. Riprova più tardi.
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
-      </div>
-    </div>
-  </div>
-</div>
+      <!-- è al di fuori di questo div -->
+        <button class="buy-btn" (click)="buyTickets()">
+          Acquista
+        </button>
 
     </div>
   </main>
 
 
+  <!-- Modale Successo -->
+  <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Biglietto acquistato!</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          L'acquisto è stato completato con successo.
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="successRedirect()">Chiudi</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <!-- Modale Errore -->
+  <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Errore</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          L'operazione non è riuscita. Riprova più tardi.
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <footer class="footer">
     <p>© 2025 ProjectDB. Tutti i diritti riservati.</p>
   </footer>

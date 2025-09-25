@@ -23,9 +23,6 @@ html, body {
   background: linear-gradient(120deg, #e0e7ff 0%, #f8fafc 100%);
 }
 
-
-
-
 .seat-map {
   display: grid;
   grid-template-columns: repeat(2, 10px) 30px repeat(3, 10px);
@@ -48,7 +45,7 @@ html, body {
 }
 
 .seat.unavailable {
-  background-color: gray;    /* se non disponibile */
+  background-color: gray;
   cursor: not-allowed;
 }
 
@@ -59,8 +56,10 @@ html, body {
 
 .container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;  /* mette le card in colonna */
+  align-items: center;     /* centra le card orizzontalmente */
   padding: 20px;
+  gap: 20px;               /* distanza verticale tra le card */
 }
 
 .ticket-card {
@@ -68,7 +67,7 @@ html, body {
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.15);
   padding: 20px;
-  width: 40%;
+  width: 80%;               /* larghezza della card rispetto al container */
   font-family: 'Arial', sans-serif;
 }
 
@@ -89,6 +88,8 @@ html, body {
   margin-bottom: 15px;
   font-size: 14px;
 }
+
+
 
 .passenger-info {
   margin-bottom: 15px;
