@@ -6,16 +6,7 @@ from datetime import datetime
 from sqlalchemy import func, desc, or_
 from flask_jwt_extended import get_jwt_identity
 from middleware.auth import roles_required
-from marshmallow import Schema, fields
-
-class SearchFlightsSchema(Schema):
-    first_flight = fields.Nested('FlightSchema')
-    second_flight = fields.Nested('FlightSchema')
-    total_duration = fields.Float()
-    total_price = fields.Float()
-
-search_flight_schema = SearchFlightsSchema()
-search_flights_schema = SearchFlightsSchema(many=True)
+from flask_jwt_extended import get_jwt_identity
 
 flights_bp = Blueprint('flight', __name__)
 
@@ -157,6 +148,9 @@ def get_flights():
     except Exception as e:
         print(e)
         return jsonify({"message":"Error retrieving flights"}), 500
+        
+
+
     
 @flights_bp.route('/flight', methods=['GET'])
 def get_flight():
@@ -264,14 +258,20 @@ def get_routes_count_all():
     
 
 @flights_bp.route('/flights/<int:flight_id>', methods=['GET'])
-@roles_required([UserRole.AIRLINE.value])
+# @roles_required([UserRole.AIRLINE.value, UserRole.PASSENGER.value])
 def get_flight_by_id(flight_id):  
     try:
+        if not flight_id:
+            return jsonify({
+                'message': 'flight id missing'
+            }), 400
+        
         flight = Flight.query.filter_by(id=flight_id).first()
+
         if not flight:
-            return jsonify({"message": "Flight not found"}), 404
-        
-        
+            return jsonify({
+                    "message": "Flight not found"
+                }), 404
         
         return jsonify({
                 "message":"Flight retrieved successfully", 
@@ -429,14 +429,19 @@ def search_flights(
         ))
 
     return journeys
+    
 
-# endpoint per ottenere i posi liberi di un determinato volo
-@flights_bp.route('/flights/free_seats', methods=['GET'])
-def get_free_seats():
+@flights_bp.route('/flights/<int:flight_id>/seats', methods=['GET'])
+def get_seats(flight_id):
     try:
-        flight_id = request.args.get('flight_id', type=int)
-        seats = Seat.query.filter_by(flight_id=flight_id, state=SeatState.AVAILABLE).all()
-        return seats_schema.dump(seats)
+        seats = get_seats_flight(flight_id=flight_id)
+        return jsonify({
+                "message":"Seats retrieved successfully", 
+                "seats": 
+                seats_schema.dump(seats)
+            }), 200
     except Exception as e:
-        print(f"Error fetching free seats for flight {flight_id}: {e}")
-        return []
+        print(f"Error fetching seats for flight {flight_id}: {e}")
+        return jsonify({
+                "message":"Internal error retrieving seats", 
+            }), 500

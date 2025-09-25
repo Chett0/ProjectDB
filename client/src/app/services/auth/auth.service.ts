@@ -1,12 +1,13 @@
  
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { User } from '../../../types/users/auth';
+import { User, UserRole } from '../../../types/users/auth';
 import { PassengerAsUser } from '../../../types/users/passenger';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { enviroment } from '../../enviroments/enviroments';
 import { TokensService } from '../tokens/tokens.service';
 import { Token } from '@angular/compiler';
+import { Router } from '@angular/router';
 
 
 export interface AuthResp {
@@ -24,7 +25,7 @@ export class AuthService {
   private apiUrl : string = 'http://localhost:5000/api'
   public isLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-  constructor(private http: HttpClient, private token : TokensService) {
+  constructor(private http: HttpClient, private token : TokensService, private router : Router) {
     this.isLoggedIn.next(!!localStorage.getItem('access_token'))
   }
 
@@ -55,6 +56,31 @@ export class AuthService {
 
   getAccessToken(): string | null {
     return this.token.getAccessToken();
+  }
+
+  //verifica se l'utente è loggato o meno
+  /*isLoggedIn(): boolean {
+    return !!localStorage.getItem('access_token');
+  }*/
+
+
+  isAuthenticated(): boolean {
+    const token = this.token.getAccessToken();
+    if(token)
+      return true;
+
+    this.router.navigate(['/login']);
+    return false;
+  }
+
+  hasRole(role: UserRole) : boolean {
+    const auth : boolean = this.isAuthenticated();
+    if(!auth) return false;
+
+    const userRole : string | null = this.token.getUserRole();
+    if(!userRole) return false;
+
+    return userRole === role.valueOf();
   }
 
   changePassword(data: { email: string; old_password: string; new_password: string }) {

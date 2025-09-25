@@ -51,4 +51,8 @@ export class AircraftsService {
   getAircraftsCount() {
     return this.http.get<any>(`${enviroment.apiUrl}/aircrafts/count`);
   }
+
+  clearCache(){
+    this.aircraftsCache = null;
+  }
 }

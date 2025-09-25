@@ -43,7 +43,7 @@ class Ticket(db.Model):
 
     state: Mapped[BookingState] = mapped_column(db.Enum(BookingState, name="bookingstate", create_type=True), nullable=False)
     # Create the type before the migration otherwhise it generates an error
-    # CREATE TYPE bookingstate AS ENUM ('Pending', 'Confirmed', 'Cancelled');
+    # CREATE TYPE bookingstate AS ENUM ('PENDING', 'CONFIRMED', 'CANCELLED');
     
     ticket_extra: Mapped[List['TicketExtra']] = relationship(
         'TicketExtra', 

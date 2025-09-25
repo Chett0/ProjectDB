@@ -11,8 +11,21 @@ from flask_jwt_extended import (
 import secrets
 import string
 from middleware.auth import roles_required
+import smtplib
+import ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+# from dotenv import load_dotenv
+import os
 
 auth_bp = Blueprint('auth', __name__)
+
+# load_dotenv()
+
+# EMAIL_USER = os.getenv("EMAIL_USER")
+# PASSWORD_USER = os.getenv("EMAIL_PASSWORD")
+# SMTP_SERVER = os.getenv("SMTP_SERVER")
+# SMTP_PORT = int(os.getenv("SMTP_PORT"))
 
 
 @auth_bp.route('/passengers/register', methods=['POST'])
@@ -124,6 +137,8 @@ def register_airline():
 
         db.session.add(new_airline)
         db.session.commit()
+
+        # send_email(email, random_password)
 
         return jsonify({
                     "message": "Airline registered successfully",
@@ -298,3 +313,38 @@ def delete_user(user_id):
         }), 500
 
 
+
+
+def send_email(receiver_email, temp_password):
+    sender_email = "marco081204@gmail.com"       # Inserisci la tua email
+    sender_password = "la_tua_password_app"    # Password o password app Gmail
+
+    # Creazione del messaggio
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "La tua password temporanea"
+    message["From"] = sender_email
+    message["To"] = receiver_email
+
+    text = f"Ciao,\n\nLa tua password temporanea è: {temp_password}\nUsala per accedere al tuo account."
+    html = f"""
+    <html>
+      <body>
+        <p>Ciao,<br><br>
+           La tua <b>password temporanea</b> è: <span style="color:red;">{temp_password}</span><br>
+           Usala per accedere al tuo account.
+        </p>
+      </body>
+    </html>
+    """
+
+    part1 = MIMEText(text, "plain")
+    part2 = MIMEText(html, "html")
+
+    message.attach(part1)
+    message.attach(part2)
+
+    # Invio tramite server SMTP (qui Gmail)
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, context=context) as server:
+        server.login(EMAIL_USER, PASSWORD_USER)
+        server.sendmail(EMAIL_USER, receiver_email, message.as_string())

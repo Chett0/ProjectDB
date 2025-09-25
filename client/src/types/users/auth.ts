@@ -1,7 +1,7 @@
 
 export enum UserRole {
     ADMIN = "Admin",
-    USER = "User",
+    PASSENGER = "Passenger",
     AIRLINE = "Airline"
 }
 

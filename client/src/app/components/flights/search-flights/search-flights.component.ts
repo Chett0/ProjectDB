@@ -1,8 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { SearchFlightsService } from '../../../services/search-flights.service';
 import { Router, RouterOutlet } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { FormGroup, FormControl, ReactiveFormsModule} from '@angular/forms';
+import { FormGroup, FormControl, ReactiveFormsModule, FormsModule} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth/auth.service';
 import { Observable } from 'rxjs';
@@ -10,7 +10,7 @@ import { HeaderComponent } from '../../header/header.component';
 
 @Component({
   selector: 'app-search-flights',
-  imports: [ReactiveFormsModule, CommonModule, HeaderComponent],
+  imports: [ReactiveFormsModule, CommonModule, HeaderComponent, FormsModule],
   templateUrl: './search-flights.component.html',
   styleUrls: ['./search-flights.component.css']
 })
@@ -25,6 +25,8 @@ export class SearchFlightsComponent {
   airports : any[] = []
   flights : any[] = []
   loading: boolean = false;
+
+  layovers : boolean = false;
 
   private sf = inject(SearchFlightsService)
 
@@ -50,8 +52,12 @@ export class SearchFlightsComponent {
       this.airports = []
   }
 
-  onBuyTicket(flightId: string) {
-    this.router.navigate(['flights', flightId, 'buy-ticket'])
+  onBuyTicket(flightIds: string[]) {
+    const validFlightIds = flightIds.filter(id => id != null); // filtra per i parametri NaN
+    this.router.navigate(
+      ['flights', 'buy-ticket'],
+      { queryParams: {ids: validFlightIds}}
+    )
   }
 
   searchFlights(): void {
