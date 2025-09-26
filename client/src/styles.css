@@ -23,7 +23,7 @@ footer, app-footer {
 
 
 .passenger-page{
-  min-height: 35vh;
+  min-height: 20vh;
   display: flex;
   flex-direction: column;
 }

@@ -3,9 +3,8 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FooterComponent } from '../footer/footer.component';
 import { AuthService } from '../../services/auth/auth.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { PassengerService } from '../../services/passenger/passenger.service';
-import { TicketBookingService } from '../../services/ticket-booking/ticket-booking.service';
 
 @Component({
   selector: 'app-passengers',
@@ -27,14 +26,13 @@ export class PassengersComponent {
     private authService: AuthService,
     private router: Router,
     private passengerService: PassengerService,
-    private ticketBookingService: TicketBookingService
+    private route: ActivatedRoute
   ) {}
 
   onLogout() {
     const confirmed = confirm('Sei sicuro di voler effettuare il logout?');
     if (!confirmed) return;
     this.passengerService.clearPassengerCache();
-    this.ticketBookingService.clearTicketsCache();
     this.authService.logout();
     this.router.navigate(['/login']);
   }
@@ -44,26 +42,20 @@ export class PassengersComponent {
   }
 
   ngOnInit() {
-    //info
-    this.passengerService.getPassengerInfo().subscribe({
-      next: (data: any) => {
-        this.passenger.name = data.passenger.name;
-        this.passenger.surname = data.passenger.surname;
-        this.passenger.email = data.passenger.user?.email || '';
-      },
-      error: () => {
-        this.passenger = { name: '', surname: '', email: '' };
-      }
-    });
-    //biglietti
-    this.ticketBookingService.getTickets(1, 10).subscribe({
-      next: (res) => {
-        this.tickets = res.tickets.map((ticket: any) => this.mapTicket(ticket));
-      },
-      error: (err) => {
-        this.tickets = [];
-      }
-    });
+
+    const data = this.route.snapshot.data['passengerData'];
+    if (data && data.passenger && data.passenger.passenger) {
+      this.passenger.name = data.passenger.passenger.name;
+      this.passenger.surname = data.passenger.passenger.surname;
+      this.passenger.email = data.passenger.passenger.user?.email || '';
+    } else {
+      this.passenger = { name: '', surname: '', email: '' };
+    }
+    if (data && data.tickets && Array.isArray(data.tickets.tickets)) {
+      this.tickets = data.tickets.tickets.map((ticket: any) => this.mapTicket(ticket));
+    } else {
+      this.tickets = [];
+    }
   }
 
   mapTicket(ticket: any) {

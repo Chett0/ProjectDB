@@ -1,11 +1,10 @@
 
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth/auth.service';
 import { Router } from '@angular/router';
-import { AirlinesService } from '../../../services/airlines/airlines.service';
-import { RoutesService } from '../../../services/airlines/routes.service';
 import { FooterComponent } from '../../footer/footer.component';
 
 
@@ -39,9 +38,8 @@ export class AdminHomeComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private airlinesService: AirlinesService,
-    private routesService: RoutesService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   onLogout() {
@@ -52,11 +50,13 @@ export class AdminHomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadAirlines();
-    this.loadAirlinesCount();
-    this.loadFlightsCount();
-    this.loadRoutesCount();
-    this.loadPassengersCount();
+
+    const data = this.route.snapshot.data['adminData'];
+    this.airlines = data?.airlines?.airlines || [];
+    this.airlinesCount = data?.airlinesCount?.count || 0;
+    this.flightsCount = data?.flightsCount?.count || 0;
+    this.routesCount = data?.routesCount?.count || 0;
+    this.passengersCount = data?.passengersCount?.count || 0;
   }
 
   addAirline() {
@@ -83,7 +83,11 @@ export class AdminHomeComponent implements OnInit {
         this.airlineName = '';
         this.airlineCode = '';
         this.airlineEmail = '';
-        this.loadAirlines();
+
+        if (res && res.airline) {
+          this.airlines = [...this.airlines, res.airline];
+          this.airlinesCount++;
+        }
       },
       error: (err) => {
         if (err && err.status === 409) {
@@ -96,58 +100,4 @@ export class AdminHomeComponent implements OnInit {
     });
   }
 
-  loadAirlines() {
-    this.airlinesService.getAllAirlines().subscribe({
-      next: (res) => {
-        if (res && res.airlines) this.airlines = res.airlines;
-      },
-      error: (err) => {
-        console.error('Error loading airlines', err);
-      }
-    });
-  }
-
-  loadAirlinesCount() {
-    this.airlinesService.getAirlinesCount().subscribe({
-      next: (res) => {
-        if (res && typeof res.count === 'number') this.airlinesCount = res.count;
-      },
-      error: (err) => {
-        console.error('Error loading airlines count', err);
-      }
-    });
-  }
-
-  loadFlightsCount() {
-    this.airlinesService.getFlightsCountAll().subscribe({
-      next: (res) => {
-        if (res && typeof res.count === 'number') this.flightsCount = res.count;
-      },
-      error: (err) => {
-        console.error('Error loading flights count', err);
-      }
-    });
-  }
-
-  loadRoutesCount() {
-  this.routesService.getRoutesCountAll().subscribe({
-      next: (res) => {
-        if (res && typeof res.count === 'number') this.routesCount = res.count;
-      },
-      error: (err) => {
-        console.error('Error loading routes count', err);
-      }
-    });
-  }
-
-  loadPassengersCount() {
-    this.airlinesService.getPassengersCount().subscribe({
-      next: (res) => {
-        if (res && typeof res.count === 'number') this.passengersCount = res.count;
-      },
-      error: (err) => {
-        console.error('Error loading passengers count', err);
-      }
-    });
-  }
 }

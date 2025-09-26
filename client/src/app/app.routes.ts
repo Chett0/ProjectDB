@@ -7,16 +7,19 @@ import { AdminHomeComponent } from './components/admin/admin-home/admin-home.com
 import { TicketBookingComponent } from './components/ticket-booking/ticket-booking.component';
 import { adminGuard, authGuard, airlineGuard, passengerGuard } from './guards/auth.guard';
 import { PassengersComponent } from './components/passengers/passengers.component';
+import { PassengersResolver } from './resolvers/passengers.resolver';
+import { AirlinesResolver } from './resolvers/airlines.resolver';
+import { AdminResolver } from './resolvers/admin.resolver';
 
 
 export const routes: Routes = [
     {
-        path:'',
-        component:SearchFlightsComponent
+        path: '',
+        component: SearchFlightsComponent
     },
     {
         path: 'login',
-        component : LoginComponent
+        component: LoginComponent
     },
     {
         path: 'register',
@@ -25,25 +28,28 @@ export const routes: Routes = [
     {
         path: 'admin',
         component: AdminHomeComponent,
-        canActivate: [adminGuard]
+        canActivate: [adminGuard],
+        resolve: { adminData: AdminResolver }
     },
     {
         path: 'airlines',
         component: AirlinesHomeComponent,
-        canActivate: [airlineGuard]
+        canActivate: [airlineGuard],
+        resolve: { airlinesData: AirlinesResolver }
     },
     {
         path: 'passengers',
         component: PassengersComponent,
-        canActivate: [passengerGuard]
-    },{
+        canActivate: [passengerGuard],
+        resolve: { passengerData: PassengersResolver}
+    },
+    {
         path: 'flights/buy-ticket',
         component: TicketBookingComponent,
         // canActivate: [authGuard]
     }
     // {
-    //     path: '**','
-    //     // component:NotFound
+    //   path: '**',
+    //   // component:NotFound
     // }
-
 ];
