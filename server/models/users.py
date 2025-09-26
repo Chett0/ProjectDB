@@ -20,3 +20,9 @@ class User(db.Model):
     deletion_time : Mapped[datetime] = mapped_column(db.DateTime, nullable=True, default=None)
 
     must_change_password: Mapped[bool] = mapped_column(db.Boolean, default=False, nullable=True)
+
+    passenger: Mapped["Passenger"] = relationship("Passenger", back_populates="user", uselist=False)
+
+
+# Import in fondo per evitare import circolari
+from .passenger import Passenger

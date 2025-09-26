@@ -9,8 +9,8 @@ class SeatSchema(ma.SQLAlchemySchema):
     id = ma.auto_field()
     number = ma.auto_field()
 
-    flight = ma.Nested('FlightSchema', only=('id', 'departure_time', 'arrival_time'))
-    aircraft_class = ma.Nested('AircraftClassSchema', only=('id', 'name', 'price_multiplier'))
+    flight = ma.Nested('FlightSchema')
+    aircraft_class = ma.Nested('AircraftClassSchema')
 
     state = ma.auto_field()
     price = ma.Integer()

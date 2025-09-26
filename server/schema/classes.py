@@ -7,7 +7,7 @@ class AircraftClassSchema(ma.SQLAlchemySchema):
         model = AircraftClass
 
     id = ma.Integer()
-    aircraft = ma.Nested('AircraftSchema', only=('id','model'))
+    aircraft = ma.Nested('AircraftSchema')
     name = ma.String()
     seats_total = ma.Integer()
     price_multiplier = ma.Decimal(as_string=True)

@@ -242,7 +242,7 @@ def create_extra():
         return jsonify({"message": "Error creating extra"}), 500
 
 
-@airlines_bp.route('/extras', methods=['GET'])
+@airlines_bp.route('airlines/extras', methods=['GET'])
 @roles_required([UserRole.AIRLINE.value])
 def get_extras():  
     try:

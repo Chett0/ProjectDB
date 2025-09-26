@@ -7,10 +7,11 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth/auth.service';
 import { Observable } from 'rxjs';
 import { HeaderComponent } from '../../header/header.component';
+import { FooterComponent } from '../../footer/footer.component';
 
 @Component({
   selector: 'app-search-flights',
-  imports: [ReactiveFormsModule, CommonModule, HeaderComponent, FormsModule],
+  imports: [ReactiveFormsModule, CommonModule, HeaderComponent, FormsModule, FooterComponent],
   templateUrl: './search-flights.component.html',
   styleUrls: ['./search-flights.component.css']
 })

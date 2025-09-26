@@ -188,7 +188,19 @@ def get_flights_count():
         if not aircraft_ids:
             return jsonify({"message": "Flights count retrieved", "count": 0}), 200
         
-        count = Flight.query.filter(Flight.aircraft_id.in_(aircraft_ids)).count()
+        count = (
+            db.session.query(Flight)
+            .join(Aircraft, Flight.aircraft_id == Aircraft.id)
+            .join(Route, Flight.route_id == Route.id)
+            .join(AirlineRoute, (AirlineRoute.route_id == Route.id) & (AirlineRoute.airline_id == airline_id))
+            .filter(
+                Flight.aircraft_id.in_(aircraft_ids),
+                Flight.active == True,
+                Aircraft.active == True,
+                AirlineRoute.active == True
+            )
+            .count()
+        )
         return jsonify({"message": "Flights count retrieved", "count": count}), 200
     except Exception as e:
         print(e)
@@ -232,12 +244,12 @@ def get_routes_count():
         return jsonify({"message": "Error retrieving routes count"}), 500
     
 
-    # Endpoint per il conteggio totale dei voli (solo admin)
+# Endpoint per il conteggio totale dei voli (solo admin)
 @flights_bp.route('/flights/count-all', methods=['GET'])
 @roles_required([UserRole.ADMIN.value])
 def get_flights_count_all():
     try:
-        count = Flight.query.count(active=True)
+        count = Flight.query.filter_by(active=True).count()
         return jsonify({"message": "Total flights count retrieved", "count": count}), 200
     except Exception as e:
         print(e)
@@ -249,8 +261,13 @@ def get_flights_count_all():
 @roles_required([UserRole.ADMIN.value])
 def get_routes_count_all():
     try:
-        from models import Route
-        count = Route.query.count(active=True)
+        count = (
+            db.session.query(Route)
+            .join(AirlineRoute, AirlineRoute.route_id == Route.id)
+            .filter(AirlineRoute.active == True)
+            .distinct(Route.id)
+            .count()
+        )
         return jsonify({"message": "Total routes count retrieved", "count": count}), 200
     except Exception as e:
         print(e)

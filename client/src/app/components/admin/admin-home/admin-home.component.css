@@ -87,10 +87,6 @@
 .btn.ghost { background:#fff; color:#243240; border:1px solid #e6e9ef }
 .btn.icon-only { background:transparent; color:#6b7785 }
 
-.btn.danger { background:#ff4b4b; color:#fff; border:0 }
-.btn.danger:hover { background:#e26d6d }
-.btn.danger.ghost { background:#fff; color:#ff4b4b; border:1px solid #ffd0d0 }
-
 .container { max-width:1320px; margin:28px auto; padding:0 20px }
 .page-header h2 { margin:0; font-size:30px }
 .subtitle { color:#6b7785; margin-top:6px }

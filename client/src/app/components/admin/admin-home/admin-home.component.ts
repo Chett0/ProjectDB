@@ -6,6 +6,8 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { AirlinesService } from '../../../services/airlines/airlines.service';
 import { RoutesService } from '../../../services/airlines/routes.service';
+import { FooterComponent } from '../../footer/footer.component';
+
 
 interface Airline {
   id: number;
@@ -16,7 +18,7 @@ interface Airline {
 
 @Component({
   selector: 'app-admin-home',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FooterComponent],
   templateUrl: './admin-home.component.html',
   styleUrl: './admin-home.component.css'
 })
