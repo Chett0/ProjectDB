@@ -35,19 +35,23 @@ export class LoginComponent {
       const user : User = {email : email, password : password};
       this.authService.login(user).subscribe({
         next: (response: any) => {
-          if (response.role && response.role.toUpperCase() === 'ADMIN') {
             this.loginError = 'Login effettuato con successo!';
             this.loginMsgType = 'success';
-            this.router.navigate(['/admin']);
-          } else if (response.role && response.role.toUpperCase() === 'USER') {
-            this.loginError = 'Login effettuato con successo!';
-            this.loginMsgType = 'success';
-            this.router.navigate(['/passengers']);
-          } else {
-            this.loginError = 'Login effettuato con successo!';
-            this.loginMsgType = 'success';
-            this.router.navigate([`${response.role.toLowerCase()}s`]);
-          }
+            let redirect = '';
+          if (response.role && response.role.toUpperCase() === 'ADMIN') 
+            redirect = '/admin';
+           else if (response.role && response.role.toUpperCase() === 'PASSENGER'){
+            if(AuthService.redirectUrl)
+              redirect = AuthService.redirectUrl;
+            else
+              redirect = '/passengers';
+           }
+           else 
+            redirect = `${response.role.toLowerCase()}s`;
+
+           AuthService.redirectUrl = null;
+           console.log(redirect)
+           this.router.navigate([redirect]);
         },
         error: (err: any) => {
           if (err?.status === 303) {

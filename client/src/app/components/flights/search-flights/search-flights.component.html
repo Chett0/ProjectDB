@@ -11,144 +11,67 @@
         <div class="d-flex gap-2 flex-wrap">
 
           <!-- Input Partenza -->
-          <input id="from-airport" name="from-airport" list="from-airports" (input)="onInputChange($event)"
+
+          <mat-form-field class="form-input">
+            <mat-label>Departure</mat-label>
+            <input #departureCity type="text" placeholder="Pick one" matInput [formControl]="searchForm.controls.from" [matAutocomplete]="departureAuto"
+              (input)="filterDepartureCities()" (focus)="filterDepartureCities()">
+            <mat-autocomplete requireSelection #departureAuto="matAutocomplete">
+              @for (option of filteredDepartureCities; track option) {
+              <mat-option [value]="option">{{option}}</mat-option>
+              }
+            </mat-autocomplete> 
+          </mat-form-field>
+
+          <!-- <input id="from-airport" name="from-airport" list="from-airports" (input)="onInputChange($event)"
             placeholder="Partenza" class="form-control w-auto" formControlName="from">
           <datalist id="from-airports">
             <option *ngFor="let city of cities" [value]="city"></option>
-          </datalist>
+          </datalist> -->
 
           <!-- Input Arrivo -->
-          <input id="to-airport" name="to-airport" list="to-airports" (input)="onInputChange($event)"
+          <!-- <input id="to-airport" name="to-airport" list="to-airports" (input)="onInputChange($event)"
             placeholder="Arrivo" class="form-control w-auto" formControlName="to">
           <datalist id="to-airports">
             <option *ngFor="let city of cities" [value]="city"></option>
-          </datalist>
+          </datalist> -->
+
+            <mat-form-field class="form-input">
+            <mat-label>Destination</mat-label>
+            <input #destinationCity type="text" placeholder="Pick one" matInput [formControl]="searchForm.controls.to" [matAutocomplete]="destinationAuto"
+              (input)="filterDestinationCities()" (focus)="filterDestinationCities()">
+            <mat-autocomplete requireSelection #destinationAuto="matAutocomplete">
+              @for (option of filteredDestinationCities; track option) {
+              <mat-option [value]="option">{{option}}</mat-option>
+              }
+            </mat-autocomplete> 
+          </mat-form-field>
 
           <!-- Input Data -->
-          <input type="date" class="form-control w-auto" formControlName="departure_date">
+          <!-- <input type="date" class="form-control w-auto" formControlName="departure_date"> -->
+           <mat-form-field class="form-input">
+            <mat-label>MM/DD/YYYY</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="departure_date">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
 
           <!-- Bottone ricerca -->
-          <button type="button" class="btn btn-dark" (click)="searchFlights()">Cerca</button>
+          <button type="button" class="btn btn-dark" (click)="searchFlights()">Search</button>
         </div>
 
       </form>
 
-      
+
 
       <!-- Lista voli trovati -->
 
-      <div class="filters">
-  <!-- Price Range -->
-  <div class="filter-section">
-    <h3>Price</h3>
-    <label>
-      Min: <input type="number" [(ngModel)]="filters.minPrice" placeholder="0">
-    </label>
-    <label>
-      Max: <input type="number" [(ngModel)]="filters.maxPrice" placeholder="1000">
-    </label>
-  </div>
-
-  <!-- Layovers -->
-  <div class="filter-section">
-    <h3>Layovers</h3>
-    <label>
-      <input type="checkbox" [(ngModel)]="filters.nonStop"> Non-stop
-    </label>
-    <label>
-      <input type="checkbox" [(ngModel)]="filters.oneStop"> 1 stop
-    </label>
-  </div>
-
-  <!-- Sort By -->
-  <!-- <div class="filter-section">
-    <h3>Sort by</h3>
-    <select [(ngModel)]="filters.sortBy">
-      <option value="price-asc">Price (Lowest)</option>
-      <option value="price-desc">Price (Highest)</option>
-      <option value="duration">Duration</option>
-      <option value="departure">Departure Time</option>
-      <option value="arrival">Arrival Time</option>
-    </select>
-  </div> -->
-
-  <button (click)="searchFlights()">Apply Filters</button>
-</div>
-
-
       
-
-      <!-- strutturiamo bene, i due form con un solo volo oppure se presente anche laltro con due voli-->
-
-      <div *ngFor="let flight of flights" class="card flight-card mb-4 shadow-sm">
-        <div class="card-body">
-          <!-- Titolo -->
-          <h5 class="card-title text-primary">
-            <ng-container *ngIf="flight.second_flight; else diretto">
-               Volo con scalo
-            </ng-container>
-            <ng-template #diretto>Volo diretto</ng-template>
-          </h5>
-
-          <hr>
-
-          <!-- Primo volo -->
-          <div class="mb-3">
-            <h6 class="text-muted">Primo volo</h6>
-            <div class="d-flex justify-content-between">
-              <div>
-                <p class="mb-1"><strong>{{ flight.first_flight.aircraft.airline.name }}</strong></p>
-                <p class="mb-1">
-                  {{ flight.first_flight.route.departure_airport.city }} ({{
-                  flight.first_flight.route.departure_airport.code }})
-                  → {{ flight.first_flight.route.arrival_airport.city }} ({{
-                  flight.first_flight.route.arrival_airport.code }})
-                </p>
-              </div>
-              <div class="text-end">
-                <p class="mb-1">{{ flight.first_flight.departure_time | date:'shortTime' }} → {{
-                  flight.first_flight.arrival_time | date:'shortTime' }}</p>
-                <p class="mb-1 text-success">€{{ flight.first_flight.base_price }}</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Secondo volo (solo se presente) -->
-          <div *ngIf="flight.second_flight" class="mb-3">
-            <h6 class="text-muted">Secondo volo</h6>
-            <div class="d-flex justify-content-between">
-              <div>
-                <p class="mb-1"><strong>{{ flight.second_flight.aircraft.airline.name }}</strong></p>
-                <p class="mb-1">
-                  {{ flight.second_flight.route.departure_airport.city }} ({{
-                  flight.second_flight.route.departure_airport.code }})
-                  → {{ flight.second_flight.route.arrival_airport.city }} ({{
-                  flight.second_flight.route.arrival_airport.code }})
-                </p>
-              </div>
-              <div class="text-end">
-                <p class="mb-1">{{ flight.second_flight.departure_time | date:'shortTime' }} → {{
-                  flight.second_flight.arrival_time | date:'shortTime' }}</p>
-                <p class="mb-1 text-success">€{{ flight.second_flight.base_price }}</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Info generali -->
-          <div class="d-flex justify-content-between align-items-center mt-3">
-            <span><strong>Durata totale:</strong> {{ flight.total_duration }} ore</span>
-            <button class="btn btn-primary btn-sm" (click)="onBuyTicket([flight.first_flight.id, flight.second_flight?.id])">Compra
-              Biglietto</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Nessun volo trovato -->
-      <div *ngIf="flights && flights.length === 0 && !loading" class="no-flights">
-        <p>Nessun volo trovato.</p>
-      </div>
+      <router-outlet></router-outlet>
+      
     </div>
   </main>
+
 
   <!-- Footer -->
   <footer class="footer">

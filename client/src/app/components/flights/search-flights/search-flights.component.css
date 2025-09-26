@@ -35,28 +35,29 @@ html, body {
 .search-form {
   margin-bottom: 30px;
   background-color: #fff;
-  padding: 20px;
+  padding: 30px;
+  padding-bottom: 10px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.search-form input,
-.search-form button {
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
 }
 
 .search-form button {
-  background-color: #343a40;
-  color: #fff;
-  border: none;
+  margin-left: auto;
+  padding: 10px; 
+  background: #2196F3;
+  color: white;
+  font-size: 17px; 
   cursor: pointer;
+  align-self: center;
   transition: background-color 0.3s;
+  margin-bottom: 15px; 
 }
 
 .search-form button:hover {
-  background-color: #495057;
+  background-color: #40a2f3;
 }
 
 /* Lista voli */
@@ -78,11 +79,6 @@ html, body {
   margin-bottom: 5px;
 }
 
-.no-flights {
-  text-align: center;
-  font-style: italic;
-  color: #888;
-}
 
 
 
@@ -100,19 +96,7 @@ html, body {
   gap: 5px;
 }
 
-button {
-  height: 40px;
-  padding: 0 15px;
-  border: none;
-  background: #2196F3;
-  color: white;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-}
-button:hover {
-  background: #1976D2;
-}
+
 
 .price-range-container {
   width: 300px;

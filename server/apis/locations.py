@@ -40,25 +40,15 @@ def get_locations():
             }), 400
         
 
+
 @locations_bp.route('/cities', methods = ['GET'])
 def get_cities():
     try:
-        query = request.args.get('query', "").strip()
-
-        # Evita query troppo brevi
-        if not query or len(query) < 2:
-            return jsonify([]), 200
-
         cities = (
             db.session.query(distinct(Airport.city))
-            .filter(Airport.city.ilike(f"{query}%"))
-            .limit(5)
             .all()
         )
 
-        print(cities)
-
-        # Estrai le città dall'oggetto SQLAlchemy
         city_list = [c[0] for c in cities]
 
         return jsonify({

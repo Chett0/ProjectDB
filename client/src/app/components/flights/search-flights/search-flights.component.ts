@@ -1,12 +1,16 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { SearchFlightsService } from '../../../services/search-flights.service';
-import { Router, RouterOutlet } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { FormGroup, FormControl, ReactiveFormsModule, FormsModule} from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { AuthService } from '../../../services/auth/auth.service';
-import { Observable } from 'rxjs';
 import { HeaderComponent } from '../../header/header.component';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {MatInputModule} from '@angular/material/input';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {provideNativeDateAdapter} from '@angular/material/core';
+
 
 export interface PriceRange {
   min: number;
@@ -15,19 +19,35 @@ export interface PriceRange {
 
 @Component({
   selector: 'app-search-flights',
-  imports: [ReactiveFormsModule, CommonModule, HeaderComponent, FormsModule],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    HeaderComponent,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatDatepickerModule,
+    RouterOutlet
+],
+  providers : [provideNativeDateAdapter(), DatePipe],
   templateUrl: './search-flights.component.html',
-  styleUrls: ['./search-flights.component.css']
+  styleUrls: ['./search-flights.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SearchFlightsComponent {
+export class SearchFlightsComponent implements OnInit{
 
+  @ViewChild('departureCity') departureCity!: ElementRef<HTMLInputElement>;
+  @ViewChild('destinationCity') destinationCity!: ElementRef<HTMLInputElement>;
   searchForm = new FormGroup({
     from : new FormControl(''),
     to : new FormControl(''),
     departure_date : new FormControl(''),
     arrival_date : new FormControl('')
   });
-  cities : any[] = []
+  cities : string[] = []
+  filteredDepartureCities: string[] = [];
+  filteredDestinationCities: string[] = [];
   flights : any[] = []
   loading: boolean = false;
 
@@ -42,56 +62,71 @@ export class SearchFlightsComponent {
     }     
   };
 
-  private sf = inject(SearchFlightsService)
-
+  
   constructor(
     private authService: AuthService,
-    private router: Router
-  ) {}
-
-  onInputChange(event : any) :  void {
-    if(event && event.target.value.length >= 2){
-      this.sf.searchLocations(event.target.value).subscribe({
-        next: (res : any) => {
-          this.cities = res.cities;
-          console.log(this.cities)
-        },
-        error: (error) => {
-          console.error('Error fetching airports:', error);
+    private router: Router,
+    private searchFlightsService: SearchFlightsService,
+    private datePipe : DatePipe,
+    private route: ActivatedRoute
+  ) {
+    this.searchFlightsService.getCities().subscribe({
+      next: (res : any) => {
+        this.cities = res.cities;
+      },
+      error: (error) => {
           this.cities = [];
         }
-      })
-    }
-    else 
-      this.cities = []
+    })
   }
 
-  onBuyTicket(flightIds: string[]) {
-    const validFlightIds = flightIds.filter(id => id != null); // filtra per i parametri NaN
-    this.router.navigate(
-      ['flights', 'buy-ticket'],
-      { queryParams: {ids: validFlightIds}}
-    )
+  ngOnInit(): void {
+    if(this.cities.length === 0){
+      this.searchFlightsService.getCities().subscribe({
+        next: (res : any) => {
+          this.cities = res.cities;
+          this.filteredDepartureCities = this.cities;
+          this.filteredDestinationCities = this.cities;
+        },
+        error: (error) => {
+          console.log(error)
+            this.cities = [];
+          }
+      })
+    }
+    
   }
 
   searchFlights(): void {
     const { from, to, departure_date } = this.searchForm.value;
 
-    if (!from || !to || !departure_date) {
+    const rawDate = departure_date;
+    const formattedDate = this.datePipe.transform(rawDate, 'yyyy-MM-dd');
+
+    if (!from || !to || !formattedDate) {
       return;
     }
 
     this.loading = true;
-    this.sf.searchFlights(from, to, departure_date, this.filters).subscribe({
-      next: (res: any) => {
-        this.flights = res.flights;
-        this.loading = false;
-        console.log('Voli trovati:', this.flights);
-      },
-      error: (err) => {
-        console.error('Errore durante la ricerca voli:', err);
-        this.loading = false;
-      }
+    const filters = {
+      departureCity : from,
+      destinationCity: to,
+      departureDate: formattedDate
+    };
+    this.router.navigate(['flights'], { 
+      relativeTo: this.route, 
+      queryParams: filters 
     });
+    }
+
+
+  filterDepartureCities(): void {
+    const filterValue = this.departureCity.nativeElement.value.toLowerCase();
+    this.filteredDepartureCities =  this.cities.filter(o => o.toLowerCase().includes(filterValue));
+  }
+
+  filterDestinationCities(): void {
+    const filterValue = this.destinationCity.nativeElement.value.toLowerCase();
+    this.filteredDestinationCities = this.cities.filter(o => o.toLowerCase().includes(filterValue));
   }
 }

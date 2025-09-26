@@ -24,6 +24,7 @@ export class AuthService {
 
   private apiUrl : string = 'http://localhost:5000/api'
   public isLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  static redirectUrl : string | null = null;
 
   constructor(private http: HttpClient, private token : TokensService, private router : Router) {
     this.isLoggedIn.next(!!localStorage.getItem('access_token'))
@@ -44,6 +45,7 @@ export class AuthService {
     localStorage.removeItem('access_token');
     this.isLoggedIn.next(false);
     this.token.clearTokens();
+    AuthService.redirectUrl = null;
   }
 
   registerPassenger(passenger : PassengerAsUser) {
@@ -58,18 +60,11 @@ export class AuthService {
     return this.token.getAccessToken();
   }
 
-  //verifica se l'utente è loggato o meno
-  /*isLoggedIn(): boolean {
-    return !!localStorage.getItem('access_token');
-  }*/
-
-
   isAuthenticated(): boolean {
     const token = this.token.getAccessToken();
-    if(token)
-      return true;
+    if(token) return true;
 
-    this.router.navigate(['/login']);
+    // this.router.navigate(['/login'])
     return false;
   }
 
