@@ -38,7 +38,6 @@ export class RoutesComponent implements OnInit{
   }
 
   loadRoutes() {
-    console.log('Loading routes...', this.routes);
     
     this.loading = true;
     this.errorMessage = null;
@@ -109,13 +108,11 @@ export class RoutesComponent implements OnInit{
 
   this.routesService.deleteRoute(route.id).subscribe({
       next: response => {
-        console.log('deleteRoute success response:', response);
         this.routes = this.routes.filter(r => r.id !== route.id);
         this.applyFilter((this.searchControl.value || '').trim().toLowerCase());
         this.deletingId = null;
       },
       error: (err) => {
-        console.error('deleteRoute error:', err);
         this.errorMessage = 'Errore durante l\'eliminazione della tratta.';
         this.deletingId = null;
       }

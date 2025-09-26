@@ -12,9 +12,6 @@ import { AirlinesService } from './airlines.service';
 export class AircraftsService {
   private aircraftsCache: Aircraft[] | null = null;
 
-  clearCache() {
-    this.aircraftsCache = null;
-  }
 
   constructor(private http : HttpClient, private airlinesService: AirlinesService) { }
 

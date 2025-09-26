@@ -1,4 +1,82 @@
-.flights-page {
+.flights-empty {
+	text-align: center;
+	color: #64748b;
+	margin-top: 2rem;
+	font-size: 1.1rem;
+	padding: 14px;
+}
+.modal {
+	position: fixed;
+	z-index: 1000;
+	left: 0;
+	top: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0,0,0,0.4);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.modal-content {
+	background: #fff;
+	padding: 1rem 1.25rem;
+	border-radius: 8px;
+	box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+	min-width: 320px;
+	max-width: 720px;
+	position: relative;
+}
+
+.close {
+	position: absolute;
+	top: 10px;
+	right: 16px;
+	font-size: 2rem;
+	font-weight: 400;
+	color: #243240;
+	cursor: pointer;
+	border: none;
+	background: none;
+}
+
+.modal-content h2 {
+	margin-top: 0;
+	margin-bottom: 1.5rem;
+}
+
+.modal-content label {
+	display: block;
+	margin-top: 1rem;
+	margin-bottom: 0.3rem;
+	font-weight: 500;
+}
+
+.modal-content input[type="datetime-local"],
+.modal-content input[type="number"] {
+	width: 100%;
+	padding: 0.5rem;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	font-size: 1rem;
+	margin-bottom: 0.5rem;
+}
+
+.modal-content button[type="submit"] {
+	margin-top: 1.2rem;
+	background: #1976d2;
+	color: #fff;
+	border: none;
+	padding: 0.7rem 1.5rem;
+	border-radius: 4px;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+.modal-content button[type="submit"]:hover {
+	background: #1256a3;
+}
+.flights-tab {
 	max-width: 900px;
 	margin: 2.5rem auto;
 	padding: 0 1.2rem;
@@ -48,60 +126,32 @@
 .add-flight-btn:hover {
 	background: #1746a2;
 }
-.flights-modal-backdrop {
-	position: fixed;
-	top: 0; left: 0; right: 0; bottom: 0;
-	background: rgba(36, 50, 64, 0.18);
-	z-index: 1000;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-.flights-modal {
-	background: #fff;
-	border-radius: 14px;
-	box-shadow: 0 4px 24px rgba(36,50,64,0.13);
-	padding: 2rem 1.5rem 1.5rem 1.5rem;
-	min-width: 320px;
-	max-width: 95vw;
-	position: relative;
-}
-.flights-modal-close {
-	position: absolute;
-	top: 10px;
-	right: 14px;
-	background: none;
-	border: none;
-	font-size: 2rem;
-	color: #243240;
-	cursor: pointer;
-}
-.flights-add-form h3 {
-	margin-top: 0;
-	font-size: 1.2rem;
-	font-weight: 700;
-}
-.flights-add-form button[type="submit"] {
-	width: 100%;
-	background: #2b74ff;
-	color: #fff;
-	border: none;
-	border-radius: 8px;
-	padding: 10px 0;
-	font-weight: 700;
-	font-size: 1rem;
-	margin-top: 10px;
-	cursor: pointer;
-	transition: background 0.2s;
-}
-.flights-add-form button[type="submit"]:hover:not(:disabled) {
-	background: #1746a2;
-}
-.flights-add-form button[type="submit"][disabled] {
-	opacity: 0.7;
-	cursor: not-allowed;
-}
 
 @media (max-width: 640px) {
 	.flights-header-row { flex-direction: column; align-items: stretch; gap: 10px; }
 }
+
+.flights-list { margin-top: 18px; }
+.flights-list ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.flight-row { background: #fff; border-radius: 8px; padding: 12px; box-shadow: 0 2px 6px rgba(36,50,64,0.06); display: flex; align-items: center; }
+.flight-main { display: flex; flex-direction: column; width: 100%; gap: 6px; }
+.flight-main .route { display:flex; align-items: center; justify-content: space-between; gap: 8px; }
+.flight-main .route-name { font-weight: 700; color: #213547; }
+.flight-main .meta { display:flex; gap: 12px; align-items: center; color: #475569; font-size: 0.95rem; }
+.flight-main .meta .price { margin-left: auto; font-weight: 800; color: #0f172a; }
+
+
+.modal-aircraft-selection { margin-top: 12px; }
+.modal-search-input { width: 100%; padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px; }
+
+.modal-aircraft-list { border: 1px solid #e6eefc; border-radius: 8px; max-height: 220px; overflow:auto; padding:6px; background:#fff; padding-left: 0; }
+.modal-aircraft-list .compact-item { padding:8px 10px; border-radius:6px; display:flex; justify-content:space-between; gap:12px; cursor:pointer; }
+.modal-aircraft-list .compact-item + .compact-item { margin-top:6px; }
+.modal-aircraft-list .compact-item:hover { background:#f1f5ff; }
+.modal-aircraft-list ul { list-style: none; padding: 0; margin: 0; }
+
+.modal-selector-toggle { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border:1px solid #e2e8f0; border-radius:8px; cursor:pointer; background:#fff; }
+.modal-selector-toggle .caret { margin-left:10px; }
+.modal-dropdown { margin-top:8px; border-radius:8px; }
+.modal-dropdown .modal-search-input { margin:8px 6px 6px 6px; }
+.modal-dropdown .modal-aircraft-list { margin: 0 6px 6px 6px; }

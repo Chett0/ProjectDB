@@ -51,6 +51,9 @@ export class AirlinesService {
     return this.http.get<any>(`${enviroment.apiUrl}/passengers/count`);
   }
 
+    getPassengersCountAll() {
+    return this.http.get<any>(`${enviroment.apiUrl}/passengers/airline/count`);
+  }
 
   createFlight(payload: { route_id: number; aircraft_id: number; departure_time: string; arrival_time: string; base_price: number }) {
     this.flightCache = null;
@@ -84,7 +87,7 @@ export class AirlinesService {
     if (!forceRefresh && this.extrasCache && this.extrasCacheTimestamp && (now - this.extrasCacheTimestamp < this.cacheTTL)) {
       return of({ message: 'Extras retrieved successfully (cache)', extras: this.extrasCache });
     }
-    return this.http.get<any>(`${enviroment.apiUrl}/airline/extras`).pipe(
+    return this.http.get<any>(`${enviroment.apiUrl}/airlines/extras`).pipe(
       tap(res => {
         if (res && res.extras) {
           this.extrasCache = res.extras;

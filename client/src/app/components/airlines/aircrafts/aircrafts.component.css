@@ -1,4 +1,4 @@
-.aircrafts-page {
+.aircrafts-tab {
   max-width: 900px;
   margin: 2.5rem auto;
   padding: 0 1.2rem;
@@ -235,13 +235,11 @@
   right: 18px;
   background: none;
   border: none;
-  font-size: 1.5rem;
-  color: #6b7785;
+  font-size: 2rem;
+  font-weight: 400;
+	color: #243240;
   cursor: pointer;
   transition: color 0.18s;
-}
-.aircrafts-modal-close:hover {
-  color: #c0392b;
 }
 
 .aircrafts-classes-section {
