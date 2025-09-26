@@ -1,12 +1,11 @@
  
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { User, UserRole } from '../../../types/users/auth';
 import { PassengerAsUser } from '../../../types/users/passenger';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { enviroment } from '../../enviroments/enviroments';
 import { TokensService } from '../tokens/tokens.service';
-import { Token } from '@angular/compiler';
 import { Router } from '@angular/router';
 
 
@@ -24,7 +23,8 @@ export class AuthService {
 
   private apiUrl : string = 'http://localhost:5000/api'
   public isLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  static redirectUrl : string | null = null;
+  static redirectPath : string | null = null;
+  static redirectQuery : any = null;
 
   constructor(private http: HttpClient, private token : TokensService, private router : Router) {
     this.isLoggedIn.next(!!localStorage.getItem('access_token'))
@@ -45,7 +45,7 @@ export class AuthService {
     localStorage.removeItem('access_token');
     this.isLoggedIn.next(false);
     this.token.clearTokens();
-    AuthService.redirectUrl = null;
+    AuthService.clearRedirectPath();
   }
 
   registerPassenger(passenger : PassengerAsUser) {
@@ -81,4 +81,17 @@ export class AuthService {
   changePassword(data: { email: string; old_password: string; new_password: string }) {
     return this.http.put<void>(`${this.apiUrl}/password`, data);
   }
+
+  static clearRedirectPath() {
+    AuthService.redirectPath = null;
+    AuthService.redirectQuery = null;
+  }
+
+  static settingRedirect(state : any) {
+    const router = inject(Router)
+    AuthService.redirectPath = state.url.split('?')[0];
+    AuthService.redirectQuery = router.parseUrl(state.url).queryParams;
+    router.navigate(['/login']);
+  }
+
 }

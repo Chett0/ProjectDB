@@ -38,19 +38,22 @@ export class LoginComponent {
             this.loginError = 'Login effettuato con successo!';
             this.loginMsgType = 'success';
             let redirect = '';
+            if(AuthService.redirectPath){
+              const path = AuthService.redirectPath;
+              const params = AuthService.redirectQuery;
+              AuthService.clearRedirectPath();
+              console.log(path, params)
+              this.router.navigate([path], {
+                queryParams : params
+              });
+              return;
+            }
           if (response.role && response.role.toUpperCase() === 'ADMIN') 
             redirect = '/admin';
-           else if (response.role && response.role.toUpperCase() === 'PASSENGER'){
-            if(AuthService.redirectUrl)
-              redirect = AuthService.redirectUrl;
-            else
+           else if (response.role && response.role.toUpperCase() === 'PASSENGER')
               redirect = '/passengers';
-           }
            else 
             redirect = `${response.role.toLowerCase()}s`;
-
-           AuthService.redirectUrl = null;
-           console.log(redirect)
            this.router.navigate([redirect]);
         },
         error: (err: any) => {

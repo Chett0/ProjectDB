@@ -12,23 +12,26 @@ export const authGuard: CanActivateFn = (route, state) => {
 
 export const adminGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
-  const router = inject(Router);
-  return authService.hasRole(UserRole.ADMIN);
+  if(authService.hasRole(UserRole.ADMIN))
+    return true;
+
+  AuthService.settingRedirect(state);
+  return false;
 };
 
 export const airlineGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
-  return authService.hasRole(UserRole.AIRLINE);
+  if(authService.hasRole(UserRole.AIRLINE))
+    return true;
+  AuthService.settingRedirect(state);
+  return false;
 };
 
 export const passengerGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
-  const router = inject(Router);
   if(authService.hasRole(UserRole.PASSENGER))
     return true;
-
-  AuthService.redirectUrl = state.url;
-  router.navigate(['/login']);
+  AuthService.settingRedirect(state);
   return false;
 };
 
