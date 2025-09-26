@@ -2,14 +2,13 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { SearchFlightsService } from '../../../services/search-flights.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FiltersComponent } from '../filters/filters.component';
 import { LoadingComponent } from "../../utils/loading/loading.component";
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-list-flights',
   imports: [
     CommonModule,
-    FiltersComponent,
     LoadingComponent
 ],
   templateUrl: './list-flights.component.html',
@@ -37,6 +36,14 @@ export class ListFlightsComponent implements OnInit{
       const departureDate = params['departureDate'] || null;
       const departureCity = params['departureCity'] || null;
       const destinationCity = params['destinationCity'] || null;
+
+      const filters = {
+        maxPrice : params['maxPrice'] || null,
+        nStop : params['nStop'] || null,
+        sortBy : params['sortBy'] || null,
+        order: params['order'] || null
+      }
+
 
       this.searchFlightsService.searchFlights(departureCity, destinationCity, departureDate, filters).subscribe({
       next: (res: any) => {

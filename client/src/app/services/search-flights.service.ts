@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { filter, Observable } from 'rxjs';
+import { Filters } from '../components/flights/filters-flights/filters-flights.component';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +25,7 @@ export class SearchFlightsService {
     from: string,
     to: string,
     departure_date: string,
-    filters: any
+    filters: Filters
   ): Observable<any[]> {
     let params = new HttpParams()
       .set('from', from)
@@ -32,18 +33,13 @@ export class SearchFlightsService {
       .set('departure_date', departure_date);
 
     
-    params = params.set('min_price', 0)
-                    .set('max_price', 10000);
-    // if (filters.nonStop) {
-    //   params = params.set('max_layovers', 0);
-    // }
-    // if (filters.oneStop) {
-    //   params = params.set('max_layovers', 1);
-    // }
-    // if (filters.sort) {
-    //   params = params.set('sort_by', filters.sort.sort_by);
-    //   params = params.set('order', filters.sort.order);
-    // }
+    params = params.set('max_price', filters.maxPrice);
+    params = params.set('max_layovers', filters.nStop);
+    
+    if(filters.sortBy && filters.order){
+      params = params.set('sort_by', filters.sortBy);
+      params = params.set('order', filters.order);
+    }
 
     return this.http.get<any[]>(`${this.apiUrl}/flights`, { params });
   }

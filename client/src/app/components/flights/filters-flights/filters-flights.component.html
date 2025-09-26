@@ -1,0 +1,36 @@
+<div class="filters-section">
+        
+        <div class="filters price-range">
+          <label for="range4" class="form-label"><h4>Max Price</h4></label>
+        <input type="range" class="form-range" min="0" max="2000" value="2000" id="range4" [(ngModel)]="filters.maxPrice">
+        <output for="range4" id="rangeValue" aria-hidden="true"></output>
+        <span id="rangeValue">{{ filters.maxPrice }}</span>
+        </div>
+        
+        
+         <div class="filters layovers">
+          <h4>Layovers</h4>
+          <label>
+            <input type="checkbox" [checked]="isNonStopChecked()" (change)="toggleNonStop()"> Non-stop
+          </label>
+          </div>  
+        
+
+        
+      <div class="filters sort"> 
+    <h4>Sort by</h4>
+    <select [(ngModel)]="filters.sortBy">
+      <option value="total_duration">Duration</option>
+      <option value="total_price">Price (Lowest)</option>
+      <option value="departure_time">Departure Time</option>
+      <option value="arrival_time">Arrival Time</option>
+    </select>
+    </div>
+    
+
+
+    <div class="button-container">
+    <button type="button" class="btn btn-primary filters-button" (click)="applyFilters()">Apply</button>
+  </div>
+</div>
+

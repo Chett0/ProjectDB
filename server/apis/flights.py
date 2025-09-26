@@ -75,15 +75,14 @@ def get_flights():
     try:
         page_number = request.args.get('page', 1, type=int)
         limit = request.args.get('limit', 10, type=int)
-        sort_by = request.args.get('sort_by', 'departure_time')
+        sort_by = request.args.get('sort_by', 'total_duration')
         order = request.args.get('order', 'asc').lower()
         departure_airport_code = request.args.get('from')
         arrival_airport_code = request.args.get('to')
         layovers = request.args.get('max_layovers', 1, type=int)
         departure_date = request.args.get('departure_date')
 
-        min_price = request.args.get('min_price', type=int)
-        max_price = request.args.get('max_price', type=int)
+        max_price = request.args.get('max_price', 2000, type=int)
         # round_trip = request.args.get('round_trip', 0, type=int)
         # arrival_date = request.args.get('arrival_date')
 
@@ -126,7 +125,6 @@ def get_flights():
             departure_airports=departure_airports,
             arrival_airports=arrival_airports,
             layovers=layovers,
-            min_price=min_price,
             max_price=max_price
         )
 
@@ -247,6 +245,8 @@ def sort_journeys(journeys, sort_params):
 
         if(sort_params["sort_by"]=="departure_time"):
             journeys.sort(key=lambda x: x["first_flight"].departure_time)
+        elif(sort_params["sort_by"]=="arrival_time"):
+            journeys.sort(key=lambda x: x['second_flight'].arrival_time if x.get('second_flight') else x['first_flight'].arrival_time)
         elif(sort_params["sort_by"]=="price"):
             journeys.sort(key=lambda x: x["total_price"])
         elif(sort_params["sort_by"]=="duration"):
@@ -295,7 +295,6 @@ def get_occupied_seats_for_flight(flight_id: int):
 def get_direct_flights(
         flights_query,
         routes,
-        min_price,
         max_price
 ):
 
@@ -305,7 +304,7 @@ def get_direct_flights(
     direct_flights = flights_query.filter(
         and_(
             Flight.route_id.in_(route_ids), 
-            Flight.base_price.between(min_price, max_price)
+            Flight.base_price < max_price
         )
     ).all()
     for flight in direct_flights:
@@ -324,7 +323,6 @@ def get_layovers_flights(
     flights_query,
     departure_airports,
     arrival_airports,
-    min_price,
     max_price
 ):
 
@@ -361,7 +359,7 @@ def get_layovers_flights(
                             total_journey_duration = (second_flight.arrival_time - first_flight.departure_time).total_seconds() // 3600
                             total_journey_price = first_flight.base_price + second_flight.base_price
 
-                            if total_journey_price >= min_price and total_journey_price <= max_price:
+                            if total_journey_price <= max_price:
 
                                 journeys.append({
                                     "first_flight":first_flight, 
@@ -380,7 +378,6 @@ def search_flights(
         departure_airports,
         arrival_airports,
         layovers,
-        min_price,
         max_price
     ):
     
@@ -398,7 +395,6 @@ def search_flights(
         journeys.extend(get_direct_flights(
             flights_query=flights_query,
             routes=direct_routes,
-            min_price=min_price,
             max_price=max_price
         ))
 
@@ -407,7 +403,6 @@ def search_flights(
             flights_query=flights_query,
             departure_airports=departure_airports,
             arrival_airports=arrival_airports,
-            min_price=min_price,
             max_price=max_price
         ))
 

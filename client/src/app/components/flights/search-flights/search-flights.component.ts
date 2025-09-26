@@ -12,11 +12,6 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import {provideNativeDateAdapter} from '@angular/material/core';
 
 
-export interface PriceRange {
-  min: number;
-  max: number;
-}
-
 @Component({
   selector: 'app-search-flights',
   imports: [
@@ -48,19 +43,7 @@ export class SearchFlightsComponent implements OnInit{
   cities : string[] = []
   filteredDepartureCities: string[] = [];
   filteredDestinationCities: string[] = [];
-  flights : any[] = []
-  loading: boolean = false;
-
-  filters = {
-    minPrice: 0,
-    maxPrice: 10000,
-    nonStop: false,
-    oneStop: true,
-    sort: {
-      sort_by : 'departure_time',  //price, total_duration, departure_time
-      order: 'asc'        //asc desc
-    }     
-  };
+  flights : any[] = [];
 
   
   constructor(
@@ -107,7 +90,6 @@ export class SearchFlightsComponent implements OnInit{
       return;
     }
 
-    this.loading = true;
     const filters = {
       departureCity : from,
       destinationCity: to,
