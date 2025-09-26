@@ -19,7 +19,7 @@
 
 .top-actions { display:flex; gap:10px; align-items:center }
 .btn { background:#2b74ff; color:#fff; border:0; padding:8px 12px; border-radius:8px; cursor:pointer }
-.btn.icon-only { font-size:15px; font-weight:700; padding:8px 14px; color:#0f1724 }
+.btn.icon-only { font-size:20px; font-weight:700; padding:8px 14px; color:#0f1724 }
 .logout-btn { width:40px; height:40px; border-radius:50%; background:#2b74ff; border:0; display:inline-flex; align-items:center; justify-content:center; cursor:pointer }
 .logout-btn svg { display:block }
 .logout-btn:hover { background:#235ed6 }

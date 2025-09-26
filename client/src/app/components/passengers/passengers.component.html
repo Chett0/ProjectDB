@@ -1,1 +1,102 @@
-<p>passengers works!</p>
+<div class="passenger-header">
+	<div class="passenger-header__inner">
+		<div class="avatar" aria-hidden="true">{{ (passenger.name.charAt(0) + passenger.surname.charAt(0)).toUpperCase() }}</div>
+		<div class="passenger-info">
+			<h1 class="passenger-name">{{ passenger.name }} {{ passenger.surname }}</h1>
+			<div class="passenger-meta">
+				<span class="email">{{ passenger.email }}</span>
+			</div>
+		</div>
+
+		<div class="header-actions">
+			<button class="search-btn" (click)="onSearch()">
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M21 21l-4.35-4.35" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+					<circle cx="11" cy="11" r="6" stroke="white" stroke-width="2" />
+				</svg>
+				<span>Cerca voli</span>
+			</button>
+			<button class="logout-btn" title="Logout" (click)="onLogout()">
+				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				  <path d="M16 17L21 12L16 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+				  <path d="M21 12H9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+				  <path d="M9 5H6A2 2 0 0 0 4 7V17A2 2 0 0 0 6 19H9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+				</svg>
+			</button>
+		</div>
+	</div>
+</div>
+
+<section class="personal-card">
+	<h2>Informazioni Personali</h2>
+	<div class="card">
+		<div class="row">
+			<div class="col">
+				<label class="label">Nome</label>
+				<div class="value">{{ passenger.name }}</div>
+			</div>
+			<div class="col">
+				<label class="label">Cognome</label>
+				<div class="value">{{ passenger.surname }}</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col">
+				<label class="label">Email</label>
+				<div class="value">{{ passenger.email }}</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="tickets-list">
+	   <h2>I tuoi biglietti</h2>
+	   <div class="tickets">
+		   <div *ngIf="tickets.length === 0" class="no-tickets-message">
+			   Nessun biglietto disponibile
+		   </div>
+		   <div *ngFor="let t of tickets" class="ticket-card">
+			   <div class="ticket-left">
+				   <div class="ticket-head">
+					   <div class="airline">✈️ {{ t.code }} - {{ t.airline }}</div>
+					   <div class="booking">Prenotazione: {{ t.booking }}</div>
+				   </div>
+
+				   <div class="ticket-body">
+					   <div class="col-stop">
+						   <div class="code">{{ t.from.code }}</div>
+						   <div class="city">{{ t.from.city }}</div>
+						   <div class="time">{{ t.from.time }}</div>
+						   <div class="date">{{ t.from.date }}</div>
+					   </div>
+
+					   <div class="journey">
+						   <div class="plane">{{ t.cabin }}</div>
+					   </div>
+
+					   <div class="col-stop">
+						   <div class="code">{{ t.to.code }}</div>
+						   <div class="city">{{ t.to.city }}</div>
+						   <div class="time">{{ t.to.time }}</div>
+						   <div class="date">{{ t.to.date }}</div>
+					   </div>
+				   </div>
+
+				   <div class="ticket-foot">
+					   <div class="seat">Posto: {{ t.seat }}</div>
+				   </div>
+			   </div>
+
+			   <div class="ticket-right">
+				   <div class="price">€{{ t.price }}</div>
+			   </div>
+		   </div>
+	   </div>
+</section>
+
+<div class="passenger-page">
+	<app-footer></app-footer>
+</div>
+	
+

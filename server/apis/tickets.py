@@ -236,8 +236,6 @@ def get_ticket_by_id(ticket_id):
 
 
 
-
-
 @tickets_bp.route('/tickets/<int:ticket_id>', methods=['PATCH'])
 def update_ticket(ticket_id):
     try:

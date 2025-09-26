@@ -11,6 +11,18 @@ import { tap } from 'rxjs/operators';
 export class AirlinesService {
   private extrasCache: any[] | null = null;
   private extrasCacheTimestamp: number | null = null;
+  private flightCache: any[] | null = null;
+  private flightCacheTimestamp: number | null = null;
+
+
+  clearExtrasCache() {
+    this.extrasCache = null;
+    this.extrasCacheTimestamp = null;
+  }
+  clearFlightsCache() {
+    this.flightCache = null;
+    this.flightCacheTimestamp = null;
+  }
   private readonly cacheTTL = 2 * 60 * 1000; // 2 minuti
 
   constructor(private http : HttpClient) { }
@@ -39,6 +51,31 @@ export class AirlinesService {
     return this.http.get<any>(`${enviroment.apiUrl}/passengers/count`);
   }
 
+    getPassengersCountAll() {
+    return this.http.get<any>(`${enviroment.apiUrl}/passengers/airline/count`);
+  }
+
+  createFlight(payload: { route_id: number; aircraft_id: number; departure_time: string; arrival_time: string; base_price: number }) {
+    this.flightCache = null;
+    this.flightCacheTimestamp = null;
+    return this.http.post<any>(`${enviroment.apiUrl}/flights`, payload);
+  }
+
+
+  getAirlinesFlights() {
+    const now = Date.now();
+    if (this.flightCache && this.flightCacheTimestamp && (now - this.flightCacheTimestamp < this.cacheTTL)) {
+      return of({ message: 'Flights retrieved successfully (cache)', flights: this.flightCache });
+    }
+    return this.http.get<any>(`${enviroment.apiUrl}/airline/flights`).pipe(
+      tap(res => {
+        const list = Array.isArray(res) ? res : (res as any)?.flights ?? [];
+        this.flightCache = list;
+        this.flightCacheTimestamp = Date.now();
+      })
+    );
+  }
+
   createExtra(extra: { name: string; price: number }) {
     this.extrasCache = null;
     this.extrasCacheTimestamp = null;
@@ -50,7 +87,7 @@ export class AirlinesService {
     if (!forceRefresh && this.extrasCache && this.extrasCacheTimestamp && (now - this.extrasCacheTimestamp < this.cacheTTL)) {
       return of({ message: 'Extras retrieved successfully (cache)', extras: this.extrasCache });
     }
-    return this.http.get<any>(`${enviroment.apiUrl}/airline/extras`).pipe(
+    return this.http.get<any>(`${enviroment.apiUrl}/airlines/extras`).pipe(
       tap(res => {
         if (res && res.extras) {
           this.extrasCache = res.extras;

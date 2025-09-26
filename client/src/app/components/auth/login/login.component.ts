@@ -76,7 +76,6 @@ export class LoginComponent {
   }
 
   changePassword() {
-  console.log('Cambio password chiamato');
   this.loginError = '';
   this.loginMsgType = '';
     if (!this.newPassword || !this.confirmNewPassword) {

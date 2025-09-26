@@ -4,6 +4,7 @@ import { Aircraft } from '../../../types/users/airlines';
 import { enviroment } from '../../enviroments/enviroments';
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { AirlinesService } from './airlines.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,8 @@ import { tap } from 'rxjs/operators';
 export class AircraftsService {
   private aircraftsCache: Aircraft[] | null = null;
 
-  constructor(private http : HttpClient) { }
+
+  constructor(private http : HttpClient, private airlinesService: AirlinesService) { }
 
   getAircrafts(): Observable<Aircraft[]> {
     if (this.aircraftsCache) {
@@ -27,12 +29,20 @@ export class AircraftsService {
 
   addAircraft(aircraft: { model: string; nSeats: number; classes?: any[] }) {
     this.aircraftsCache = null;
-    return this.http.post<any>(`${enviroment.apiUrl}/aircrafts`, aircraft);
+    return this.http.post<any>(`${enviroment.apiUrl}/aircrafts`, aircraft).pipe(
+      tap(() => {
+        this.airlinesService.clearFlightsCache();
+      })
+    );
   }
 
   deleteAircraft(aircraftId: number) {
     this.aircraftsCache = null;
-    return this.http.delete<any>(`${enviroment.apiUrl}/aircrafts/${aircraftId}`);
+    return this.http.delete<any>(`${enviroment.apiUrl}/aircrafts/${aircraftId}`).pipe(
+      tap(() => {
+        this.airlinesService.clearFlightsCache();
+      })
+    );
   }
 
   getAircraftsCount() {

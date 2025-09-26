@@ -11,6 +11,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {provideNativeDateAdapter} from '@angular/material/core';
 
+import { FooterComponent } from '../../footer/footer.component';
 
 @Component({
   selector: 'app-search-flights',
@@ -23,7 +24,8 @@ import {provideNativeDateAdapter} from '@angular/material/core';
     MatInputModule,
     MatAutocompleteModule,
     MatDatepickerModule,
-    RouterOutlet
+    RouterOutlet,
+    FooterComponent
 ],
   providers : [provideNativeDateAdapter(), DatePipe],
   templateUrl: './search-flights.component.html',

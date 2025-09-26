@@ -10,11 +10,12 @@ import { AircraftsComponent } from '../aircrafts/aircrafts.component';
 import { RoutesComponent } from '../routes/routes.component';
 import { FlightsComponent } from '../flights/flights.component';
 import { ExtraComponent } from '../extra/extra.component';
+import { FooterComponent } from '../../footer/footer.component';
 
 
 @Component({
   selector: 'app-airlines-home',
-  imports: [CommonModule, AircraftsComponent, RoutesComponent, FlightsComponent, ExtraComponent],
+  imports: [CommonModule, AircraftsComponent, RoutesComponent, FlightsComponent, ExtraComponent, FooterComponent],
   templateUrl: './airlines-home.component.html',
   styleUrl: './airlines-home.component.css'
 })
@@ -70,7 +71,14 @@ export class AirlinesHomeComponent implements OnInit{
         console.error('Errore caricamento conteggio tratte', err);
       }
     });
-    this.totalPassengers = 0;
+    this.airlinesService.getPassengersCountAll().subscribe({
+      next: (res) => {
+        if (res && typeof res.count === 'number') this.totalPassengers = res.count;
+      },
+      error: (err) => {
+        console.error('Errore caricamento conteggio passeggeri', err);
+      }
+    });
   }
 
   navigateTo(route: string) {
@@ -80,8 +88,10 @@ export class AirlinesHomeComponent implements OnInit{
   onLogout() {
     const confirmed = confirm('Sei sicuro di voler effettuare il logout?');
     if (!confirmed) return;
-    this.routesService.clearCache();
     this.aircraftsService.clearCache();
+    this.routesService.clearCache();
+    this.airlinesService.clearExtrasCache();
+    this.airlinesService.clearFlightsCache();
     this.authService.logout();
     this.router.navigate(['/login']);
   }

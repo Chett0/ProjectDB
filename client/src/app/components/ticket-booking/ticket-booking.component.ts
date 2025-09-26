@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { Seat } from '../../../types/flights/flights';
 import { TicketBookingService } from '../../services/ticket-booking/ticket-booking.service';
 import { Router } from '@angular/router';
+import { FooterComponent } from '../footer/footer.component';
 
 export interface PassengerInfo {
   id: number;
@@ -44,7 +45,7 @@ declare var bootstrap: any;
 
 @Component({
   selector: 'app-ticket-booking',
-  imports: [HeaderComponent, CommonModule, NgIf, FormsModule],
+  imports: [HeaderComponent, CommonModule, NgIf, FormsModule, FooterComponent],
   templateUrl: './ticket-booking.component.html',
   styleUrl: './ticket-booking.component.css'
 })

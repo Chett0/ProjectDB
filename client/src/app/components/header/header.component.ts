@@ -4,6 +4,7 @@ import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PassengerService } from '../../services/passenger/passenger.service';
+import { TicketBookingService } from '../../services/ticket-booking/ticket-booking.service';
 
 @Component({
   selector: 'app-header',
@@ -19,7 +20,8 @@ export class HeaderComponent {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private passengerService: PassengerService
+    private passengerService: PassengerService,
+    private ticketBookingService: TicketBookingService
   ) {}
   
   ngOnInit(): void {
@@ -35,11 +37,17 @@ export class HeaderComponent {
   onLogout() {
     const confirmed = confirm('Sei sicuro di voler effettuare il logout?');
     if (!confirmed) return;
+    this.passengerService.clearPassengerCache();
+    this.ticketBookingService.clearTicketsCache();
     this.authService.logout();
     this.router.navigate(['/login']);
   }
 
   onLogin() {
     this.router.navigate(['/login']);
+  }
+
+  goToPassengers() {
+    this.router.navigate(['/passengers']);
   }
 }

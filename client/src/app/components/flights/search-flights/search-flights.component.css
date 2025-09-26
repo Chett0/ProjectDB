@@ -17,13 +17,6 @@ html, body {
   background: linear-gradient(120deg, #e0e7ff 0%, #f8fafc 100%);
 }
 
-.footer {
-  background-color: #1a1a1a;
-  color: #fff;
-  text-align: center;
-  padding: 15px 0;
-}
-
 /* Container */
 .container {
   width: 90%;
