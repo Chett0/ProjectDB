@@ -25,10 +25,6 @@
   cursor: pointer;
 }
 
-.filters-button:hover{
-  background-color: #40a2f3;
-}
-
 .filters {
   margin-top: 20px;
 }

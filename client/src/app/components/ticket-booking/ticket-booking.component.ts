@@ -4,7 +4,7 @@ import { CommonModule, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HeaderComponent } from '../header/header.component';
-import { SearchFlightsService } from '../../services/search-flights.service';
+import { SearchFlightsService } from '../../services/search-flights/search-flights.service';
 import { PassengerService } from '../../services/passenger/passenger.service';
 import { ClassesService } from '../../services/classes/classes.service';
 import { ExtrasService } from '../../services/airlines/extras.service';
@@ -114,13 +114,12 @@ export class TicketBookingComponent {
         });
       });
 
-      console.log('Extras:', this.flights[flightId].extras);
-      console.log('Seats:', this.flights[flightId].seats);
+      console.log(this.flights[flightId])
 
     });
 
 
-    //carica informazioni passeggeri
+
     this.passengerService.getPassengerInfo().subscribe({
       next: (data: any) => {
         this.passenger = {
@@ -133,12 +132,13 @@ export class TicketBookingComponent {
     })
   }
 
-  //dopo aver fatto la init ho i due voli con tutti i rispettivi dati
+
 
   getFilteredSeats(flightId: string) {
-    const flightData = this.flights[flightId];
-    if (!flightData.selectedClass) return flightData.seats;
-    return flightData.seats.filter(seat => seat.aircraft_class?.name === flightData.selectedClass);
+    const flightData = this.flights[flightId].seats;
+    // if (!flightData.selectedClass) return flightData.seats;
+    // return flightData.seats.filter(seat => seat.aircraft_class?.name === flightData.selectedClass);
+    return flightData;
   }
 
   onClassChange(flightId: string) {

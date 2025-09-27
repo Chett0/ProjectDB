@@ -334,7 +334,7 @@ def sort_journeys(journeys, sort_params):
 
 def get_seats_flight(flight_id):
     try:
-        seats = Seat.query.filter_by(flight_id=flight_id).all()
+        seats = Seat.query.filter_by(flight_id=flight_id).order_by(Seat.number).all()
         return seats
 
     except Exception as e:
@@ -481,6 +481,7 @@ def search_flights(
 def get_seats(flight_id):
     try:
         seats = get_seats_flight(flight_id=flight_id)
+        print(seats)
         return jsonify({
                 "message":"Seats retrieved successfully", 
                 "seats": 

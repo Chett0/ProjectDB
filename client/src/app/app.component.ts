@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
@@ -6,11 +5,8 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-root',
   imports: [RouterOutlet],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
   title = 'client';
-
-
-  // constructor(private route : ActivatedRoute) {}
 }

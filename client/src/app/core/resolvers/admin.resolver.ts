@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Resolve } from '@angular/router';
-import { AirlinesService } from '../services/airlines/airlines.service';
-import { RoutesService } from '../services/airlines/routes.service';
+import { AirlinesService } from '../../services/airlines/airlines.service';
+import { RoutesService } from '../../services/airlines/routes.service';
 import { Observable, forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 

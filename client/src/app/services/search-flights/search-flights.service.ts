@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { filter, Observable } from 'rxjs';
-import { Filters } from '../components/flights/filters-flights/filters-flights.component';
+import { Filters } from '../../components/flights/filters-flights/filters-flights.component';
 
 @Injectable({
   providedIn: 'root',

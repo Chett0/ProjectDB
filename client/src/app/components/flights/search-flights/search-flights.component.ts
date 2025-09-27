@@ -1,5 +1,5 @@
 import { Component, OnInit, ElementRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
-import { SearchFlightsService } from '../../../services/search-flights.service';
+import { SearchFlightsService } from '../../../services/search-flights/search-flights.service';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { FormGroup, FormControl, ReactiveFormsModule, FormsModule} from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -46,6 +46,8 @@ export class SearchFlightsComponent implements OnInit{
   filteredDepartureCities: string[] = [];
   filteredDestinationCities: string[] = [];
   flights : any[] = [];
+
+  today: Date = new Date();
 
   
   constructor(

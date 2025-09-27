@@ -39,8 +39,9 @@ html, body {
 }
 
 .seat.unavailable {
-  background-color: gray;
+  background-color: gray !important;
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .seat.selected {

@@ -92,7 +92,9 @@
 						</div>
 					</div>
 
-					<button type="submit" [disabled]="addFlightForm.invalid">Conferma</button>
+					<div *ngIf="addError" class="flights-error">{{addError}}</div>
+
+					<button type="submit"  (click)="addFlight()">Conferma</button>
 				</form>
 			</div>
 		</div>

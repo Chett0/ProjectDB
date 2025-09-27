@@ -265,6 +265,7 @@ export class FlightsComponent implements OnInit {
 
   onAddFlightSubmit() {
     this.addFlight();
-    this.closeAddFlightModal();
+    if(this.addError === '')
+      this.closeAddFlightModal();
   }
 }

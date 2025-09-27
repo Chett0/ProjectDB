@@ -1,16 +1,9 @@
 <div class="page">
-  <!-- Header -->
   <app-header></app-header>
-
-  <!-- Body -->
   <main class="body">
     <div class="container">
-
-      <!-- Form di ricerca -->
       <form [formGroup]="searchForm" class="search-form">
         <div class="d-flex gap-2 flex-wrap">
-
-          <!-- Input Partenza -->
 
           <mat-form-field class="form-input">
             <mat-label>Departure</mat-label>
@@ -23,19 +16,6 @@
             </mat-autocomplete> 
           </mat-form-field>
 
-          <!-- <input id="from-airport" name="from-airport" list="from-airports" (input)="onInputChange($event)"
-            placeholder="Partenza" class="form-control w-auto" formControlName="from">
-          <datalist id="from-airports">
-            <option *ngFor="let city of cities" [value]="city"></option>
-          </datalist> -->
-
-          <!-- Input Arrivo -->
-          <!-- <input id="to-airport" name="to-airport" list="to-airports" (input)="onInputChange($event)"
-            placeholder="Arrivo" class="form-control w-auto" formControlName="to">
-          <datalist id="to-airports">
-            <option *ngFor="let city of cities" [value]="city"></option>
-          </datalist> -->
-
             <mat-form-field class="form-input">
             <mat-label>Destination</mat-label>
             <input #destinationCity type="text" placeholder="Pick one" matInput [formControl]="searchForm.controls.to" [matAutocomplete]="destinationAuto"
@@ -47,26 +27,23 @@
             </mat-autocomplete> 
           </mat-form-field>
 
-          <!-- Input Data -->
-          <!-- <input type="date" class="form-control w-auto" formControlName="departure_date"> -->
+            <!-- [min]="today" -->
            <mat-form-field class="form-input">
             <mat-label>MM/DD/YYYY</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="departure_date">
+            <input 
+              matInput 
+              [matDatepicker]="picker" 
+              formControlName="departure_date"
+              
+              >
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
           </mat-form-field>
 
-          <!-- Bottone ricerca -->
-          <button type="button" class="btn btn-dark" (click)="searchFlights()">Search</button>
+          <button type="button" class="btn btn-primary" (click)="searchFlights()">Search</button>
         </div>
 
-      </form>
-
-
-
-      <!-- Lista voli trovati -->
-
-      
+      </form>  
       <router-outlet></router-outlet>
       
     </div>

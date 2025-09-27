@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn } from '@angular/router';
-import { AuthService } from '../services/auth/auth.service';
-import { UserRole } from '../../types/users/auth';
+import { AuthService } from '../../services/auth/auth.service';
+import { UserRole } from '../../../types/users/auth';
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 

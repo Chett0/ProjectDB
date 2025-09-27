@@ -5,12 +5,13 @@ import { SearchFlightsComponent } from './components/flights/search-flights/sear
 import { AirlinesHomeComponent } from './components/airlines/airlines-home/airlines-home.component';
 import { AdminHomeComponent } from './components/admin/admin-home/admin-home.component';
 import { TicketBookingComponent } from './components/ticket-booking/ticket-booking.component';
-import { adminGuard, authGuard, airlineGuard, passengerGuard } from './guards/auth.guard';
+import { adminGuard, airlineGuard, passengerGuard } from './core/guards/auth.guard';
 import { PassengersComponent } from './components/passengers/passengers.component';
-import { PassengersResolver } from './resolvers/passengers.resolver';
-import { AirlinesResolver } from './resolvers/airlines.resolver';
-import { AdminResolver } from './resolvers/admin.resolver';
+import { PassengersResolver } from './core/resolvers/passengers.resolver';
+import { AirlinesResolver } from './core/resolvers/airlines.resolver';
+import { AdminResolver } from './core/resolvers/admin.resolver';
 import { ListFlightsPageComponent } from './components/flights/list-flights-page/list-flights-page.component';
+import { NotFoundComponent } from './components/utils/not-found/not-found.component';
 
 
 export const routes: Routes = [
@@ -59,10 +60,9 @@ export const routes: Routes = [
                 component: ListFlightsPageComponent
             }
         ]
+    },
+    {
+      path: '**',
+      component: NotFoundComponent
     }
-
-    // {
-    //   path: '**',
-    //   // component:NotFound
-    // }
 ];

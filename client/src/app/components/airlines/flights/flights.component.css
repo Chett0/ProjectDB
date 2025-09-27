@@ -155,3 +155,9 @@
 .modal-dropdown { margin-top:8px; border-radius:8px; }
 .modal-dropdown .modal-search-input { margin:8px 6px 6px 6px; }
 .modal-dropdown .modal-aircraft-list { margin: 0 6px 6px 6px; }
+
+
+.flights-error {
+  color: #ef4444;
+  margin-bottom: 1rem;
+}

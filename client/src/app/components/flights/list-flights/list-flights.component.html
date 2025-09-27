@@ -7,14 +7,15 @@
 </div>
 }
 @else {
+    <h1>Flights found</h1>
 <div *ngFor="let flight of flights" class="card flight-card mb-4 shadow-sm">
     <div class="card-body">
-        <!-- Titolo -->
+       
         <h5 class="card-title text-primary">
             <ng-container *ngIf="flight.second_flight; else diretto">
-                Volo con scalo
+                Stopovers
             </ng-container>
-            <ng-template #diretto>Volo diretto</ng-template>
+            <ng-template #diretto>One way</ng-template>
         </h5>
 
         <hr>
@@ -65,8 +66,7 @@
         <div class="d-flex justify-content-between align-items-center mt-3">
             <span><strong>Durata totale:</strong> {{ flight.total_duration }} ore</span>
             <button class="btn btn-primary btn-sm"
-                (click)="onBuyTicket([flight.first_flight.id, flight.second_flight?.id])">Compra
-                Biglietto</button>
+                (click)="onBuyTicket([flight.first_flight.id, flight.second_flight?.id])">Select</button>
         </div>
     </div>
 </div>

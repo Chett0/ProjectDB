@@ -5,13 +5,13 @@
   padding: 1rem;
 }
 
-/* Colonna filtri */
+
 .filters {
   flex: 0 0 300px;        
   max-width: 300px;
 }
 
-/* Colonna lista voli */
+
 .list {
   flex: 1;               
 }

@@ -49,7 +49,6 @@
                   [class.unavailable]="seat.state !== 'AVAILABLE'"
                   [style.background-color]="ticketColors[seat.aircraft_class.name]"
                   (click)="selectSeat(flightId, seat)">
-                  {{ seat.number }}
                 </button>
               </div>
             </div>

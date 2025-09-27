@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { SearchFlightsService } from '../../../services/search-flights.service';
+import { SearchFlightsService } from '../../../services/search-flights/search-flights.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LoadingComponent } from "../../utils/loading/loading.component";
