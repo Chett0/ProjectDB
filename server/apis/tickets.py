@@ -1,7 +1,7 @@
 import traceback
 from flask import jsonify, request, Blueprint
-from app.extensions import db
-from models import Ticket, Flight, Passenger, UserRole, Seat, SeatState, BookingState, TicketExtra
+from app.extensions import db, cache
+from models import Ticket, Flight, Passenger, UserRole, Seat, SeatState, BookingState, TicketExtra, Aircraft
 from schema import ticket_schema, tickets_schema
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
@@ -72,8 +72,11 @@ def create_ticket():
 
             db.session.add(extra_ticket)
 
+        airline_id = db.session.query(Aircraft.airline_id).join(Flight, Flight.aircraft_id == Aircraft.id).filter(Flight.id == flight_id).first()
 
         db.session.commit()
+        cache.delete(f'airline_passenger_count_{airline_id}')
+        cache.delete(f'airline_monthly_income_{airline_id}')
 
         return jsonify({"message": "Ticket created successfully", "ticket": ticket_schema.dump(new_ticket)}), 201
 
@@ -97,7 +100,7 @@ def buy_n_ticket():
 
         created_tickets = []
 
-        # Avvia una transazione esplicita
+        
         with db.session.begin_nested():
             for ticket_info in tickets_data:
                 flight_id = ticket_info.get("flight_id")
@@ -149,8 +152,11 @@ def buy_n_ticket():
 
                 created_tickets.append(new_ticket)
 
-        #se riuesicamo ad arriva qui allora tutti i biglietti saranno validi
+        airline_id = db.session.query(Aircraft.airline_id).join(Flight, Flight.aircraft_id == Aircraft.id).filter(Flight.id == flight_id).first()
+
         db.session.commit()
+        cache.delete(f'airline_passenger_count_{airline_id}')
+        cache.delete(f'airline_monthly_income_{airline_id}')
 
         return jsonify({
             "message": "tickets created successfully",

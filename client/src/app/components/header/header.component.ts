@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PassengerService } from '../../services/passenger/passenger.service';
 import { TicketBookingService } from '../../services/ticket-booking/ticket-booking.service';
+import { UserRole } from '../../../types/users/auth';
 
 @Component({
   selector: 'app-header',
@@ -26,12 +27,14 @@ export class HeaderComponent {
   
   ngOnInit(): void {
     this.isLogged = this.authService.isLoggedIn;
+    if(this.isLogged && this.authService.hasRole(UserRole.PASSENGER)){
     this.passengerService.getPassengerInfo().subscribe({
       next: (data: any) => {
           this.passengerName = data.passenger.name
       },
       error: (err) => console.error(err)
     })
+  }
   }
 
   onLogout() {

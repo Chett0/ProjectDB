@@ -4,10 +4,12 @@ SQLAlchemy
 Bcrypt
 flask-bcrypt
 flask-sqlalchemy
-psycopg2
+psycopg2-binary
 Flask-Migrate
 flask-marshmallow
 flask_restful
 marshmallow-sqlalchemy
 flask-jwt-extended
 Flask-Cors
+redis 
+flask-caching

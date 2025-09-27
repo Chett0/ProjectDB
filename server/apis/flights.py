@@ -93,7 +93,6 @@ def get_flights():
                 'message': 'Both departure and arrival airport codes are required'
             }), 400
 
-        #modify here if you want to search using other parameters.
 
         departure_airports = Airport.query.filter(
             or_(
@@ -181,36 +180,6 @@ def get_flight():
         return jsonify({"message":"Error retrieving flights"}), 500
         
     
-
-
-
-@flights_bp.route('/flights/count', methods=['GET'])
-@roles_required([UserRole.AIRLINE.value])
-def get_flights_count():
-    try:
-        airline_id = get_jwt_identity()
-
-        aircraft_ids = [a.id for a in Aircraft.query.filter_by(airline_id=airline_id).all()]
-        if not aircraft_ids:
-            return jsonify({"message": "Flights count retrieved", "count": 0}), 200
-        
-        count = (
-            db.session.query(Flight)
-            .join(Aircraft, Flight.aircraft_id == Aircraft.id)
-            .join(Route, Flight.route_id == Route.id)
-            .join(AirlineRoute, (AirlineRoute.route_id == Route.id) & (AirlineRoute.airline_id == airline_id))
-            .filter(
-                Flight.aircraft_id.in_(aircraft_ids),
-                Flight.active == True,
-                Aircraft.active == True,
-                AirlineRoute.active == True
-            )
-            .count()
-        )
-        return jsonify({"message": "Flights count retrieved", "count": count}), 200
-    except Exception as e:
-        print(e)
-        return jsonify({"message": "Error retrieving flights count"}), 500
     
 
 @flights_bp.route('/airline/flights', methods=['GET'])
@@ -235,19 +204,6 @@ def get_airline_flights():
     except Exception as e:
         print(e)
         return jsonify({"message": "Error retrieving airline flights"}), 500
-    
-
-
-@flights_bp.route('/flights/routes-count', methods=['GET'])
-@roles_required([UserRole.AIRLINE.value])
-def get_routes_count():
-    try:
-        airline_id = get_jwt_identity()
-        count = AirlineRoute.query.filter_by(airline_id=airline_id, active=True).distinct(AirlineRoute.route_id).count()
-        return jsonify({"message": "Routes count retrieved", "count": count}), 200
-    except Exception as e:
-        print(e)
-        return jsonify({"message": "Error retrieving routes count"}), 500
     
 
 # Endpoint per il conteggio totale dei voli (solo admin)

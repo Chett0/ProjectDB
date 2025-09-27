@@ -2,7 +2,7 @@ from datetime import timedelta
 from flask import Flask
 from app.config import Config
 from flask_migrate import Migrate
-from app.extensions import db, ma, bcrypt, jwt
+from app.extensions import db, ma, bcrypt, jwt, cache
 from flask_cors import CORS
 
 from apis.airlines import airlines_bp
@@ -13,8 +13,6 @@ from apis.locations import locations_bp
 from apis.tickets import tickets_bp
 from apis.passengers import passengers_bp
 
-
-from models import Flight, Ticket
 from models import *
 
 # For migrations
@@ -28,11 +26,20 @@ def create_app_with_migration():
         SECRET_KEY = "5791628bb0b13ce0c676dfde280ba245"
     )     
 
+    # Redis config
+    app.config['CACHE_TYPE'] = 'RedisCache'
+    app.config['CACHE_REDIS_HOST'] = 'localhost'   
+    app.config['CACHE_REDIS_PORT'] = 6379
+    app.config['CACHE_REDIS_DB'] = 0
+    app.config['CACHE_DEFAULT_TIMEOUT'] = 300
+
+
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
     
     app.config.from_object(Config)
 
+    cache.init_app(app)
     db.init_app(app)
     ma.init_app(app)
     bcrypt.init_app(app)

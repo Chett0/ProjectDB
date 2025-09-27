@@ -55,6 +55,10 @@ export class AirlinesService {
     return this.http.get<any>(`${enviroment.apiUrl}/passengers/airline/count`);
   }
 
+  getDashboardStats() {
+    return this.http.get<any>(`${enviroment.apiUrl}/airlines/dashboard-stats`);
+  }
+
   createFlight(payload: { route_id: number; aircraft_id: number; departure_time: string; arrival_time: string; base_price: number }) {
     this.flightCache = null;
     this.flightCacheTimestamp = null;

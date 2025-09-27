@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NumberSymbol } from '@angular/common';
 import { enviroment } from '../../../enviroments/enviroments';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth.service';
@@ -12,6 +12,12 @@ import { FlightsComponent } from '../flights/flights.component';
 import { ExtraComponent } from '../extra/extra.component';
 import { FooterComponent } from '../../footer/footer.component';
 
+interface AirlineStats  {
+  passenger_count : number,
+  monthly_income: number,
+  active_routes: number,
+  flights_in_progress : number
+}
 
 @Component({
   selector: 'app-airlines-home',
@@ -41,44 +47,62 @@ export class AirlinesHomeComponent implements OnInit{
   ) {}
   activeTab: number = 0; 
 
+  stats : AirlineStats = {
+    passenger_count :0,
+    monthly_income: 0,
+    active_routes: 0,
+    flights_in_progress: 0
+  };
+
 
 
   ngOnInit(): void {
     this.airlinesService.getAirlinesInfo().subscribe((info: any) => {
       this.airlineName = info?.name || 'Compagnia Aerea';
     });
-  this.aircraftsService.getAircraftsCount().subscribe({
+  // this.aircraftsService.getAircraftsCount().subscribe({
+  //     next: (res) => {
+  //       if (res && typeof res.count === 'number') this.totalAircrafts = res.count;
+  //     },
+  //     error: (err) => {
+  //       console.error('Errore caricamento conteggio aerei', err);
+  //     }
+  //   });
+  //   this.airlinesService.getAirlineFlightsCount().subscribe({
+  //     next: (res) => {
+  //       if (res && typeof res.count === 'number') this.totalFlights = res.count;
+  //     },
+  //     error: (err) => {
+  //       console.error('Errore caricamento conteggio voli', err);
+  //     }
+  //   });
+  // this.routesService.getRoutesCount().subscribe({
+  //     next: (res) => {
+  //       if (res && typeof res.count === 'number') this.activeRoutes = res.count;
+  //     },
+  //     error: (err) => {
+  //       console.error('Errore caricamento conteggio tratte', err);
+  //     }
+  //   });
+  //   this.airlinesService.getPassengersCountAll().subscribe({
+  //     next: (res) => {
+  //       if (res && typeof res.count === 'number') this.totalPassengers = res.count;
+  //     },
+  //     error: (err) => {
+  //       console.error('Errore caricamento conteggio passeggeri', err);
+  //     }
+  //   });
+
+    this.airlinesService.getDashboardStats().subscribe({
       next: (res) => {
-        if (res && typeof res.count === 'number') this.totalAircrafts = res.count;
+        this.stats = res.stats
+        console.log(res.stats)
       },
       error: (err) => {
-        console.error('Errore caricamento conteggio aerei', err);
+        console.log(err)
       }
-    });
-    this.airlinesService.getAirlineFlightsCount().subscribe({
-      next: (res) => {
-        if (res && typeof res.count === 'number') this.totalFlights = res.count;
-      },
-      error: (err) => {
-        console.error('Errore caricamento conteggio voli', err);
-      }
-    });
-  this.routesService.getRoutesCount().subscribe({
-      next: (res) => {
-        if (res && typeof res.count === 'number') this.activeRoutes = res.count;
-      },
-      error: (err) => {
-        console.error('Errore caricamento conteggio tratte', err);
-      }
-    });
-    this.airlinesService.getPassengersCountAll().subscribe({
-      next: (res) => {
-        if (res && typeof res.count === 'number') this.totalPassengers = res.count;
-      },
-      error: (err) => {
-        console.error('Errore caricamento conteggio passeggeri', err);
-      }
-    });
+    })
+
   }
 
   navigateTo(route: string) {
