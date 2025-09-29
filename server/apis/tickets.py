@@ -12,10 +12,48 @@ from middleware.auth import roles_required
 
 tickets_bp = Blueprint('tickets', __name__)
 
-#endpoint per compare un solo biglietto
+
 @tickets_bp.route('/tickets', methods=['POST'])
 @roles_required([UserRole.PASSENGER.value])
 def create_ticket():
+    """
+    Creates a new ticket for the authenticated passenger on a specified flight.
+
+    This endpoint is protected and only accessible by users with the PASSENGER role. It validates
+    input data, checks seat availability, creates a ticket, and associates any extras with it.
+
+    Request JSON parameters:
+        - flight_id (int, required): The ID of the flight to book.
+        - final_cost (float or str, required): The total cost of the ticket.
+        - seat_number (str, optional): The seat number to book.
+        - extras (list of int, optional): List of extra service IDs to include with the ticket.
+
+    Responses:
+        - 201 Created: Ticket successfully created.
+            {
+                "message": "Ticket created successfully",
+                "ticket": <serialized_ticket_data>
+            }
+        - 400 Bad Request: Missing required fields or invalid final_cost.
+            {
+                "message": "flight_id, passenger_id and final_cost are required" / 
+                           "final_cost must be a non-negative number"
+            }
+        - 404 Not Found: Flight or seat does not exist, or seat is not available.
+            {
+                "message": "Flight not found" / "Seat not found" / "Seat not available"
+            }
+        - 500 Internal Server Error: Unexpected error during ticket creation.
+            {
+                "message": "Error creating ticket"
+            }
+
+    Notes:
+        - Uses `db.session.begin()` to ensure transactional integrity.
+        - Seat state is updated atomically with ticket creation.
+        - Related airline cache entries are invalidated after creation.
+        - Exceptions are logged and the session is rolled back on error.
+    """
     try:
         passenger_id = get_jwt_identity()
         data = request.get_json() or {}
@@ -40,43 +78,45 @@ def create_ticket():
         except (InvalidOperation, ValueError):
             return jsonify({"message": "final_cost must be a non-negative number"}), 400
             
-        seat = Seat.query.filter_by(number=seat_number, flight_id=flight_id).first()
-        if not seat:
-            print("Seat not found")
-            return jsonify({"message": "Seat not found"}), 404
+        with db.session.begin():
         
-        if seat.state != SeatState.AVAILABLE:
-            print("Seat not available")
-            return jsonify({"message": "Seat not available"}), 404
+            seat = Seat.query.filter_by(number=seat_number, flight_id=flight_id).first()
+            if not seat:
+                print("Seat not found")
+                return jsonify({"message": "Seat not found"}), 404
+            
+            if seat.state != SeatState.AVAILABLE:
+                print("Seat not available")
+                return jsonify({"message": "Seat not available"}), 404
 
-        new_ticket = Ticket(
-            flight_id=flight_id,
-            passenger_id=passenger_id,
-            final_cost=cost,
-            seat_id=seat.id,
-            state=BookingState.CONFIRMED,
-            purchase_date = datetime.now()
-        )
-
-        seat.state = SeatState.BOOKED
-
-        db.session.add(new_ticket)
-        db.session.flush()
-
-        for extra_id in extras:
-            # assuming we are passing extra id and don't need a check for existence
-            extra_ticket = TicketExtra(
-                ticket_id = new_ticket.id,
-                extra_id = extra_id
+            new_ticket = Ticket(
+                flight_id=flight_id,
+                passenger_id=passenger_id,
+                final_cost=cost,
+                seat_id=seat.id,
+                state=BookingState.CONFIRMED,
+                purchase_date = datetime.now()
             )
 
-            db.session.add(extra_ticket)
+            seat.state = SeatState.BOOKED
 
-        airline_id = db.session.query(Aircraft.airline_id).join(Flight, Flight.aircraft_id == Aircraft.id).filter(Flight.id == flight_id).first()
+            db.session.add(new_ticket)
+            db.session.flush()
 
-        db.session.commit()
-        cache.delete(f'airline_passenger_count_{airline_id}')
-        cache.delete(f'airline_monthly_income_{airline_id}')
+            for extra_id in extras:
+                # assuming we are passing extra id and don't need a check for existence
+                extra_ticket = TicketExtra(
+                    ticket_id = new_ticket.id,
+                    extra_id = extra_id
+                )
+
+                db.session.add(extra_ticket)
+
+            airline_id = db.session.query(Aircraft.airline_id).join(Flight, Flight.aircraft_id == Aircraft.id).filter(Flight.id == flight_id).first()
+
+            db.session.commit()
+            cache.delete(f'airline_passenger_count_{airline_id}')
+            cache.delete(f'airline_monthly_income_{airline_id}')
 
         return jsonify({"message": "Ticket created successfully", "ticket": ticket_schema.dump(new_ticket)}), 201
 
@@ -86,10 +126,45 @@ def create_ticket():
         traceback.print_exc()
         return jsonify({"message": "Error creating ticket"}), 500
     
-#endpoint poi comprare più biglietti in caso di scalo 
+
 @tickets_bp.route('/tickets/bulk', methods=['POST'])
 @roles_required([UserRole.PASSENGER.value])
 def buy_n_ticket():
+    """
+    Creates multiple tickets for the authenticated passenger in a single request.
+
+    This endpoint is protected and only accessible by users with the PASSENGER role. It validates
+    each ticket, checks seat availability, creates tickets, associates extras, and ensures
+    transactional integrity.
+
+    Request JSON parameters:
+        - tickets (list of dict, required): List of tickets to purchase. Each ticket must include:
+            - flight_id (int, required): The ID of the flight.
+            - final_cost (float or str, required): The total cost of the ticket.
+            - seat_number (str, required): Seat number to book.
+            - extras (list of int, optional): List of extra service IDs.
+
+    Responses:
+        - 201 Created: Tickets successfully created.
+            {
+                "message": "tickets created successfully",
+                "tickets": [<serialized_ticket_data>, ...]
+            }
+        - 400 Bad Request: Missing required fields, invalid `final_cost`, or seat/flight not available.
+            {
+                "message": "<detailed error message>"
+            }
+        - 500 Internal Server Error: Unexpected error during ticket creation.
+            {
+                "message": "Error creating tickets"
+            }
+
+    Notes:
+        - Uses `db.session.begin_nested()` to ensure that all ticket operations are transactional.
+        - Seat states are updated atomically with ticket creation.
+        - Related airline cache entries are invalidated after ticket creation.
+        - Exceptions are logged and the session is rolled back on error.
+    """
     try:
         passenger_id = get_jwt_identity()
         data = request.get_json() or {}
@@ -172,28 +247,36 @@ def buy_n_ticket():
         traceback.print_exc()
         return jsonify({"message": "Error creating tickets"}), 500
 
-    
-""" no need to confirm, directy buying the ticket
-@tickets_bp.route('/tickets/<int:ticket_id>', methods=['POST'])
-@roles_required([UserRole.PASSENGER.value])
-def confirm_ticket(ticket_id):
-    try: 
-        passenger_id = get_jwt_identity()
-        ticket = Ticket.query.filter_by(id=ticket_id, passenger_id=passenger_id).first()
-        if not ticket:
-            return jsonify({"message": "Ticket not found"}), 404
-        
-        ticket.state = BookingState.CONFIRMED
-        ticket.purchase_date = datetime.now()
-        return jsonify({"message": "Ticket confirmed successfully"}), 200
-    except Exception as e:
-        print(e)
-        return jsonify({"message": "Internal server error while conferming tickets"}), 500
-"""
 
 @tickets_bp.route('/tickets', methods=['GET'])
 @roles_required([UserRole.PASSENGER.value])
 def get_tickets():
+    """
+    Retrieves a paginated list of tickets for the authenticated passenger.
+
+    This endpoint is protected and only accessible by users with the PASSENGER role. It supports
+    pagination via query parameters and returns the passenger's tickets along with total page count.
+
+    Query Parameters:
+        - page (int, optional): The page number to retrieve. Defaults to 1.
+        - limit (int, optional): Number of tickets per page. Defaults to 10.
+
+    Responses:
+        - 200 OK: Tickets successfully retrieved.
+            {
+                "message": "Tickets retrieved successfully",
+                "tickets": [<serialized_ticket_data>, ...],
+                "total_pages": <number_of_pages>
+            }
+        - 404 Not Found: Passenger ID not provided or invalid.
+            {
+                "message": "Passenger is required"
+            }
+        - 500 Internal Server Error: Unexpected error while retrieving tickets.
+            {
+                "message": "Error retrieving tickets"
+            }
+    """
     try:
         passenger_id = get_jwt_identity()
 
@@ -226,6 +309,30 @@ def get_tickets():
 @tickets_bp.route('/tickets/<int:ticket_id>', methods=['GET'])
 @roles_required([UserRole.PASSENGER.value])
 def get_ticket_by_id(ticket_id):
+    """
+    Retrieves a specific ticket for the authenticated passenger by its ID.
+
+    This endpoint is protected and only accessible by users with the PASSENGER role. It ensures
+    that the requested ticket belongs to the authenticated passenger before returning it.
+
+    URL Parameters:
+        - ticket_id (int): The ID of the ticket to retrieve.
+
+    Responses:
+        - 200 OK: Ticket successfully retrieved.
+            {
+                "message": "Ticket retrieved successfully",
+                "ticket": <serialized_ticket_data>
+            }
+        - 404 Not Found: Ticket does not exist or does not belong to the passenger.
+            {
+                "message": "Ticket not found"
+            }
+        - 500 Internal Server Error: Unexpected error while retrieving the ticket.
+            {
+                "message": "Error retrieving ticket"
+            }
+    """
     try:
         passenger_id = get_jwt_identity()
         
@@ -242,56 +349,6 @@ def get_ticket_by_id(ticket_id):
 
 
 
-@tickets_bp.route('/tickets/<int:ticket_id>', methods=['PATCH'])
-def update_ticket(ticket_id):
-    try:
-        ticket = db.session.get(Ticket, ticket_id)
-        if not ticket:
-            return jsonify({"message": "Ticket not found"}), 404
-
-        data = request.get_json() or {}
-        extras = data.get('extras')
-        final_cost = data.get('final_cost')
-
-        if extras is not None:
-            ticket.extras = extras
-
-        if final_cost is not None:
-            try:
-                cost = Decimal(str(final_cost))
-                if cost < 0:
-                    raise InvalidOperation()
-                ticket.final_cost = cost
-            except (InvalidOperation, ValueError):
-                return jsonify({"message": "final_cost must be a non-negative number"}), 400
-
-        db.session.commit()
-
-        return jsonify({"message": "Ticket updated successfully", "ticket": ticket_schema.dump(ticket)}), 200
-
-    except Exception as e:
-        print(e)
-        return jsonify({"message": "Error updating ticket"}), 500
 
 
-@tickets_bp.route('/tickets/<int:ticket_id>', methods=['DELETE'])
-def delete_ticket(ticket_id):
-    try:
-        ticket = db.session.get(Ticket, ticket_id)
-        if not ticket:
-            return jsonify({
-                    "message": "Ticket not found"
-                }), 404
 
-        db.session.delete(ticket)
-        db.session.commit()
-
-        return jsonify({
-                "message": "Ticket deleted successfully"
-            }), 200
-
-    except Exception as e:
-        print(e)
-        return jsonify({
-                "message": "Error deleting ticket"
-            }), 500    

@@ -111,6 +111,7 @@ export class TicketBookingComponent {
         // Carica seats
         this.seatService.get_seats(flightId).subscribe((res: any) => {
           this.flights[flightId].seats = res.seats;
+          console.log(this.flights[flightId].seats)
         });
       });
 
@@ -164,8 +165,8 @@ export class TicketBookingComponent {
     if (!flightData.flight) return 0;
 
     const basePrice = Number(flightData.flight.base_price) || 0;
-    const selectedClassObj = flightData.classes.find(c => c.name === flightData.selectedClass);
-    const multiplier = selectedClassObj ? Number(selectedClassObj.price_multiplier) : 1;
+    const multiplier = this.flights[flightId].selectedSeat ? Number(this.flights[flightId].selectedSeat.aircraft_class.price_multiplier) : 1;
+    // const multiplier = selectedClassObj ? Number(selectedClassObj.price_multiplier) : 1;
 
     const extrasTotal = flightData.extras
       .filter(e => flightData.selectedExtras.includes(e.id))

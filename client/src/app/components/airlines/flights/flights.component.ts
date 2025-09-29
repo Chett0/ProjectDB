@@ -44,7 +44,19 @@ export class FlightsComponent implements OnInit {
   flights: any[] = [];
   filteredFlights: any[] = [];
 
-  constructor(private aircraftsService: AircraftsService, private routesService: RoutesService, private airlinesService: AirlinesService) {}
+  minDate : string = '';
+
+  constructor(private aircraftsService: AircraftsService, private routesService: RoutesService, private airlinesService: AirlinesService) {
+    const now = new Date();
+        // Formatta la data come YYYY-MM-DDTHH:MM (formato richiesto da datetime-local)
+        const year = now.getFullYear();
+        const month = ('0' + (now.getMonth() + 1)).slice(-2);
+        const day = ('0' + now.getDate()).slice(-2);
+        const hours = ('0' + now.getHours()).slice(-2);
+        const minutes = ('0' + now.getMinutes()).slice(-2);
+
+        this.minDate = `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
   
   addFlight() {
     this.addError = '';

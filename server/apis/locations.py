@@ -13,6 +13,30 @@ locations_bp = Blueprint('location', __name__)
 
 @locations_bp.route('/locations', methods = ['GET'])
 def get_locations():
+    """
+    Searches for airports based on a query string and returns a list of matching locations.
+
+    This endpoint accepts a query parameter and searches the Airport table for matches in the
+    code, city, name, or country fields. Results are limited to 5 entries and returned in JSON format.
+
+    Query Parameters:
+        - query (str, optional): The search string to match against airport code, city, name, or country.
+
+    Responses:
+        - 200 OK: Locations successfully retrieved.
+            {
+                "message": "Locations retrieved successfully",
+                "locations": [<serialized_airport_data>]
+            }
+        - 200 OK: No query passed.
+            {
+                "message": "No query passed"
+            }
+        - 400 Bad Request: Error occurred during query execution.
+            {
+                "message": "Error retrieving locations"
+            }
+    """
     try:
         query = request.args.get('query', "")
 
@@ -43,6 +67,23 @@ def get_locations():
 
 @locations_bp.route('/cities', methods = ['GET'])
 def get_cities():
+    """
+    Retrieves a list of all distinct cities where airports are located.
+
+    This endpoint queries the database for unique city names from the Airport table and returns them
+    in a JSON response. It is publicly accessible and does not require authentication.
+
+    Responses:
+        - 200 OK: Cities successfully retrieved.
+            {
+                "message": "Cities retrieved successfully",
+                "cities": ["City1", "City2", ...]
+            }
+        - 500 Internal Server Error: Unexpected error while retrieving cities.
+            {
+                "message": "Error retrieving cities"
+            }
+    """
     try:
         cities = (
             db.session.query(distinct(Airport.city))

@@ -11,8 +11,6 @@ export class ClassesService {
   constructor(private http: HttpClient) {}
 
   getClasses(aircraftId: string): Observable<string[]> {
-    return this.http.get<string[]>(`${enviroment.apiUrl}/aircraft/classes`, {
-      params: { aircraft_id : aircraftId }
-    });
+    return this.http.get<string[]>(`${enviroment.apiUrl}/aircrafts/${aircraftId}/classes`);
   }
 }

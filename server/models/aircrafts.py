@@ -13,10 +13,10 @@ class Aircraft(db.Model):
     __tablename__ = 'aircrafts'
 
     id : Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    model : Mapped[str] = mapped_column(nullable=False, unique=True)
+    model : Mapped[str] = mapped_column(nullable=False)
     nSeats : Mapped[int] = mapped_column(nullable=False)
 
-    airline_id: Mapped[int] = mapped_column(db.ForeignKey("airlines.id"), index=True)
+    airline_id: Mapped[int] = mapped_column(db.ForeignKey("airlines.id", ondelete="CASCADE"), index=True)
     airline : Mapped["Airline"] = relationship("Airline")
     
     flights : Mapped[List["Flight"]] = relationship(

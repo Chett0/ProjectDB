@@ -4,6 +4,35 @@ from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity, jwt_requ
 from models import User
 
 def roles_required(allowed_roles):
+    """
+    Decorator to restrict access to endpoints based on user roles.
+
+    This decorator ensures that only users with specified roles can access a route. It also 
+    verifies that the user is active and authenticated using a JWT.
+
+    Parameters:
+        allowed_roles (list): A list of roles (strings) that are allowed to access the endpoint.
+
+    Responses:
+        - 401 Unauthorized: User is inactive or does not have the required role.
+            {
+                "message": "User not active" / "Unauthorized"
+            }
+        - 500 Internal Server Error: Unexpected error during authorization.
+            {
+                "message": "Internal authorization error"
+            }
+
+    Usage example:
+        @app.route("/admin-only", methods=["GET"])
+        @roles_required([UserRole.ADMIN.value])
+        def admin_endpoint():
+            return jsonify(message="Welcome, admin!")
+
+    Notes:
+        - The decorator uses `get_jwt_identity()` and `get_jwt()` to access user information.
+        - The `@wraps(f)` decorator preserves the original function's metadata.
+    """
     def decorator(f):
         @wraps(f)
         @jwt_required()

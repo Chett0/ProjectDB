@@ -26,36 +26,30 @@ def get_passengers_count():
             }), 500
 
 
-@passengers_bp.route('/passengers/airline/count', methods=['GET'])
-@roles_required([UserRole.AIRLINE.value])
-def get_company_passengers_count():
-    try:
-        airline_id = int(get_jwt_identity())
-        count = (
-            db.session.query(Passenger.id)
-            .join(Ticket, Ticket.passenger_id == Passenger.id)
-            .join(Flight, Ticket.flight_id == Flight.id)
-            .join(Aircraft, Flight.aircraft_id == Aircraft.id)
-            .join(Airline, Aircraft.airline_id == Airline.id)
-            .filter(Airline.id == airline_id)
-            .distinct()
-            .count()
-        )
-        return jsonify({
-            "message": "Company passengers count retrieved",
-            "count": count
-        }), 200
-    except Exception as e:
-        print(e)
-        return jsonify({
-            "message": "Internal error retrieving company passengers count"
-        }), 500
-
-
 @passengers_bp.route('/passengers/me', methods=['GET'])
-@jwt_required()
 @roles_required([UserRole.PASSENGER.value])
 def get_passenger():
+    """
+    Retrieves the profile information of the authenticated passenger.
+
+    This endpoint is protected and only accessible by users with the PASSENGER role. It fetches
+    the passenger record associated with the JWT identity and includes related user information.
+
+    Responses:
+        - 200 OK: Passenger successfully retrieved.
+            {
+                "message": "Passenger retrieved successfully",
+                "passenger": <serialized_passenger_data>
+            }
+        - 404 Not Found: Passenger record does not exist.
+            {
+                "message": "Passenger not found"
+            }
+        - 500 Internal Server Error: Unexpected error while retrieving passenger data.
+            {
+                "message": "Error retrieving passenger info"
+            }
+    """
     try:
         user_id = int(get_jwt_identity())
         passenger = Passenger.query.options(joinedload(Passenger.user)).filter_by(id=user_id).first()

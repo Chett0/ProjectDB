@@ -60,39 +60,7 @@ export class AirlinesHomeComponent implements OnInit{
     this.airlinesService.getAirlinesInfo().subscribe((info: any) => {
       this.airlineName = info?.name || 'Compagnia Aerea';
     });
-  // this.aircraftsService.getAircraftsCount().subscribe({
-  //     next: (res) => {
-  //       if (res && typeof res.count === 'number') this.totalAircrafts = res.count;
-  //     },
-  //     error: (err) => {
-  //       console.error('Errore caricamento conteggio aerei', err);
-  //     }
-  //   });
-  //   this.airlinesService.getAirlineFlightsCount().subscribe({
-  //     next: (res) => {
-  //       if (res && typeof res.count === 'number') this.totalFlights = res.count;
-  //     },
-  //     error: (err) => {
-  //       console.error('Errore caricamento conteggio voli', err);
-  //     }
-  //   });
-  // this.routesService.getRoutesCount().subscribe({
-  //     next: (res) => {
-  //       if (res && typeof res.count === 'number') this.activeRoutes = res.count;
-  //     },
-  //     error: (err) => {
-  //       console.error('Errore caricamento conteggio tratte', err);
-  //     }
-  //   });
-  //   this.airlinesService.getPassengersCountAll().subscribe({
-  //     next: (res) => {
-  //       if (res && typeof res.count === 'number') this.totalPassengers = res.count;
-  //     },
-  //     error: (err) => {
-  //       console.error('Errore caricamento conteggio passeggeri', err);
-  //     }
-  //   });
-
+    
     this.airlinesService.getDashboardStats().subscribe({
       next: (res) => {
         this.stats = res.stats

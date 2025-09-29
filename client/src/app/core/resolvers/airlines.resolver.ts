@@ -20,13 +20,10 @@ export class AirlinesResolver implements Resolve<any> {
     return forkJoin({
       info: this.airlinesService.getAirlinesInfo().pipe(catchError(() => of(null))),
       flights: this.airlinesService.getAirlinesFlights().pipe(catchError(() => of({ flights: [] }))),
-      flightsCount: this.airlinesService.getAirlineFlightsCount().pipe(catchError(() => of({ count: 0 }))),
       routes: this.routesService.getRoutes().pipe(catchError(() => of({ routes: [] }))),
-      routesCount: this.routesService.getRoutesCount().pipe(catchError(() => of({ count: 0 }))),
       aircrafts: this.aircraftsService.getAircrafts().pipe(catchError(() => of([]))),
-      aircraftsCount: this.aircraftsService.getAircraftsCount().pipe(catchError(() => of({ count: 0 }))),
       extras: this.airlinesService.getExtras().pipe(catchError(() => of({ extras: [] }))),
-      passengersCount: this.airlinesService.getPassengersCountAll().pipe(catchError(() => of({ count: 0 })))
+      stats: this.airlinesService.getDashboardStats().pipe(catchError(() => of({ stats: {}})))
     });
   }
 }

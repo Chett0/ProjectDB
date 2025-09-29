@@ -33,6 +33,7 @@ export class PassengerService {
   }
 
   clearPassengerCache() {
+    console.log('clearing cache...')
     this.passengerCache = null;
     this.passengerCacheTimestamp = null;
   }

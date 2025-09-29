@@ -15,6 +15,34 @@ flights_bp = Blueprint('flight', __name__)
 @flights_bp.route('/flights', methods=['POST'])
 @roles_required([UserRole.AIRLINE.value])
 def create_flight():
+    """
+    Creates a new flight for the authenticated airline, along with its seats.
+
+    This endpoint is protected and only accessible by users with the AIRLINE role. It accepts
+    flight details, calculates seat assignments, and stores both flight and seat data in the database.
+
+    Request JSON parameters:
+        - route_id (int, required): The ID of the route for the flight.
+        - aircraft_id (int, required): The ID of the aircraft assigned to the flight.
+        - departure_time (str, required): Flight departure time in "%Y-%m-%d %H:%M" format.
+        - arrival_time (str, required): Flight arrival time in "%Y-%m-%d %H:%M" format.
+        - base_price (float, required): Base ticket price for the flight.
+
+    Responses:
+        - 201 Created: Flight and seats successfully created.
+            {
+                "message": "Flight created successfully"
+            }
+        - 500 Internal Server Error: Unexpected error during flight creation.
+            {
+                "message": "Error creating flight"
+            }
+
+    Notes:
+        - Seat letters increment from 'A' to 'F', then a new row number is added.
+        - Exceptions are logged and the session is rolled back on error.
+        - Flight duration is stored in seconds for convenience.
+    """
     try:
         data = request.get_json()
 
@@ -72,6 +100,29 @@ def create_flight():
 
 @flights_bp.route('/flights', methods=['GET'])
 def get_flights():
+    """
+    Retrieve available flights based on search filters (one-way).
+
+    This endpoint allows users to search for flights between a departure and 
+    arrival airport, optionally including layovers, date, price, and sorting options.
+    It supports pagination and sorting by price, duration, departure time, or arrival time.
+
+    Query Parameters:
+        sort_by (str, optional): Sorting field ('price', 'duration', 'departure_time', 'arrival_time') (default: 'total_duration')
+        order (str, optional): Sorting order ('asc' or 'desc') (default: 'asc')
+        from (str, required): Departure airport code or city name
+        to (str, required): Arrival airport code or city name
+        departure_date (str, required): Date of departure in 'YYYY-MM-DD' format
+        max_layovers (int, optional): Maximum number of layovers allowed (default: 1)
+        max_price (int, optional): Maximum total price (default: 2000)
+
+    Returns:
+        JSON response:
+            - 200 OK: Flights found and returned with pagination info
+            - 400 Bad Request: Missing required parameters
+            - 404 Not Found: No matching airports or flights
+            - 500 Internal Server Error: Unexpected server error
+    """
     try:
         page_number = request.args.get('page', 1, type=int)
         limit = request.args.get('limit', 10, type=int)
@@ -185,6 +236,25 @@ def get_flight():
 @flights_bp.route('/airline/flights', methods=['GET'])
 @roles_required([UserRole.AIRLINE.value])
 def get_airline_flights():
+    """
+    Retrieve all active flights associated with the logged-in airline.
+
+    This endpoint allows airline users to fetch all flights operated by their airline.
+    Only flights where the aircraft is active and the airline route is active are returned.
+
+    Returns:
+        JSON response:
+            - 200 OK: Flights retrieved successfully (may return an empty list if none found)
+                {
+                    "message": "Flights retrieved successfully",
+                    "flights": [...]
+                }
+            - 500 Internal Server Error: If an unexpected error occurs during the query
+
+    Permissions:
+        - Role: AIRLINE
+    """
+
     try:
         airline_id = get_jwt_identity()
         from models import AirlineRoute
@@ -206,10 +276,28 @@ def get_airline_flights():
         return jsonify({"message": "Error retrieving airline flights"}), 500
     
 
-# Endpoint per il conteggio totale dei voli (solo admin)
+
 @flights_bp.route('/flights/count-all', methods=['GET'])
 @roles_required([UserRole.ADMIN.value])
 def get_flights_count_all():
+    """
+    Retrieve the total number of active flights in the system.
+
+    This endpoint is accessible only by users with the **ADMIN** role.
+    It counts all flights that are currently marked as active in the database.
+
+    Returns:
+        JSON response:
+            - 200 OK: Successfully retrieved total flight count
+                {
+                    "message": "Total flights count retrieved",
+                    "count": 123
+                }
+            - 500 Internal Server Error: If an error occurs during the query
+
+    Permissions:
+        - Role: ADMIN
+    """
     try:
         count = Flight.query.filter_by(active=True).count()
         return jsonify({"message": "Total flights count retrieved", "count": count}), 200
@@ -218,10 +306,28 @@ def get_flights_count_all():
         return jsonify({"message": "Error retrieving total flights count"}), 500
     
 
-# Endpoint per il conteggio totale delle tratte (solo admin)
+
 @flights_bp.route('/flights/routes-count-all', methods=['GET'])
 @roles_required([UserRole.ADMIN.value])
 def get_routes_count_all():
+    """
+    Retrieve the total number of active airline routes in the system.
+
+    This endpoint counts all distinct routes that are currently active 
+    for at least one airline. Only users with the ADMIN role can access it.
+
+    Returns:
+        JSON response:
+            - 200 OK: Successfully retrieved total routes count
+                {
+                    "message": "Total routes count retrieved",
+                    "count": 42
+                }
+            - 500 Internal Server Error: If an error occurs during the query
+
+    Permissions:
+        - Role: ADMIN
+    """
     try:
         count = (
             db.session.query(Route)
@@ -237,8 +343,26 @@ def get_routes_count_all():
     
 
 @flights_bp.route('/flights/<int:flight_id>', methods=['GET'])
-# @roles_required([UserRole.AIRLINE.value, UserRole.PASSENGER.value])
+@roles_required([UserRole.AIRLINE.value, UserRole.PASSENGER.value])
 def get_flight_by_id(flight_id):  
+    """
+    Retrieve detailed information about a specific flight by its ID.
+
+    This endpoint is accessible to both airline and passenger users.  
+    It fetches a flight from the database using its unique identifier and 
+    returns the serialized flight data if found.
+
+    Args:
+        flight_id (int): The unique identifier of the flight to retrieve, 
+                         passed as a URL path parameter.
+
+    Returns:
+        Response (JSON): 
+            - 200 OK: Flight found and returned successfully.
+            - 400 Bad Request: Flight ID not provided.
+            - 404 Not Found: No flight found with the given ID.
+            - 500 Internal Server Error: Unexpected server error.
+    """
     try:
         if not flight_id:
             return jsonify({
@@ -264,6 +388,34 @@ def get_flight_by_id(flight_id):
 
 
 def sort_journeys(journeys, sort_params):
+    """
+    Sorts a list of flight journeys based on user-defined criteria.
+
+    Each journey is represented as a dictionary containing one or two flights 
+    (for direct or layover journeys), as well as calculated fields such as 
+    total price and total duration. The sorting is applied in-place.
+
+    Args:
+        journeys (list[dict]): 
+            A list of journeys, where each journey is a dictionary that must include:
+                - "first_flight" (Flight): The first flight object.
+                - "second_flight" (Flight, optional): The second flight (for layovers).
+                - "total_price" (float | Decimal): Combined journey cost.
+                - "total_duration" (float): Journey duration in hours.
+        sort_params (dict): 
+            A dictionary specifying sorting options. Must contain:
+                - "sort_by" (str): Field to sort by. Supported values:
+                    - "departure_time"
+                    - "arrival_time"
+                    - "price"
+                    - "duration"
+                - "order" (str): Sorting order. Supported values:
+                    - "asc" for ascending
+                    - "desc" for descending
+
+    Returns:
+        None: The `journeys` list is sorted in-place.
+    """
 
     if(sort_params['order'] == "asc"):
 
@@ -289,8 +441,23 @@ def sort_journeys(journeys, sort_params):
 
 
 def get_seats_flight(flight_id):
+    """
+    Retrieves all seats for a specific flight.
+
+    This function queries the database to fetch all seats associated
+    with the given flight ID, ordered by their ID. It returns a list
+    of `Seat` objects if successful, or `None` in case of an error.
+
+    Args:
+        flight_id (int): The unique identifier of the flight.
+
+    Returns:
+        list[Seat] | None:
+            - A list of `Seat` objects belonging to the specified flight, ordered by seat ID.
+            - `None` if an error occurs during the query.
+    """
     try:
-        seats = Seat.query.filter_by(flight_id=flight_id).order_by(Seat.number).all()
+        seats = Seat.query.filter_by(flight_id=flight_id).order_by(Seat.id).all()
         return seats
 
     except Exception as e:
@@ -298,29 +465,33 @@ def get_seats_flight(flight_id):
         return None
 
 
-def get_free_seats_for_flight(flight_id: int):
-    try:
-        seats = Seat.query.filter_by(flight_id=flight_id, state=SeatState.AVAILABLE).all()
-        return seats
-    except Exception as e:
-        print(f"Error fetching free seats for flight {flight_id}: {e}")
-        return []
-
-
-def get_occupied_seats_for_flight(flight_id: int):
-    try:
-        seats = Seat.query.filter(Seat.flight_id == flight_id, Seat.state != SeatState.AVAILABLE).all()
-        return seats
-    except Exception as e:
-        print(f"Error fetching occupied seats for flight {flight_id}: {e}")
-        return []
-
-
 def get_direct_flights(
         flights_query,
         routes,
         max_price
 ):
+    """
+    Retrieves all direct flights matching the given routes and price constraints.
+
+    This function filters available flights that are part of the specified routes and whose 
+    base price is below the given maximum price. It returns a list of journey dictionaries 
+    containing flight details, total duration, and total cost.
+
+    Args:
+        flights_query (BaseQuery):
+            A SQLAlchemy query object for filtering flights (e.g., already filtered by date or airline).
+        routes (list[Route]):
+            A list of `Route` objects representing valid departure-arrival airport pairs.
+        max_price (float | Decimal):
+            The maximum allowed base price for a flight.
+
+    Returns:
+        list[dict]:
+            A list of journey dictionaries. Each dictionary contains:
+                - "first_flight": The `Flight` object representing the direct flight.
+                - "total_duration": Duration of the flight in hours (int).
+                - "total_price": The base price of the flight (float or Decimal).
+    """
 
     flights = []
     route_ids = [r.id for r in routes]
@@ -349,6 +520,37 @@ def get_layovers_flights(
     arrival_airports,
     max_price
 ):
+    """
+    Finds all valid two-leg journeys (with one layover) that match given criteria.
+
+    This function identifies possible connecting flights (with exactly one layover)
+    between a list of departure airports and arrival airports, within a specified 
+    maximum price and acceptable layover time range.
+
+    Args:
+        flights_query (BaseQuery):
+            SQLAlchemy query object to filter flights (e.g., pre-filtered by date or airline).
+        departure_airports (list[Airport]):
+            List of `Airport` objects representing allowed departure airports.
+        arrival_airports (list[Airport]):
+            List of `Airport` objects representing allowed final destination airports.
+        max_price (float | Decimal):
+            Maximum total allowed price for the combined journey.
+
+    Returns:
+        list[dict]:
+            A list of dictionaries representing valid layover journeys. Each dictionary includes:
+                - "first_flight": The first `Flight` object.
+                - "second_flight": The second `Flight` object.
+                - "total_duration": Total journey duration in hours (int).
+                - "total_price": Total combined price of both flights.
+
+    Notes:
+        - Only considers **2-leg journeys** (exactly one layover).
+        - The layover time must be **between 2 and 12 hours**.
+        - Both flights must be available and meet price constraints.
+        - Returns an empty list if no valid layover combinations are found.
+    """
 
     journeys = []
 
@@ -404,6 +606,35 @@ def search_flights(
         layovers,
         max_price
     ):
+    """
+    Searches for available flight journeys (direct and with layovers) based on given parameters.
+
+    This function constructs and returns a list of possible flight journeys matching the 
+    departure and arrival airports, considering optional layovers and a maximum price constraint.
+
+    Args:
+        flights_query (BaseQuery):
+            A SQLAlchemy query object used to filter flights (e.g., by date, airline, etc.).
+        departure_airports (list[Airport]):
+            A list of `Airport` objects representing possible departure airports.
+        arrival_airports (list[Airport]):
+            A list of `Airport` objects representing possible arrival airports.
+        layovers (bool):
+            Whether to include flight combinations with layovers in the search.
+        max_price (float | Decimal | None):
+            The maximum allowed total price for the journey. If `None`, no price filter is applied.
+
+    Returns:
+        list[dict]:
+            A list of journey objects (typically dictionaries) representing matching flights.
+            Each journey can be either:
+                - A direct flight (via `get_direct_flights`), or
+                - A multi-leg journey with one or more layovers (via `get_layovers_flights`).
+
+    Notes:
+        - Returns an empty list if no matching routes or flights are found.
+        - Does not commit any database transaction; purely a query operation.
+    """
     
     direct_routes = []
 
@@ -435,6 +666,26 @@ def search_flights(
 
 @flights_bp.route('/flights/<int:flight_id>/seats', methods=['GET'])
 def get_seats(flight_id):
+    """
+    Retrieves all seats for a specific flight.
+
+    This endpoint fetches all seats associated with the given flight ID and returns them
+    in a serialized format. It does not require authentication.
+
+    URL Parameters:
+        - flight_id (int): The ID of the flight for which to retrieve seats.
+
+    Responses:
+        - 200 OK: Seats successfully retrieved.
+            {
+                "message": "Seats retrieved successfully",
+                "seats": [<serialized_seat_data>, ...]
+            }
+        - 500 Internal Server Error: Unexpected error while retrieving seats.
+            {
+                "message": "Internal error retrieving seats"
+            }
+    """
     try:
         seats = get_seats_flight(flight_id=flight_id)
         print(seats)

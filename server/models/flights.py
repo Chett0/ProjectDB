@@ -14,13 +14,13 @@ class Flight(db.Model):
 
     id : Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     
-    route_id : Mapped[int] = mapped_column(db.ForeignKey("routes.id", ondelete='CASCADE'))
+    route_id : Mapped[int] = mapped_column(db.ForeignKey("routes.id", ondelete='CASCADE'), index=True)
     route : Mapped["Route"] = relationship(
         "Route", 
         foreign_keys=[route_id]
     )
 
-    aircraft_id : Mapped[int] = mapped_column(db.ForeignKey("aircrafts.id"))
+    aircraft_id : Mapped[int] = mapped_column(db.ForeignKey("aircrafts.id", ondelete="CASCADE"), index=True)
     aircraft : Mapped["Aircraft"] = relationship(
         "Aircraft",
         foreign_keys=[aircraft_id]

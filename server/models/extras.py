@@ -46,7 +46,7 @@ class Extra(db.Model):
         back_populates='extra'
     )
     
-    airline_id: Mapped[int] = mapped_column(db.ForeignKey('airlines.id'), nullable=False)
+    airline_id: Mapped[int] = mapped_column(db.ForeignKey('airlines.id', ondelete="CASCADE"), nullable=False)
 
     airline : Mapped["Airline"] = relationship(
         "Airline",

@@ -34,7 +34,7 @@
               matInput 
               [matDatepicker]="picker" 
               formControlName="departure_date"
-              
+              [min]="today"
               >
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>

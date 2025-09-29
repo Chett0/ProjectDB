@@ -5,6 +5,7 @@ import { FooterComponent } from '../footer/footer.component';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { PassengerService } from '../../services/passenger/passenger.service';
+import { TicketBookingService } from '../../services/ticket-booking/ticket-booking.service';
 
 @Component({
   selector: 'app-passengers',
@@ -26,13 +27,15 @@ export class PassengersComponent {
     private authService: AuthService,
     private router: Router,
     private passengerService: PassengerService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private ticket : TicketBookingService
   ) {}
 
   onLogout() {
     const confirmed = confirm('Sei sicuro di voler effettuare il logout?');
     if (!confirmed) return;
     this.passengerService.clearPassengerCache();
+    this.ticket.clearTicketsCache();
     this.authService.logout();
     this.router.navigate(['/login']);
   }
