@@ -1,8 +1,8 @@
-// import { airports } from '../../prisma/generated/prisma';
+import { airports } from '../../prisma/generated/prisma';
 import prisma from '../config/db';
 
-export const createAirport = async (airportData : any) => {
-    return prisma.airport.create({
+export const createAirport = async (airportData : airports) => {
+    return prisma.airports.create({
         data: airportData,
     });
 }
