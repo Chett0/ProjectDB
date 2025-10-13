@@ -1,0 +1,199 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model aircraft_classes {
+  id               Int       @id @default(autoincrement())
+  aircraft_id      Int
+  name             String    @db.VarChar(50)
+  nSeats           Int
+  price_multiplier Decimal   @db.Decimal(5, 2)
+  active           Boolean?
+  deletion_time    DateTime? @db.Timestamp(6)
+  aircrafts        aircrafts @relation(fields: [aircraft_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  seats            seats[]
+}
+
+model aircrafts {
+  id               Int                @id @default(autoincrement())
+  model            String             @db.VarChar
+  nSeats           Int
+  airline_id       Int
+  active           Boolean?
+  deletion_time    DateTime?          @db.Timestamp(6)
+  aircraft_classes aircraft_classes[]
+  airlines         airlines           @relation(fields: [airline_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  flights          flights[]
+
+  @@index([airline_id], map: "ix_aircrafts_airline_id")
+}
+
+model airlineRoute {
+  airline_id    Int
+  route_id      Int
+  active        Boolean?
+  deletion_time DateTime? @db.Timestamp(6)
+  airlines      airlines  @relation(fields: [airline_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  routes        routes    @relation(fields: [route_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([airline_id, route_id])
+}
+
+model airlines {
+  id           Int            @id
+  name         String         @db.VarChar(50)
+  code         String         @db.VarChar(3)
+  aircrafts    aircrafts[]
+  airlineRoute airlineRoute[]
+  users        users          @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  extras       extras[]
+
+  @@index([code], map: "ix_airlines_code")
+  @@index([name], map: "ix_airlines_name")
+}
+
+model airports {
+  id                                           Int       @id @default(autoincrement())
+  name                                         String    @unique(map: "ix_airports_name") @db.VarChar(255)
+  code                                         String    @unique(map: "ix_airports_code") @db.VarChar(3)
+  city                                         String    @db.VarChar(100)
+  country                                      String    @db.VarChar(100)
+  active                                       Boolean?
+  deletion_time                                DateTime? @db.Timestamp(6)
+  routes_routes_arrival_airport_idToairports   routes[]  @relation("routes_arrival_airport_idToairports")
+  routes_routes_departure_airport_idToairports routes[]  @relation("routes_departure_airport_idToairports")
+}
+
+model alembic_version {
+  version_num String @id(map: "alembic_version_pkc") @db.VarChar(32)
+}
+
+model extras {
+  id            Int            @id @default(autoincrement())
+  name          String         @db.VarChar(100)
+  price         Decimal        @db.Decimal(10, 2)
+  airline_id    Int
+  active        Boolean?
+  deletion_time DateTime?      @db.Timestamp(6)
+  airlines      airlines       @relation(fields: [airline_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  ticket_extra  ticket_extra[]
+}
+
+model flights {
+  id               Int       @id @default(autoincrement())
+  route_id         Int
+  aircraft_id      Int
+  departure_time   DateTime  @db.Timestamp(6)
+  arrival_time     DateTime  @db.Timestamp(6)
+  base_price       Decimal   @db.Decimal
+  duration_seconds Int
+  active           Boolean?
+  deletion_time    DateTime? @db.Timestamp(6)
+  aircrafts        aircrafts @relation(fields: [aircraft_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  routes           routes    @relation(fields: [route_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  seats            seats[]
+  tickets          tickets[]
+
+  @@index([aircraft_id], map: "ix_flights_aircraft_id")
+  @@index([route_id], map: "ix_flights_route_id")
+}
+
+model passengers {
+  id      Int       @id
+  name    String    @db.VarChar(50)
+  surname String    @db.VarChar(50)
+  users   users     @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tickets tickets[]
+}
+
+model routes {
+  id                                             Int            @id @default(autoincrement())
+  departure_airport_id                           Int
+  arrival_airport_id                             Int
+  airlineRoute                                   airlineRoute[]
+  flights                                        flights[]
+  airports_routes_arrival_airport_idToairports   airports       @relation("routes_arrival_airport_idToairports", fields: [arrival_airport_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  airports_routes_departure_airport_idToairports airports       @relation("routes_departure_airport_idToairports", fields: [departure_airport_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([arrival_airport_id], map: "ix_routes_arrival_airport_id")
+  @@index([departure_airport_id], map: "ix_routes_departure_airport_id")
+}
+
+model seats {
+  id               Int               @id @default(autoincrement())
+  number           String            @db.VarChar(20)
+  flight_id        Int
+  class_id         Int?
+  state            seatstate
+  price            Int?
+  aircraft_classes aircraft_classes? @relation(fields: [class_id], references: [id], onUpdate: NoAction)
+  flights          flights           @relation(fields: [flight_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tickets          tickets[]
+
+  @@index([class_id], map: "ix_seats_class_id")
+  @@index([flight_id], map: "ix_seats_flight_id")
+}
+
+model ticket_extra {
+  ticket_id Int
+  extra_id  Int
+  extras    extras  @relation(fields: [extra_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tickets   tickets @relation(fields: [ticket_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([ticket_id, extra_id])
+}
+
+model tickets {
+  id            Int            @id @default(autoincrement())
+  flight_id     Int
+  passenger_id  Int
+  seat_id       Int?
+  final_cost    Decimal        @db.Decimal(10, 2)
+  purchase_date DateTime?      @db.Timestamp(6)
+  state         bookingstate
+  ticket_extra  ticket_extra[]
+  flights       flights        @relation(fields: [flight_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  passengers    passengers     @relation(fields: [passenger_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  seats         seats?         @relation(fields: [seat_id], references: [id], onUpdate: NoAction)
+
+  @@index([flight_id], map: "ix_tickets_flight_id")
+  @@index([flight_id, passenger_id], map: "ix_tickets_flight_passenger")
+  @@index([passenger_id], map: "ix_tickets_passenger_id")
+  @@index([seat_id], map: "ix_tickets_seat_id")
+}
+
+model users {
+  id                   Int         @id @default(autoincrement())
+  email                String      @unique @db.VarChar(50)
+  password             String      @db.VarChar(100)
+  role                 userrole
+  active               Boolean?
+  deletion_time        DateTime?   @db.Timestamp(6)
+  must_change_password Boolean?
+  airlines             airlines?
+  passengers           passengers?
+}
+
+enum bookingstate {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum seatstate {
+  AVAILABLE
+  RESERVED
+  BOOKED
+}
+
+enum userrole {
+  ADMIN
+  AIRLINE
+  PASSENGER
+}
