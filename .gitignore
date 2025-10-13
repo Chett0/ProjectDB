@@ -8,5 +8,10 @@ server/app/config
 .vscode/
 server/migrations
 
+Video/
+Documentazione/
+
+node_modules/
+dist/
 
 .env
