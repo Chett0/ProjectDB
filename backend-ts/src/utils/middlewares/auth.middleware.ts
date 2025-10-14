@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 import { NextFunction, Response } from "express";
 import { AuthenticatedRequest, UserRole } from "../../types/auth.types";
 
-const verifyToken = (req : AuthenticatedRequest, res : Response, next : NextFunction) => {
+const verifyToken = async (req : AuthenticatedRequest, res : Response, next : NextFunction) => {
     try {
         const authHeader : string | undefined = req.headers.authorization;
 
