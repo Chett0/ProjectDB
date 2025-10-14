@@ -2,7 +2,7 @@ import { airports } from '../../prisma/generated/prisma';
 import * as airportService from '../services/airports.service';
 import { Request, Response, NextFunction } from 'express';
 
-export const createAirport = async(req : Request, res : Response, next : NextFunction) => {
+const createAirport = async(req : Request, res : Response, next : NextFunction) => {
     try{
         const airport : airports = req.body;
         const newAirport = await airportService.createAirport(airport);
@@ -11,4 +11,8 @@ export const createAirport = async(req : Request, res : Response, next : NextFun
     catch (error) {
         next(error); // Pass to error-handling middleware
     }
+}
+
+export {
+    createAirport
 }
