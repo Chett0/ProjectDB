@@ -14,7 +14,9 @@ interface AuthenticatedUser {
 }
 
 interface AuthenticatedRequest extends Request{
-    user : AuthenticatedUser
+    user : AuthenticatedUser,
+    accessToken : string,
+    refreshToken: string
 }
 
 

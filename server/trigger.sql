@@ -33,7 +33,7 @@ CREATE OR REPLACE FUNCTION check_airline_route_delete()
 RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.active = FALSE AND OLD.active = TRUE THEN
-        IF EXISTS (SELECT 1 FROM flights f WHERE f.route = OLD.route_id AND f.arrival_time >= NOW()) THEN
+        IF EXISTS (SELECT 1 FROM flights f WHERE f.route_id = OLD.route_id AND f.arrival_time >= NOW()) THEN
             RAISE EXCEPTION 'Airline route cannot be modified';
         END IF;
         NEW.deletion_time := NOW();

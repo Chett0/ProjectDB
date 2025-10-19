@@ -173,9 +173,9 @@ model users {
   email                String      @unique @db.VarChar(50)
   password             String      @db.VarChar(100)
   role                 userrole
-  active               Boolean?    @default(true)
+  active               Boolean     @default(true)
   deletion_time        DateTime?   @db.Timestamp(6)
-  must_change_password Boolean?    @default(false)
+  must_change_password Boolean     @default(false)
   airlines             airlines?
   passengers           passengers?
 }

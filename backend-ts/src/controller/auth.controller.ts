@@ -5,11 +5,13 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { User, UserAirline, UserPassenger, UserRole } from "../types/auth.types";
 import { users } from "../../prisma/generated/prisma";
+import { log } from "node:console";
+import { hash } from "node:crypto";
 
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
-const BCRYPT_SALT_ROUNDS = process.env.BCRYPT_SALT_ROUNDS!;
+const BCRYPT_SALT_ROUNDS = Number(process.env.BCRYPT_SALT_ROUNDS) || 10;
 
 const registerAirline = async(req : Request, res : Response): Promise<void> => {
     try{
@@ -57,7 +59,7 @@ const registerAirline = async(req : Request, res : Response): Promise<void> => {
     }
     catch (error) {
         res.status(500).json({
-            message: "Internal server error while creating passenger",
+            message: "Internal server error while creating airline",
             success: false
         })
     }
@@ -109,7 +111,7 @@ const registerPassenger = async(req : Request, res : Response) : Promise<void> =
     }
     catch (error) {
         res.status(500).json({
-            message: "Internal server error while creating airline",
+            message: "Internal server error while creating passenger",
             success: false
         })
     }
@@ -127,7 +129,7 @@ const registerAdmin = async(req : Request, res : Response) : Promise<void> => {
             });
             return;
         }
-
+        
         const existingUser : users | null = await authService.getUserByEmail(email);
 
         if(existingUser){
@@ -227,11 +229,82 @@ const login = async(req : Request, res : Response) : Promise<void> => {
             success: false
         })
     }
-}
+};
+
+// const refresh = async(req : Request, res : Response) : Promise<void> => {
+//     try {
+        
+
+//         res.status(201).json({
+//             message: "Login successful",
+//             accessToken: accessToken,
+//             refreshToken: refreshToken,
+//             role: user.role
+//         })
+
+//     } catch (error) {
+//         res.status(500).json({
+//             message: "Internal server error while login",
+//             success: false
+//         })
+//     }
+// };
+
+
+const updatePassword = async(req : Request, res : Response) : Promise<void> => {
+    try {
+        const { email, oldPassword, newPassword } = req.body;
+
+        if(!email || !oldPassword || !newPassword){
+            res.status(400).json({
+                message: "Missing required fields",
+                success: false
+            });
+            return;
+        }
+
+        const user : users | null = await authService.getUserByEmail(email);
+
+        if(!user){
+            res.status(404).json({
+                message: "User not exists",
+                success: false
+            });
+            return;
+        }
+
+        const isMatch : boolean = await bcrypt.compare(oldPassword, user.password);
+
+        if(!isMatch){
+            res.status(409).json({
+                message: "Wrong password",
+                success: false
+            });
+            return;
+        }
+
+        const hashedPassword : string = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
+        console.log(hashedPassword)
+
+        await authService.updatePassword(user, hashedPassword);
+
+        res.status(200).json({
+            message: "Password updated successfully",
+            success: true
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Internal server error while updating password",
+            success: false
+        })
+    }
+};
 
 export {
     registerPassenger,
     registerAirline,
     registerAdmin,
-    login
+    login,
+    updatePassword
 }

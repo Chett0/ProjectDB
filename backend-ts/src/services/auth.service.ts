@@ -106,7 +106,10 @@ const getUserByEmail = async(
 ) : Promise<users | null> => {
     try{
         const user : users | null = await prisma.users.findFirst({
-            where: {email}
+            where: {
+                email,
+                active: true
+            }
         });
         return user;
     } catch(err){
@@ -114,11 +117,32 @@ const getUserByEmail = async(
             `Failed to check email already in use: ${err instanceof Error ? err.message : "Unknown error"}`
         ); 
     }
-}
+};
+
+const updatePassword = async(
+    user: users,
+    newPassword: string
+) : Promise<void> => {
+    try{
+        await prisma.users.update({
+            where: {id: user.id},
+            data: {
+                password: newPassword,
+                must_change_password: false
+            }
+        });
+    } catch(err){
+        throw new Error(
+            `Failed to update password: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
 
 export {
     registerPassenger,
     registerAirline,
     registerAdmin,
-    getUserByEmail
+    getUserByEmail,
+    updatePassword
 }
