@@ -5,12 +5,10 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { User, UserAirline, UserPassenger, UserRole } from "../types/auth.types";
 import { users } from "../../prisma/generated/prisma";
-import { log } from "node:console";
-import { hash } from "node:crypto";
 
 
-const JWT_SECRET = process.env.JWT_SECRET!;
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
+const JWT_ACCESS_TOKEN_SECRET : string = process.env.JWT_ACCESS_TOKEN_SECRET! as string;
+const JWT_REFRESH_TOKEN_SECRET : string = process.env.JWT_REFRESH_TOKEN_SECRET! as string;
 const BCRYPT_SALT_ROUNDS = Number(process.env.BCRYPT_SALT_ROUNDS) || 10;
 
 const registerAirline = async(req : Request, res : Response): Promise<void> => {
@@ -198,21 +196,21 @@ const login = async(req : Request, res : Response) : Promise<void> => {
             return;
         }
 
-        const additionalClaims = {
+        const payloadJWT = {
+            id: user.id,
             role: user.role,
             email: user.email,
         };
 
-
         const accessToken = jwt.sign(
-            { sub: user.id, ...additionalClaims }, 
-            JWT_SECRET,
+            payloadJWT, 
+            JWT_ACCESS_TOKEN_SECRET,
             { expiresIn: "15m" }
         );
 
         const refreshToken = jwt.sign(
-            { sub: user.id, ...additionalClaims },
-            JWT_REFRESH_SECRET,
+            payloadJWT,
+            JWT_REFRESH_TOKEN_SECRET,
             { expiresIn: "7d" } 
         );
 

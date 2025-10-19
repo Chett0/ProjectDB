@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 import { NextFunction, Response } from "express";
-import { AuthenticatedRequest, UserRole } from "../../types/auth.types";
+import { AuthenticatedRequest, User, UserRole } from "../../types/auth.types";
+
+const JWT_ACCESS_TOKEN_SECRET = process.env.JWT_ACCESS_TOKEN_SECRET!;
 
 const verifyToken = async (req : AuthenticatedRequest, res : Response, next : NextFunction) => {
     try {
@@ -22,18 +24,18 @@ const verifyToken = async (req : AuthenticatedRequest, res : Response, next : Ne
             });
         }
 
-        jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err: any, payload: any) => {
+        jwt.verify(accessToken, JWT_ACCESS_TOKEN_SECRET, (err: any, payload: any) => {
             if (err){ 
-                return res.sendStatus(403).json({
-                    message: "Invalid token",
+                return res.status(403).json({
+                    message: "Invalid or expired token",
                     success: false
                 });
             }
 
             req.user = {
-                id: payload._id,
+                id: payload.id,
                 role : payload.role
-            }
+            };
             
             next();
         });
@@ -45,16 +47,16 @@ const verifyToken = async (req : AuthenticatedRequest, res : Response, next : Ne
     }
 }
 
-const verifyRole = (...allowedRoles : string[]) => {
+const verifyRole = (...allowedRoles : UserRole[]) => {
     return (req : AuthenticatedRequest, res : Response, next : NextFunction) => {
         if(!req.user){
             return res.status(401).json({
                 message: "User not authenticated",
                 success: false
             });
-        }
+        };
 
-        if(!allowedRoles.includes(req.user.role)){
+        if (!(allowedRoles.includes(req.user.role as UserRole))) {
             return res.status(403).json({
                 message: "Access denied",
                 success: false
@@ -62,6 +64,7 @@ const verifyRole = (...allowedRoles : string[]) => {
         }
 
         next();
+
     }
 }
 

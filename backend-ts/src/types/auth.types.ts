@@ -3,9 +3,9 @@ import { airlines, passengers, users } from "../../prisma/generated/prisma";
 
 
 export enum UserRole {
-    ADMIN = "Admin",
-    PASSENGER = "Passenger",
-    AIRLINE = "Airline"
+    ADMIN = "ADMIN",
+    PASSENGER = "PASSENGER",
+    AIRLINE = "AIRLINE"
 }
 
 interface AuthenticatedUser {
@@ -14,9 +14,7 @@ interface AuthenticatedUser {
 }
 
 interface AuthenticatedRequest extends Request{
-    user : AuthenticatedUser,
-    accessToken : string,
-    refreshToken: string
+    user? : AuthenticatedUser
 }
 
 
