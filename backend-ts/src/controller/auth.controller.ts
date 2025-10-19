@@ -3,8 +3,10 @@ import * as authService from "../services/auth.service";
 import * as authHelper from "../utils/helpers/auth.helpers";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { User, UserAirline, UserPassenger, UserRole } from "../types/auth.types";
+import { AuthenticatedRequest, PayloadJWT, User, UserAirline, UserPassenger, UserRole } from "../types/auth.types";
 import { users } from "../../prisma/generated/prisma";
+
+const cookieparser = require('cookie-parser');
 
 
 const JWT_ACCESS_TOKEN_SECRET : string = process.env.JWT_ACCESS_TOKEN_SECRET! as string;
@@ -196,28 +198,34 @@ const login = async(req : Request, res : Response) : Promise<void> => {
             return;
         }
 
-        const payloadJWT = {
+        const payloadJWT : PayloadJWT = {
             id: user.id,
             role: user.role,
-            email: user.email,
         };
 
-        const accessToken = jwt.sign(
+        const accessToken : string = jwt.sign(
             payloadJWT, 
             JWT_ACCESS_TOKEN_SECRET,
             { expiresIn: "15m" }
         );
 
-        const refreshToken = jwt.sign(
+        const refreshToken : string = jwt.sign(
             payloadJWT,
             JWT_REFRESH_TOKEN_SECRET,
             { expiresIn: "7d" } 
         );
 
+        res.cookie('jwt', refreshToken, {
+            httpOnly: true,
+            sameSite: 'none', 
+            // secure: true,
+            maxAge: 24 * 60 * 60 * 1000 * 1
+        });
+
         res.status(201).json({
             message: "Login successful",
             accessToken: accessToken,
-            refreshToken: refreshToken,
+            // refreshToken: refreshToken,
             role: user.role
         })
 
@@ -229,24 +237,54 @@ const login = async(req : Request, res : Response) : Promise<void> => {
     }
 };
 
-// const refresh = async(req : Request, res : Response) : Promise<void> => {
-//     try {
-        
+const refreshToken = async(req : Request, res : Response) : Promise<void> => {
+    try{
+        if (req.cookies?.jwt) {
 
-//         res.status(201).json({
-//             message: "Login successful",
-//             accessToken: accessToken,
-//             refreshToken: refreshToken,
-//             role: user.role
-//         })
+            const refreshToken : string = req.cookies.jwt;
 
-//     } catch (error) {
-//         res.status(500).json({
-//             message: "Internal server error while login",
-//             success: false
-//         })
-//     }
-// };
+            jwt.verify(refreshToken, JWT_REFRESH_TOKEN_SECRET, (err: any, payload: any) => {
+                if (err) {
+                    return res.status(401).json({ 
+                        message: 'Refresh token not valid',
+                        success: false 
+                    });
+                }
+                else {
+
+                    const payloadJWT : PayloadJWT = {
+                        id: payload.id,
+                        role: payload.role
+                    };
+
+                    const accessToken : string = jwt.sign(
+                        payloadJWT, 
+                        JWT_ACCESS_TOKEN_SECRET,
+                        { expiresIn: "15m" }
+                    );
+
+                    res.status(201).json({
+                        message: "Token refreshed successful",
+                        accessToken: accessToken,
+                        success: true
+                    });
+                }
+            });
+        }
+        else{
+            res.status(401).json({
+                message: "Missing refresh token",
+                success: false
+            })
+        }
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Internal server error while refreshing token",
+            success: false
+        })
+    }
+};
 
 
 const updatePassword = async(req : Request, res : Response) : Promise<void> => {
@@ -304,5 +342,6 @@ export {
     registerAirline,
     registerAdmin,
     login,
+    refreshToken,
     updatePassword
 }

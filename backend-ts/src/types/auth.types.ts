@@ -8,6 +8,11 @@ export enum UserRole {
     AIRLINE = "AIRLINE"
 }
 
+interface PayloadJWT {
+    id: number,
+    role: string
+}
+
 interface AuthenticatedUser {
     id : number, 
     role : string
@@ -53,5 +58,6 @@ export type {
     UserPassenger,
     UserAirline,
     CreatePassengerResult,
-    CreateAirlineResult
+    CreateAirlineResult,
+    PayloadJWT
 }

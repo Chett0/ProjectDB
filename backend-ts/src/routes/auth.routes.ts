@@ -9,7 +9,7 @@ router.post('/passengers/register', authController.registerPassenger);
 router.post('/airlines/register', verifyToken, verifyRole(UserRole.ADMIN), authController.registerAirline);
 router.post('/admin/register', verifyToken, verifyRole(UserRole.ADMIN), authController.registerAdmin);
 router.post('/login', authController.login);
-// router.post('/refresh');
+router.post('/refresh', authController.refreshToken);
 router.put('/users/password', authController.updatePassword);
 
 export default router;

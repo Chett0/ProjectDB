@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 import { NextFunction, Response } from "express";
-import { AuthenticatedRequest, User, UserRole } from "../../types/auth.types";
+import { AuthenticatedRequest, PayloadJWT, User, UserRole } from "../../types/auth.types";
 
 const JWT_ACCESS_TOKEN_SECRET = process.env.JWT_ACCESS_TOKEN_SECRET!;
 
@@ -48,7 +48,7 @@ const verifyToken = async (req : AuthenticatedRequest, res : Response, next : Ne
 }
 
 const verifyRole = (...allowedRoles : UserRole[]) => {
-    return (req : AuthenticatedRequest, res : Response, next : NextFunction) => {
+    return async (req : AuthenticatedRequest, res : Response, next : NextFunction) => {
         if(!req.user){
             return res.status(401).json({
                 message: "User not authenticated",
@@ -64,7 +64,6 @@ const verifyRole = (...allowedRoles : UserRole[]) => {
         }
 
         next();
-
     }
 }
 
