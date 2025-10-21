@@ -3,8 +3,11 @@ import * as authService from "../services/auth.service";
 import * as authHelper from "../utils/helpers/auth.helpers";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { AuthenticatedRequest, PayloadJWT, User, UserAirline, UserPassenger, UserRole } from "../types/auth.types";
+import { PayloadJWT, User, UserAirline, UserPassenger, UserRole } from "../types/auth.types";
 import { users } from "../../prisma/generated/prisma";
+import { sendResponse, sendMissingFieldsResponse } from "../utils/helpers/response.helper";
+import { AdminDTO, PassengerDTO, TokenDTO, UserDTO } from "../dtos/user.dto";
+import { send } from "process";
 
 const cookieparser = require('cookie-parser');
 
@@ -18,20 +21,14 @@ const registerAirline = async(req : Request, res : Response): Promise<void> => {
         const { email, name, code } = req.body;
         
         if(!email || !name || !code){
-            res.status(400).json({
-                message: "Missing required fields",
-                success: false
-            });
+            sendMissingFieldsResponse(res);
             return;
         }
 
         const existingUser : users | null = await authService.getUserByEmail(email);
 
         if(existingUser){
-            res.status(409).json({
-                message: "Email already in use",
-                success: false
-            });
+            sendResponse(res, false, 409, "Email already in use");
             return;
         }
 
@@ -47,21 +44,18 @@ const registerAirline = async(req : Request, res : Response): Promise<void> => {
             role: UserRole.AIRLINE
         }
 
-        const {newUser, newAirline} = await authService.registerAirline(userAirline);
+        await authService.registerAirline(userAirline);
 
-        res.status(201).json({
-            message: "Passenger created successfully",
-            email: newUser.email,
-            password: password,
-            newAirline: newAirline,
-            success: true
-        })
+        const user : UserDTO = {
+            email: email,
+            password: password
+        }
+
+        sendResponse(res, true, 201, "Airline created successfully", user);
     }
     catch (error) {
-        res.status(500).json({
-            message: "Internal server error while creating airline",
-            success: false
-        })
+        console.error("Error while creating airline: ", error);
+        sendResponse(res, false, 500, "Internal server error while creating airline");
     }
 };
 
@@ -73,20 +67,14 @@ const registerPassenger = async(req : Request, res : Response) : Promise<void> =
         const { email, name, surname, password } = req.body;
         
         if(!email || !name || !surname || !password){
-            res.status(400).json({
-                message: "Missing required fields",
-                success: false
-            });
+            sendMissingFieldsResponse(res);
             return;
         }
 
         const existingUser : users | null = await authService.getUserByEmail(email);
 
         if(existingUser){
-            res.status(409).json({
-                message: "Email already in use",
-                success: false
-            });
+            sendResponse(res, false, 409, "Email already in use");
             return;
         }
 
@@ -100,20 +88,20 @@ const registerPassenger = async(req : Request, res : Response) : Promise<void> =
             role: UserRole.PASSENGER
         }
 
-        const {newUser, newPassenger} = await authService.registerPassenger(userPassenger);
+        await authService.registerPassenger(userPassenger);
 
-        res.status(201).json({
-            message: "Passenger created successfully",
-            email: newUser.email,
-            newPassenger: newPassenger,
-            success: true
-        })
+        const passenger : PassengerDTO = {
+            email: email,
+            name: name,
+            surname: surname
+        }
+
+
+        sendResponse(res, true, 201, "Passenger created successfully", passenger);
     }
     catch (error) {
-        res.status(500).json({
-            message: "Internal server error while creating passenger",
-            success: false
-        })
+        console.error("Error while creating passenger: ", error);
+        sendResponse(res, false, 500, "Internal server error while creating passenger");
     }
 };
 
@@ -123,20 +111,14 @@ const registerAdmin = async(req : Request, res : Response) : Promise<void> => {
         const { email, password } = req.body;
         
         if(!email || !password){
-            res.status(400).json({
-                message: "Missing required fields",
-                success: false
-            });
+            sendMissingFieldsResponse(res);
             return;
         }
         
         const existingUser : users | null = await authService.getUserByEmail(email);
 
         if(existingUser){
-            res.status(409).json({
-                message: "Email already in use",
-                success: false
-            });
+            sendResponse(res, false, 409, "Email already in use");
             return;
         }
 
@@ -148,19 +130,17 @@ const registerAdmin = async(req : Request, res : Response) : Promise<void> => {
             role: UserRole.ADMIN
         }
 
-        const newUser = await authService.registerAdmin(userPassenger);
+        await authService.registerAdmin(userPassenger);
 
-        res.status(201).json({
-            message: "Passenger created successfully",
-            email: newUser.email,
-            success: true
-        })
+        const admin : AdminDTO = {
+            email: email
+        }
+
+        sendResponse(res, true, 201, "Admin created successfully", admin);
     }
     catch (error) {
-        res.status(500).json({
-            message: "Internal server error while creating airline",
-            success: false
-        })
+        console.error("Error while creating admin: ", error);
+        sendResponse(res, false, 500, "Internal server error while creating admin");
     }
 };
 
@@ -172,29 +152,25 @@ const login = async(req : Request, res : Response) : Promise<void> => {
         const user : users | null = await authService.getUserByEmail(email);
 
         if(!user || !user.active){
-            res.status(404).json({
-                message: "User not exists",
-                success: false
-            });
+            sendResponse(res, false, 404, "User not exists");
             return;
         }
 
         const isMatch : boolean = await bcrypt.compare(password, user.password);
 
         if(!isMatch){
-            res.status(409).json({ 
-                message: "Wrong credentials",
-                success: false
-            });
+            sendResponse(res, false, 409, "Wrong credentials");
             return;
         }
 
         if(user.must_change_password){
-            res.status(303).json({
-                message:"Password has to be changed",
-                role:user.role.valueOf(),
-                success: true
-            })
+            sendResponse(res, true, 303, "Password need to be changed");
+
+            // res.status(303).json({
+            //     message:"Password has to be changed",
+            //     role:user.role.valueOf(),
+            //     success: true
+            // })
             return;
         }
 
@@ -222,18 +198,22 @@ const login = async(req : Request, res : Response) : Promise<void> => {
             maxAge: 24 * 60 * 60 * 1000 * 1
         });
 
-        res.status(201).json({
-            message: "Login successful",
+        const loginResponse : TokenDTO = {
             accessToken: accessToken,
-            // refreshToken: refreshToken,
             role: user.role
-        })
+        }
+
+        sendResponse(res, true, 201, "Login successful", loginResponse);
+        // res.status(201).json({
+        //     message: "Login successful",
+        //     accessToken: accessToken,
+        //     // refreshToken: refreshToken,
+        //     role: user.role
+        // })
 
     } catch (error) {
-        res.status(500).json({
-            message: "Internal server error while login",
-            success: false
-        })
+        console.error("Error while login: ", error)
+        sendResponse(res, false, 500, "Internal server error while login");
     }
 };
 
@@ -245,10 +225,8 @@ const refreshToken = async(req : Request, res : Response) : Promise<void> => {
 
             jwt.verify(refreshToken, JWT_REFRESH_TOKEN_SECRET, (err: any, payload: any) => {
                 if (err) {
-                    return res.status(401).json({ 
-                        message: 'Refresh token not valid',
-                        success: false 
-                    });
+                    sendResponse(res, false, 401, "Refresh token not valid");
+                    return;
                 }
                 else {
 
@@ -263,26 +241,22 @@ const refreshToken = async(req : Request, res : Response) : Promise<void> => {
                         { expiresIn: "15m" }
                     );
 
-                    res.status(201).json({
-                        message: "Token refreshed successful",
+                    const refreshResponse : TokenDTO = {
                         accessToken: accessToken,
-                        success: true
-                    });
+                        role: payload.role
+                    }
+
+                    sendResponse(res, true, 201, "Token refreshed successful", refreshResponse);
                 }
             });
         }
         else{
-            res.status(401).json({
-                message: "Missing refresh token",
-                success: false
-            })
+            sendResponse(res, false, 401, "Missing refresh token");
         }
 
     } catch (error) {
-        res.status(500).json({
-            message: "Internal server error while refreshing token",
-            success: false
-        })
+        console.error("Error while refreshing token: ", error)
+        sendResponse(res, false, 401, "Internal server error while refreshing token");
     }
 };
 
@@ -292,48 +266,33 @@ const updatePassword = async(req : Request, res : Response) : Promise<void> => {
         const { email, oldPassword, newPassword } = req.body;
 
         if(!email || !oldPassword || !newPassword){
-            res.status(400).json({
-                message: "Missing required fields",
-                success: false
-            });
-            return;
+            sendMissingFieldsResponse(res);
+            return
         }
 
         const user : users | null = await authService.getUserByEmail(email);
 
         if(!user){
-            res.status(404).json({
-                message: "User not exists",
-                success: false
-            });
+            sendResponse(res, false, 404, "User not exists");
             return;
         }
 
         const isMatch : boolean = await bcrypt.compare(oldPassword, user.password);
 
         if(!isMatch){
-            res.status(409).json({
-                message: "Wrong password",
-                success: false
-            });
+            sendResponse(res, false, 409, "Wrong old password");
             return;
         }
 
         const hashedPassword : string = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
-        console.log(hashedPassword)
 
         await authService.updatePassword(user, hashedPassword);
 
-        res.status(200).json({
-            message: "Password updated successfully",
-            success: true
-        })
+        sendResponse(res, true, 200, "Password updated successfully");
 
     } catch (error) {
-        res.status(500).json({
-            message: "Internal server error while updating password",
-            success: false
-        })
+        console.error("Error while updating password: ", error);
+        sendResponse(res, false, 500, "Internal server error while updating password");
     }
 };
 

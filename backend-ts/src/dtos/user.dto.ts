@@ -1,0 +1,28 @@
+interface UserDTO {
+  email: string;
+  password: string;
+};
+
+
+interface PassengerDTO {
+    email: string,
+    name: string,
+    surname: string
+}
+
+interface AdminDTO {
+    email: string
+}
+
+interface TokenDTO {
+    accessToken: string,
+    role: string
+}
+
+
+export type {
+    UserDTO,
+    PassengerDTO,
+    AdminDTO,
+    TokenDTO
+}

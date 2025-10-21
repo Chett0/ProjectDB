@@ -1,5 +1,5 @@
 import { airports } from '../../prisma/generated/prisma';
-import * as airportService from '../services/airports.service';
+import * as airportService from '../services/airport.service';
 import { Request, Response, NextFunction } from 'express';
 
 const createAirport = async(req : Request, res : Response, next : NextFunction) => {
