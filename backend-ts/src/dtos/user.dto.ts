@@ -3,7 +3,6 @@ interface UserDTO {
   password: string;
 };
 
-
 interface PassengerDTO {
     email: string,
     name: string,
@@ -19,10 +18,17 @@ interface TokenDTO {
     role: string
 }
 
+interface AirlineDTO {
+    id: number, 
+    name: string,
+    code: string,
+}
+
 
 export type {
     UserDTO,
     PassengerDTO,
     AdminDTO,
-    TokenDTO
+    TokenDTO,
+    AirlineDTO
 }

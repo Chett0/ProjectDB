@@ -50,7 +50,7 @@ const registerAirline = async (
                     email: airline.email,
                     password: airline.password,
                     role: userrole.AIRLINE,
-                    must_change_password: true
+                    // must_change_password: true
                 }
             });
 

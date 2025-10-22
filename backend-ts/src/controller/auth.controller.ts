@@ -7,7 +7,6 @@ import { PayloadJWT, User, UserAirline, UserPassenger, UserRole } from "../types
 import { users } from "../../prisma/generated/prisma";
 import { sendResponse, sendMissingFieldsResponse } from "../utils/helpers/response.helper";
 import { AdminDTO, PassengerDTO, TokenDTO, UserDTO } from "../dtos/user.dto";
-import { send } from "process";
 
 const cookieparser = require('cookie-parser');
 
@@ -32,7 +31,8 @@ const registerAirline = async(req : Request, res : Response): Promise<void> => {
             return;
         }
 
-        const password : string = await authHelper.generateRandomPassword();
+        // const password : string = await authHelper.generateRandomPassword();
+        const password : string = "123";
 
         const hashedPassword : string = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
 

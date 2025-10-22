@@ -8,7 +8,28 @@ const createAirport = async (airport : airports) => {
     });
 }
 
+const getAirportByCode = async (
+    code : string
+) : Promise<airports | null> => {
+    try{
+        const airport : airports | null = await prisma.airports.findFirst({
+            where: {
+                code: code,
+                active: true
+            }
+        })
+
+        return airport;
+
+    } catch(err){
+        throw new Error(
+            `Failed to retrieving airport: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
 export {
-    createAirport
+    createAirport,
+    getAirportByCode
 }
 

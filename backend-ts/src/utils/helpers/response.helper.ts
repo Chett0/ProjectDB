@@ -19,8 +19,6 @@ const sendResponse = <T>(
     res.status(statusCode).json(response);
 }
 
-
-
 const sendMissingFieldsResponse = (
     res: Response
 ) : void => {
