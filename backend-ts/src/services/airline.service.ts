@@ -65,7 +65,7 @@ const createAirlineRoute = async (
 ) : Promise<routes | null> => {
     try{
 
-        let existingRoute : routes | null = await getRoute(route.departureAirportId, route.arrivalAirportId);
+        let existingRoute : routes | null = await getRouteByAirports(route.departureAirportId, route.arrivalAirportId);
 
         const newRoute : routes | null = await prisma.$transaction(async(tx) => {
 
@@ -127,7 +127,7 @@ const createAirlineRoute = async (
 };
 
 
-const getRoute = async (
+const getRouteByAirports = async (
     departureAirportId : number,
     arrivalAirportId : number
 ) : Promise<routes | null> => {
@@ -138,6 +138,46 @@ const getRoute = async (
                 arrival_airport_id: arrivalAirportId
             }
         })
+
+        return route;
+    } catch(err){
+        throw new Error(
+            `Failed to create passenger: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
+
+const getAirlineRouteById = async (
+    airlineId: number,
+    routeId: number
+) : Promise<AirlineRouteDTO | null> => {
+    try{
+        const route : AirlineRouteDTO | null = await prisma.$queryRaw`
+            SELECT 
+                R.id, 
+                json_build_object(
+                    'id', AD.id,
+                    'name', AD.name,
+                    'code', AD.code,
+                    'city', AD.city,
+                    'country', AD.country
+                ) AS "departureAirport",
+                json_build_object(
+                    'id', AA.id,
+                    'name', AA.name,
+                    'code', AA.code,
+                    'city', AA.city,
+                    'country', AA.country
+                ) AS "arrivalAirport"
+            FROM public."airlineRoute" A 
+            JOIN Routes R ON A.route_id = R.id 
+            JOIN Airports AD ON R.departure_airport_id = AD.id 
+            JOIN Airports AA ON R.arrival_airport_id = AA.id
+            WHERE A.airline_id = ${airlineId} 
+                AND A.active = true 
+                AND R.id = ${routeId}
+        `;
 
         return route;
     } catch(err){
@@ -167,10 +207,38 @@ const getAirlineRoute = async (
 };
 
 
+const deleteAirlineRouteById = async (
+    airlineId : number,
+    routeId : number
+) : Promise<airlineRoute | null> => {
+    try{
+        const airlineRoute : airlineRoute | null = await prisma.airlineRoute.update({
+            where: {
+                airline_id_route_id : {
+                    airline_id: airlineId,
+                    route_id: routeId
+                }
+            },
+            data : {
+                active: true,
+                deletion_time: new Date()
+            }
+        })
+        return airlineRoute;
+    } catch(err){
+        throw new Error(
+            `Failed to create passenger: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
+
 
 export {
     getAirlineById,
     getAirlineRoutes,
-    getRoute,
-    createAirlineRoute
+    getRouteByAirports,
+    createAirlineRoute,
+    getAirlineRouteById,
+    deleteAirlineRouteById
 }

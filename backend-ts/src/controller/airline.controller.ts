@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AuthenticatedRequest } from "../types/auth.types";
-import { airlines, airports, routes } from "../../prisma/generated/prisma";
+import { airlineRoute, airlines, airports, routes } from "../../prisma/generated/prisma";
 import * as airlineService from "../services/airline.service";
 import * as airportService from "../services/airport.service";
 import { sendMissingFieldsResponse, sendResponse } from "../utils/helpers/response.helper";
@@ -107,8 +107,66 @@ const createAirlineRoute = async(req : AuthenticatedRequest, res : Response): Pr
 };
 
 
+
+const getAirlineRoute = async(req : AuthenticatedRequest, res : Response): Promise<void> => {
+    try{
+        const airlineId : number | null = req.user!.id;
+        const paramsId : string | undefined = req.params.id;
+        
+        if(!airlineId || !paramsId){
+            sendMissingFieldsResponse(res);
+            return;
+        }
+
+        const routeId : number = parseInt(paramsId);
+
+        const route : AirlineRouteDTO | null = await airlineService.getAirlineRouteById(airlineId, routeId);
+
+        if(!route){
+            sendResponse(res, false, 404, "Airline route not found");
+            return;
+        }
+
+        sendResponse(res, true, 200, "Airline route retrieved successfully", route);
+    }
+    catch (error) {
+        console.error("Error while retieving airline route: ", error);
+        sendResponse(res, false, 500, "Internal server error while retrieving airline route");
+    }
+};
+
+const deleteAirlineRoute = async(req : AuthenticatedRequest, res : Response): Promise<void> => {
+    try{
+        const airlineId : number | null = req.user!.id;
+        const paramsId : string | undefined = req.params.id;
+        
+        if(!airlineId || !paramsId){
+            sendMissingFieldsResponse(res);
+            return;
+        }
+
+        const routeId : number = parseInt(paramsId);
+
+        const route : airlineRoute | null = await airlineService.deleteAirlineRouteById(airlineId, routeId);
+
+        if(!route){
+            sendResponse(res, false, 404, "Airline route not found");
+            return;
+        }
+
+        sendResponse(res, true, 200, "Airline route deleted successfully");
+    }
+    catch (error) {
+        console.error("Error while deleting airline route: ", error);
+        sendResponse(res, false, 500, "Internal server error while deleting airline route");
+    }
+};
+
+
 export {
     getAirlineDetails,
     getAirlineRoutes,
-    createAirlineRoute
+    createAirlineRoute,
+    getAirlineRoute,
+    deleteAirlineRoute
 }
