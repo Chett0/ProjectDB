@@ -1,7 +1,7 @@
-import { airlineRoute, airlines, routes } from "../../prisma/generated/prisma";
+import { airlineRoute, airlines, extras, routes } from "../../prisma/generated/prisma";
 import prisma from "../config/db";
-import { AirlineRouteDTO } from "../dtos/airline.dto";
-import { Route } from "../types/airline.types";
+import { AirlineRouteDTO, ExtraDTO } from "../dtos/airline.dto";
+import { Extra, Route } from "../types/airline.types";
 
 const getAirlineById = async (
     airlineId : number
@@ -16,7 +16,7 @@ const getAirlineById = async (
         return airline;
     } catch(err){
         throw new Error(
-            `Failed to create passenger: ${err instanceof Error ? err.message : "Unknown error"}`
+            `Failed to retrieving airline: ${err instanceof Error ? err.message : "Unknown error"}`
         ); 
     }
 };
@@ -53,7 +53,7 @@ const getAirlineRoutes = async (
         return routes;
     } catch(err){
         throw new Error(
-            `Failed to create passenger: ${err instanceof Error ? err.message : "Unknown error"}`
+            `Failed to retrieving airline route: ${err instanceof Error ? err.message : "Unknown error"}`
         ); 
     }
 };
@@ -121,7 +121,7 @@ const createAirlineRoute = async (
 
     } catch(err){
         throw new Error(
-            `Failed to create passenger: ${err instanceof Error ? err.message : "Unknown error"}`
+            `Failed to create airline route: ${err instanceof Error ? err.message : "Unknown error"}`
         ); 
     }
 };
@@ -142,7 +142,7 @@ const getRouteByAirports = async (
         return route;
     } catch(err){
         throw new Error(
-            `Failed to create passenger: ${err instanceof Error ? err.message : "Unknown error"}`
+            `Failed to retrieving route by airports: ${err instanceof Error ? err.message : "Unknown error"}`
         ); 
     }
 };
@@ -182,7 +182,7 @@ const getAirlineRouteById = async (
         return route;
     } catch(err){
         throw new Error(
-            `Failed to create passenger: ${err instanceof Error ? err.message : "Unknown error"}`
+            `Failed to retrieving airline route: ${err instanceof Error ? err.message : "Unknown error"}`
         ); 
     }
 };
@@ -201,7 +201,7 @@ const getAirlineRoute = async (
         return airlineRoute;
     } catch(err){
         throw new Error(
-            `Failed to create passenger: ${err instanceof Error ? err.message : "Unknown error"}`
+            `Failed to retrieving airline routes: ${err instanceof Error ? err.message : "Unknown error"}`
         ); 
     }
 };
@@ -227,7 +227,89 @@ const deleteAirlineRouteById = async (
         return airlineRoute;
     } catch(err){
         throw new Error(
-            `Failed to create passenger: ${err instanceof Error ? err.message : "Unknown error"}`
+            `Failed to deleting airline routes: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
+
+const createExtra = async (
+    airlineId : number,
+    extra : Extra
+) : Promise<ExtraDTO> => {
+    try{
+        const newExtra : extras = await prisma.extras.create({
+            data: {
+                name: extra.name,
+                price: extra.price,
+                airline_id: airlineId
+            }
+        });
+
+        const resultExtra : ExtraDTO = {
+            id: newExtra.id,
+            name: extra.name,
+            price: extra.price
+        };
+
+        return resultExtra;
+
+    } catch(err){
+        throw new Error(
+            `Failed to create extra: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
+
+const getAirlineExtras = async (
+    airlineId : number
+) : Promise<ExtraDTO[]> => {
+    try{
+        const extras : ExtraDTO[] = await prisma.extras.findMany({
+            where: {
+                airline_id: airlineId,
+                active: true
+            },
+            select: {
+                id: true,
+                name: true,
+                price: true
+            }
+        })
+
+        return extras;
+
+    } catch(err){
+        throw new Error(
+            `Failed to retrieving airline extras: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
+
+const deleteExtraById = async (
+    airlineId : number,
+    extraId: number
+) : Promise<extras | null> => {
+    try{
+        const extras : extras | null = await prisma.extras.update({
+            where: {
+                airline_id: airlineId,
+                id: extraId,
+                active: true
+            },
+            data : {
+                active: false,
+                deletion_time: new Date()
+            }
+        });
+
+        return extras;
+
+    } catch(err){
+        throw new Error(
+            `Failed to delete extra: ${err instanceof Error ? err.message : "Unknown error"}`
         ); 
     }
 };
@@ -240,5 +322,8 @@ export {
     getRouteByAirports,
     createAirlineRoute,
     getAirlineRouteById,
-    deleteAirlineRouteById
+    deleteAirlineRouteById,
+    createExtra,
+    getAirlineExtras,
+    deleteExtraById
 }

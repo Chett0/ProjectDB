@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { PayloadJWT, User, UserAirline, UserPassenger, UserRole } from "../types/auth.types";
 import { users } from "../../prisma/generated/prisma";
-import { sendResponse, sendMissingFieldsResponse } from "../utils/helpers/response.helper";
+import { setResponse, setMissingFieldsResponse } from "../utils/helpers/response.helper";
 import { AdminDTO, PassengerDTO, TokenDTO, UserDTO } from "../dtos/user.dto";
 
 const cookieparser = require('cookie-parser');
@@ -20,14 +20,14 @@ const registerAirline = async(req : Request, res : Response): Promise<void> => {
         const { email, name, code } = req.body;
         
         if(!email || !name || !code){
-            sendMissingFieldsResponse(res);
+            setMissingFieldsResponse(res);
             return;
         }
 
         const existingUser : users | null = await authService.getUserByEmail(email);
 
         if(existingUser){
-            sendResponse(res, false, 409, "Email already in use");
+            setResponse(res, false, 409, "Email already in use");
             return;
         }
 
@@ -51,11 +51,11 @@ const registerAirline = async(req : Request, res : Response): Promise<void> => {
             password: password
         }
 
-        sendResponse(res, true, 201, "Airline created successfully", user);
+        setResponse(res, true, 201, "Airline created successfully", user);
     }
     catch (error) {
         console.error("Error while creating airline: ", error);
-        sendResponse(res, false, 500, "Internal server error while creating airline");
+        setResponse(res, false, 500, "Internal server error while creating airline");
     }
 };
 
@@ -67,14 +67,14 @@ const registerPassenger = async(req : Request, res : Response) : Promise<void> =
         const { email, name, surname, password } = req.body;
         
         if(!email || !name || !surname || !password){
-            sendMissingFieldsResponse(res);
+            setMissingFieldsResponse(res);
             return;
         }
 
         const existingUser : users | null = await authService.getUserByEmail(email);
 
         if(existingUser){
-            sendResponse(res, false, 409, "Email already in use");
+            setResponse(res, false, 409, "Email already in use");
             return;
         }
 
@@ -97,11 +97,11 @@ const registerPassenger = async(req : Request, res : Response) : Promise<void> =
         }
 
 
-        sendResponse(res, true, 201, "Passenger created successfully", passenger);
+        setResponse(res, true, 201, "Passenger created successfully", passenger);
     }
     catch (error) {
         console.error("Error while creating passenger: ", error);
-        sendResponse(res, false, 500, "Internal server error while creating passenger");
+        setResponse(res, false, 500, "Internal server error while creating passenger");
     }
 };
 
@@ -111,14 +111,14 @@ const registerAdmin = async(req : Request, res : Response) : Promise<void> => {
         const { email, password } = req.body;
         
         if(!email || !password){
-            sendMissingFieldsResponse(res);
+            setMissingFieldsResponse(res);
             return;
         }
         
         const existingUser : users | null = await authService.getUserByEmail(email);
 
         if(existingUser){
-            sendResponse(res, false, 409, "Email already in use");
+            setResponse(res, false, 409, "Email already in use");
             return;
         }
 
@@ -136,11 +136,11 @@ const registerAdmin = async(req : Request, res : Response) : Promise<void> => {
             email: email
         }
 
-        sendResponse(res, true, 201, "Admin created successfully", admin);
+        setResponse(res, true, 201, "Admin created successfully", admin);
     }
     catch (error) {
         console.error("Error while creating admin: ", error);
-        sendResponse(res, false, 500, "Internal server error while creating admin");
+        setResponse(res, false, 500, "Internal server error while creating admin");
     }
 };
 
@@ -152,19 +152,19 @@ const login = async(req : Request, res : Response) : Promise<void> => {
         const user : users | null = await authService.getUserByEmail(email);
 
         if(!user || !user.active){
-            sendResponse(res, false, 404, "User not exists");
+            setResponse(res, false, 404, "User not exists");
             return;
         }
 
         const isMatch : boolean = await bcrypt.compare(password, user.password);
 
         if(!isMatch){
-            sendResponse(res, false, 409, "Wrong credentials");
+            setResponse(res, false, 409, "Wrong credentials");
             return;
         }
 
         if(user.must_change_password){
-            sendResponse(res, true, 303, "Password need to be changed");
+            setResponse(res, true, 303, "Password need to be changed");
 
             // res.status(303).json({
             //     message:"Password has to be changed",
@@ -203,7 +203,7 @@ const login = async(req : Request, res : Response) : Promise<void> => {
             role: user.role
         }
 
-        sendResponse(res, true, 201, "Login successful", loginResponse);
+        setResponse(res, true, 201, "Login successful", loginResponse);
         // res.status(201).json({
         //     message: "Login successful",
         //     accessToken: accessToken,
@@ -213,7 +213,7 @@ const login = async(req : Request, res : Response) : Promise<void> => {
 
     } catch (error) {
         console.error("Error while login: ", error)
-        sendResponse(res, false, 500, "Internal server error while login");
+        setResponse(res, false, 500, "Internal server error while login");
     }
 };
 
@@ -225,7 +225,7 @@ const refreshToken = async(req : Request, res : Response) : Promise<void> => {
 
             jwt.verify(refreshToken, JWT_REFRESH_TOKEN_SECRET, (err: any, payload: any) => {
                 if (err) {
-                    sendResponse(res, false, 401, "Refresh token not valid");
+                    setResponse(res, false, 401, "Refresh token not valid");
                     return;
                 }
                 else {
@@ -246,17 +246,17 @@ const refreshToken = async(req : Request, res : Response) : Promise<void> => {
                         role: payload.role
                     }
 
-                    sendResponse(res, true, 201, "Token refreshed successful", refreshResponse);
+                    setResponse(res, true, 201, "Token refreshed successful", refreshResponse);
                 }
             });
         }
         else{
-            sendResponse(res, false, 401, "Missing refresh token");
+            setResponse(res, false, 401, "Missing refresh token");
         }
 
     } catch (error) {
         console.error("Error while refreshing token: ", error)
-        sendResponse(res, false, 401, "Internal server error while refreshing token");
+        setResponse(res, false, 401, "Internal server error while refreshing token");
     }
 };
 
@@ -266,21 +266,21 @@ const updatePassword = async(req : Request, res : Response) : Promise<void> => {
         const { email, oldPassword, newPassword } = req.body;
 
         if(!email || !oldPassword || !newPassword){
-            sendMissingFieldsResponse(res);
+            setMissingFieldsResponse(res);
             return
         }
 
         const user : users | null = await authService.getUserByEmail(email);
 
         if(!user){
-            sendResponse(res, false, 404, "User not exists");
+            setResponse(res, false, 404, "User not exists");
             return;
         }
 
         const isMatch : boolean = await bcrypt.compare(oldPassword, user.password);
 
         if(!isMatch){
-            sendResponse(res, false, 409, "Wrong old password");
+            setResponse(res, false, 409, "Wrong old password");
             return;
         }
 
@@ -288,11 +288,11 @@ const updatePassword = async(req : Request, res : Response) : Promise<void> => {
 
         await authService.updatePassword(user, hashedPassword);
 
-        sendResponse(res, true, 200, "Password updated successfully");
+        setResponse(res, true, 200, "Password updated successfully");
 
     } catch (error) {
         console.error("Error while updating password: ", error);
-        sendResponse(res, false, 500, "Internal server error while updating password");
+        setResponse(res, false, 500, "Internal server error while updating password");
     }
 };
 

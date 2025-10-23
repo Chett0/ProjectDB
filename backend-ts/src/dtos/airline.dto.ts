@@ -1,3 +1,4 @@
+import { Decimal } from "@prisma/client/runtime/library";
 import { AirportDTO } from "./airport.dto";
 
 interface AirlineRouteDTO {
@@ -6,6 +7,13 @@ interface AirlineRouteDTO {
     arrivalAirport : AirportDTO
 }
 
+interface ExtraDTO {
+    id: number,
+    name: string,
+    price: Decimal
+}
+
 export type {
-    AirlineRouteDTO
+    AirlineRouteDTO,
+    ExtraDTO
 }

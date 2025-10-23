@@ -1,7 +1,7 @@
 import { APIResponseDTO } from "../../dtos/response.dto"
 import { Response } from "express";
 
-const sendResponse = <T>(
+const setResponse = <T>(
     res: Response,
     success: boolean,
     statusCode: number,
@@ -19,10 +19,10 @@ const sendResponse = <T>(
     res.status(statusCode).json(response);
 }
 
-const sendMissingFieldsResponse = (
+const setMissingFieldsResponse = (
     res: Response
 ) : void => {
-    sendResponse(
+    setResponse(
         res,
         false, 
         400,
@@ -32,6 +32,6 @@ const sendMissingFieldsResponse = (
 
 
 export {
-    sendResponse,
-    sendMissingFieldsResponse
+    setResponse,
+    setMissingFieldsResponse
 }
