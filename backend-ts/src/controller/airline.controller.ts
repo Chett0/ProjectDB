@@ -5,7 +5,7 @@ import * as airlineService from "../services/airline.service";
 import * as airportService from "../services/airport.service";
 import { setMissingFieldsResponse, setResponse } from "../utils/helpers/response.helper";
 import { AirlineDTO } from "../dtos/user.dto";
-import { AirlineRouteDTO, ExtraDTO } from "../dtos/airline.dto";
+import { AirlineRouteDTO, DashBoardDTO, ExtraDTO } from "../dtos/airline.dto";
 import { Extra, Route } from "../types/airline.types";
 import { toAirportDTO } from "../dtos/airport.dto";
 
@@ -235,6 +235,39 @@ const deleteExtraById = async(req : AuthenticatedRequest, res : Response): Promi
     }
 };
 
+
+const getAirlineDashboardStats = async(req : AuthenticatedRequest, res : Response): Promise<void> => {
+    try{
+        const airlineId : number | null = req.user!.id;
+        
+        if(!airlineId){
+            setMissingFieldsResponse(res);
+            return;
+        }
+
+        const passengerCount : number = await airlineService.getAirlinePassengerCount(airlineId);
+        const monthlyIncome : number = await airlineService.getAirlineMonthlyIncome(airlineId);
+        const activeRoutes : number = await airlineService.getAirlineRouteCount(airlineId);
+        const filghtsInProgress : number = await airlineService.getAirlineFlightsInProgressCount(airlineId);
+
+
+        const dashBoard : DashBoardDTO = {
+            passengerCount: passengerCount,
+            monthlyIncome: monthlyIncome,
+            activeRoutes: activeRoutes,
+            filghtsInProgress: filghtsInProgress
+        }
+
+        console.log(dashBoard)
+
+        setResponse(res, true, 200, "DashBoard stats retrieved successfully", dashBoard);
+    }
+    catch (error) {
+        console.error("Error while retrieving dashboard stats: ", error);
+        setResponse(res, false, 500, "Internal server error while retrieving dashboard stats");
+    }
+};
+
 export {
     getAirlineDetails,
     getAirlineRoutes,
@@ -243,5 +276,6 @@ export {
     deleteAirlineRoute,
     createExtra,
     getAirlineExtras,
-    deleteExtraById
+    deleteExtraById,
+    getAirlineDashboardStats
 }

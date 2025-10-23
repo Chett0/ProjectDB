@@ -13,7 +13,15 @@ interface ExtraDTO {
     price: Decimal
 }
 
+interface DashBoardDTO {
+    passengerCount : number,
+    monthlyIncome: number,
+    activeRoutes: number,
+    filghtsInProgress: number
+}
+
 export type {
     AirlineRouteDTO,
-    ExtraDTO
+    ExtraDTO,
+    DashBoardDTO
 }

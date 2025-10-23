@@ -316,6 +316,102 @@ const deleteExtraById = async (
 
 
 
+const getAirlinePassengerCount = async (
+    airlineId : number
+) : Promise<number> => {
+    try{
+        const passengerCount : number = await prisma.$queryRaw`
+            SELECT COUNT(DISTINCT T.passenger_id) as passengerCount
+            FROM Tickets T 
+            JOIN Flights F ON T.flight_id = F.id
+            JOIN Aircrafts A ON F.aircraft_id = A.id
+            WHERE A.airline_id = ${airlineId}
+        `;
+        return passengerCount;
+
+    } catch(err){
+        throw new Error(
+            `Failed to retrieving airline passenger count: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
+
+const getAirlineMonthlyIncome = async (
+    airlineId : number
+) : Promise<number> => {
+    try{
+
+        const now = new Date();
+        const startOfMonth : Date = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        const monthlyIncome : number = await prisma.$queryRaw`
+            SELECT COALESCE(SUM(T.final_cost), 0)
+            FROM Tickets T
+            JOIN Flights F ON T.flight_id = F.id
+            JOIN Aircrafts A ON F.aircraft_id = A.id
+            WHERE 
+                A.airline_id = ${airlineId} AND
+                T.purchase_date >= ${startOfMonth} AND
+                T.purchase_date <= ${endOfMonth}
+
+        `;
+        return monthlyIncome as number;
+
+    } catch(err){
+        throw new Error(
+            `Failed to retrieving airline monthly income: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
+
+const getAirlineRouteCount = async (
+    airlineId : number
+) : Promise<number> => {
+    try{
+
+        const airlineRouteCount : number = await prisma.$queryRaw`
+            SELECT COUNT(DISTINCT AR.route_id) as count
+            FROM public."airlineRoute" AR
+            WHERE AR.airline_id = ${airlineId}
+        `;
+        return airlineRouteCount;
+
+    } catch(err){
+        throw new Error(
+            `Failed to retrieving airline monthly income: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
+const getAirlineFlightsInProgressCount = async (
+    airlineId : number
+) : Promise<number> => {
+    try{
+
+        const now : Date = new Date();
+        const filghtsInProgressCount : number = await prisma.$queryRaw`
+            SELECT COUNT(DISTINCT F.id)
+            FROM Flights F
+            JOIN Aircrafts A ON F.aircraft_id = A.id
+            WHERE 
+                A.airline_id = ${airlineId} AND
+                F.departure_time <= ${now} AND
+                F.arrival_time >= ${now}
+
+        `;
+        return filghtsInProgressCount as number;
+
+    } catch(err){
+        throw new Error(
+            `Failed to retrieving airline monthly income: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
+
 export {
     getAirlineById,
     getAirlineRoutes,
@@ -325,5 +421,9 @@ export {
     deleteAirlineRouteById,
     createExtra,
     getAirlineExtras,
-    deleteExtraById
+    deleteExtraById,
+    getAirlinePassengerCount,
+    getAirlineMonthlyIncome,
+    getAirlineRouteCount,
+    getAirlineFlightsInProgressCount
 }
