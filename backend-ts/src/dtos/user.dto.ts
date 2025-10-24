@@ -3,10 +3,15 @@ interface UserDTO {
   password: string;
 };
 
+
 interface PassengerDTO {
-    email: string,
+    id: number,
     name: string,
     surname: string
+}
+
+interface PassengerUserDTO extends PassengerDTO{
+    email: string
 }
 
 interface AdminDTO {
@@ -30,5 +35,6 @@ export type {
     PassengerDTO,
     AdminDTO,
     TokenDTO,
-    AirlineDTO
+    AirlineDTO,
+    PassengerUserDTO
 }

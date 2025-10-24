@@ -405,7 +405,6 @@ const getAirlineFlightsInProgressCount = async (
                 A.airline_id = ${airlineId} AND
                 F.departure_time <= ${now} AND
                 F.arrival_time >= ${now}
-
         `;
 
         const filghtsInProgressCount : number = Number(result[0]?.flightsInProgress ?? 0);

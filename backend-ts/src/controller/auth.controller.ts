@@ -3,10 +3,10 @@ import * as authService from "../services/auth.service";
 import * as authHelper from "../utils/helpers/auth.helpers";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { PayloadJWT, User, UserAirline, UserPassenger, UserRole } from "../types/auth.types";
-import { users } from "../../prisma/generated/prisma";
+import { CreatePassengerResult, PayloadJWT, User, UserAirline, UserPassenger, UserRole } from "../types/auth.types";
+import { passengers, users } from "../../prisma/generated/prisma";
 import { setResponse, setMissingFieldsResponse } from "../utils/helpers/response.helper";
-import { AdminDTO, PassengerDTO, TokenDTO, UserDTO } from "../dtos/user.dto";
+import { AdminDTO, PassengerDTO, PassengerUserDTO, TokenDTO, UserDTO } from "../dtos/user.dto";
 
 const cookieparser = require('cookie-parser');
 
@@ -88,9 +88,10 @@ const registerPassenger = async(req : Request, res : Response) : Promise<void> =
             role: UserRole.PASSENGER
         }
 
-        await authService.registerPassenger(userPassenger);
+        const newUser : CreatePassengerResult = await authService.registerPassenger(userPassenger);
 
-        const passenger : PassengerDTO = {
+        const passenger : PassengerUserDTO = {
+            id: newUser.newPassenger.id,
             email: email,
             name: name,
             surname: surname
