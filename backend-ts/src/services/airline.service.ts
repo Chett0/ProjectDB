@@ -320,13 +320,15 @@ const getAirlinePassengerCount = async (
     airlineId : number
 ) : Promise<number> => {
     try{
-        const passengerCount : number = await prisma.$queryRaw`
-            SELECT COUNT(DISTINCT T.passenger_id) as passengerCount
+        const result = await prisma.$queryRaw<{ passengerCount: number }[]>`
+            SELECT COUNT(DISTINCT T.passenger_id) as "passengerCount"
             FROM Tickets T 
             JOIN Flights F ON T.flight_id = F.id
             JOIN Aircrafts A ON F.aircraft_id = A.id
             WHERE A.airline_id = ${airlineId}
         `;
+        
+        const passengerCount : number = Number(result[0]?.passengerCount ?? 0);
         return passengerCount;
 
     } catch(err){
@@ -346,9 +348,9 @@ const getAirlineMonthlyIncome = async (
         const startOfMonth : Date = new Date(now.getFullYear(), now.getMonth(), 1);
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-        const monthlyIncome : number = await prisma.$queryRaw`
-            SELECT COALESCE(SUM(T.final_cost), 0)
-            FROM Tickets T
+        const result = await prisma.$queryRaw<{ monthlyIncome: number }[]>`
+            SELECT COALESCE(SUM(T.final_cost), 0) as "monthlyIncome"
+            FROM Tickets T 
             JOIN Flights F ON T.flight_id = F.id
             JOIN Aircrafts A ON F.aircraft_id = A.id
             WHERE 
@@ -357,6 +359,8 @@ const getAirlineMonthlyIncome = async (
                 T.purchase_date <= ${endOfMonth}
 
         `;
+
+        const monthlyIncome : number = Number(result[0]?.monthlyIncome ?? 0);
         return monthlyIncome as number;
 
     } catch(err){
@@ -371,12 +375,13 @@ const getAirlineRouteCount = async (
     airlineId : number
 ) : Promise<number> => {
     try{
-
-        const airlineRouteCount : number = await prisma.$queryRaw`
-            SELECT COUNT(DISTINCT AR.route_id) as count
+        const result = await prisma.$queryRaw<{ activeRoutes: number }[]>`
+            SELECT COUNT(DISTINCT AR.route_id) as "activeRoutes"
             FROM public."airlineRoute" AR
             WHERE AR.airline_id = ${airlineId}
         `;
+
+        const airlineRouteCount : number = Number(result[0]?.activeRoutes ?? 0);
         return airlineRouteCount;
 
     } catch(err){
@@ -392,8 +397,8 @@ const getAirlineFlightsInProgressCount = async (
     try{
 
         const now : Date = new Date();
-        const filghtsInProgressCount : number = await prisma.$queryRaw`
-            SELECT COUNT(DISTINCT F.id)
+        const result = await prisma.$queryRaw<{ flightsInProgress: number }[]>`
+            SELECT COUNT(DISTINCT F.id) as "flightsInProgress"
             FROM Flights F
             JOIN Aircrafts A ON F.aircraft_id = A.id
             WHERE 
@@ -402,7 +407,9 @@ const getAirlineFlightsInProgressCount = async (
                 F.arrival_time >= ${now}
 
         `;
-        return filghtsInProgressCount as number;
+
+        const filghtsInProgressCount : number = Number(result[0]?.flightsInProgress ?? 0);
+        return filghtsInProgressCount;
 
     } catch(err){
         throw new Error(
