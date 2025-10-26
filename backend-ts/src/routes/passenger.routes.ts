@@ -5,4 +5,6 @@ const router = Router();
 
 router.get('/me', passengerController.getPassengerDetails);
 
+router.post('/tickets')
+
 export default router;

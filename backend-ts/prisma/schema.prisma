@@ -138,6 +138,8 @@ model seats {
 
   @@index([class_id], map: "ix_seats_class_id")
   @@index([flight_id], map: "ix_seats_flight_id")
+
+  @@unique([flight_id, number])
 }
 
 model ticket_extra {
@@ -166,6 +168,7 @@ model tickets {
   @@index([flight_id, passenger_id], map: "ix_tickets_flight_passenger")
   @@index([passenger_id], map: "ix_tickets_passenger_id")
   @@index([seat_id], map: "ix_tickets_seat_id")
+
 }
 
 model users {
