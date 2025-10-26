@@ -4,7 +4,6 @@ interface APIResponseDTO<T> {
   data?: T
 }
 
-
 export type {
     APIResponseDTO
 }

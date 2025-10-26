@@ -1,5 +1,6 @@
 import { airports } from '../../prisma/generated/prisma';
 import prisma from '../config/db';
+import { AirportDTO } from '../dtos/airport.dto';
 
 const createAirport = async (airport : airports) => {
     airport.active = true;
@@ -10,7 +11,7 @@ const createAirport = async (airport : airports) => {
 
 const getAirportByCode = async (
     code : string
-) : Promise<airports | null> => {
+) : Promise<AirportDTO | null> => {
     try{
         const airport : airports | null = await prisma.airports.findFirst({
             where: {
@@ -19,7 +20,7 @@ const getAirportByCode = async (
             }
         })
 
-        return airport;
+        return airport ? AirportDTO.fromPrisma(airport) : null;
 
     } catch(err){
         throw new Error(

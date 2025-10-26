@@ -1,37 +1,68 @@
 import { APIResponseDTO } from "../../dtos/response.dto"
 import { Response } from "express";
 
-const setResponse = <T>(
+const successResponse = <T>(
     res: Response,
-    success: boolean,
-    statusCode: number,
     message: string,
-    data?: T 
-) : void => {
-    const response : APIResponseDTO<T> = {
-        success: success,
-        message: message
-    }
+    data?: T,
+    statusCode: number = 200
+) : Response => {
 
+    const response : APIResponseDTO<T> = {
+        success: true,
+        message: message,
+    }
     if(data)
         response.data = data;
 
-    res.status(statusCode).json(response);
+    return res.status(statusCode).json(response);
 }
 
-const setMissingFieldsResponse = (
+const errorResponse = <T>(
+    res: Response,
+    message: string,
+    data?: T,
+    statusCode: number = 500
+) : Response => {
+
+    const response : APIResponseDTO<T> = {
+        success: false,
+        message: message
+    }
+    if(data)
+        response.data = data;
+
+    return res.status(statusCode).json(response);
+}
+
+const missingFieldsResponse = (
     res: Response
-) : void => {
-    setResponse(
-        res,
-        false, 
-        400,
-        "Missing required fields"
-    )
+) : Response => {
+    return errorResponse(
+        res, 
+        "Missing required fields",
+        null,
+        400
+    );
+}
+
+
+const notFoundResponse = (
+    res: Response,
+    message: string
+) : Response => {
+    return errorResponse(
+        res, 
+        message,
+        null,
+        404
+    );
 }
 
 
 export {
-    setResponse,
-    setMissingFieldsResponse
+    successResponse,
+    errorResponse,
+    missingFieldsResponse,
+    notFoundResponse
 }

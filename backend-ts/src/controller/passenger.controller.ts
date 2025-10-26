@@ -1,25 +1,23 @@
 import { Request, Response } from "express";
 import { AuthenticatedRequest } from "../types/auth.types";
-import { setMissingFieldsResponse, setResponse } from "../utils/helpers/response.helper";
+import { errorResponse, missingFieldsResponse, notFoundResponse, successResponse } from "../utils/helpers/response.helper";
 import { passengers } from "../../prisma/generated/prisma";
 import { PassengerDTO } from "../dtos/user.dto";
 import * as passengerService from "./../services/passenger.service";
 
 
-const getPassengerDetails = async(req : AuthenticatedRequest, res : Response): Promise<void> => {
+const getPassengerDetails = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const passengerId : number | null = req.user!.id;
         
         if(!passengerId){
-            setMissingFieldsResponse(res);
-            return;
+            return missingFieldsResponse(res);
         }
 
         const passenger : passengers | null = await passengerService.getPassengerById(passengerId);
 
         if(!passenger){
-            setResponse(res, false, 404, "Passenger not found");
-            return;
+            return notFoundResponse(res, "Passenger not found");
         }
 
         const passengerResponse : PassengerDTO = {
@@ -28,11 +26,11 @@ const getPassengerDetails = async(req : AuthenticatedRequest, res : Response): P
             surname: passenger.surname
         }
 
-        setResponse(res, true, 200, "Passenger retrieved successfully", passengerResponse);
+        return successResponse(res, "Passenger retrieved successfully", passengerResponse);
     }
     catch (error) {
         console.error("Error while retieving passenger: ", error);
-        setResponse(res, false, 500, "Internal server error while retrieving passenger");
+        return errorResponse(res, "Internal server error while retrieving passenger");
     }
 };
 

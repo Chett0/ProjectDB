@@ -11,7 +11,21 @@ interface Extra {
     price: Decimal
 }
 
+interface Class {
+    name: string,
+    nSeats : number,
+    priceMultiplier: Decimal
+}
+
+interface Aircraft {
+    model: string,
+    nSeats: number,
+    classes: Class[]
+}
+
 export type {
     Route,
-    Extra
+    Extra,
+    Aircraft, 
+    Class
 }

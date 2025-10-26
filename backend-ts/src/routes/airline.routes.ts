@@ -15,5 +15,9 @@ router.post('/extras', airlinesController.createExtra);
 router.get('/extras', airlinesController.getAirlineExtras);
 router.delete('/extras/:extrasId', airlinesController.deleteExtraById);
 
+router.post('/aircrafts', airlinesController.createAircraft);
+
+router.post('/flights', airlinesController.createFlight)
+
 
 export default router;

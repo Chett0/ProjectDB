@@ -1,3 +1,5 @@
+import { airlines } from "../../prisma/generated/prisma";
+
 interface UserDTO {
   email: string;
   password: string;
@@ -29,12 +31,39 @@ interface AirlineDTO {
     code: string,
 }
 
+class AirlineDTO {
+    id: number;
+    name: string;
+    code: string;
+
+    constructor(id: number, name: string, code: string) {
+        this.id = id;
+        this.name = name;
+        this.code = code;
+    }
+
+    static fromPrisma(airline: airlines): AirlineDTO {
+        return new AirlineDTO(
+            airline.id,
+            airline.name,
+            airline.code
+        );
+    }
+
+    static fromPrismaList(list: airlines[]): AirlineDTO[] {
+        return list.map(AirlineDTO.fromPrisma);
+    }
+}
+
 
 export type {
     UserDTO,
     PassengerDTO,
     AdminDTO,
     TokenDTO,
-    AirlineDTO,
     PassengerUserDTO
+}
+
+export {
+    AirlineDTO
 }

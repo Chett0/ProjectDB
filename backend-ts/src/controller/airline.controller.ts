@@ -1,85 +1,74 @@
 import { Request, Response } from "express";
 import { AuthenticatedRequest } from "../types/auth.types";
-import { airlineRoute, airlines, airports, extras, routes } from "../../prisma/generated/prisma";
+import { aircraft_classes, aircrafts, airlineRoute, airlines, airports, extras, routes } from "../../prisma/generated/prisma";
 import * as airlineService from "../services/airline.service";
 import * as airportService from "../services/airport.service";
-import { setMissingFieldsResponse, setResponse } from "../utils/helpers/response.helper";
+import { errorResponse, missingFieldsResponse, notFoundResponse, successResponse } from "../utils/helpers/response.helper";
 import { AirlineDTO } from "../dtos/user.dto";
-import { AirlineRouteDTO, DashBoardDTO, ExtraDTO } from "../dtos/airline.dto";
-import { Extra, Route } from "../types/airline.types";
-import { toAirportDTO } from "../dtos/airport.dto";
+import { AircraftDTO, AirlineRouteDTO, ClassDTO, DashBoardDTO, ExtraDTO } from "../dtos/airline.dto";
+import { Aircraft, Extra, Route } from "../types/airline.types";
+import { AirportDTO } from "../dtos/airport.dto";
 
 
-const getAirlineDetails = async(req : AuthenticatedRequest, res : Response): Promise<void> => {
+const getAirlineDetails = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         
         if(!airlineId){
-            setMissingFieldsResponse(res);
-            return;
+            return missingFieldsResponse(res);
         }
 
-        const airline : airlines | null = await airlineService.getAirlineById(airlineId);
+        const airline : AirlineDTO | null = await airlineService.getAirlineById(airlineId);
 
         if(!airline){
-            setResponse(res, false, 404, "Airline not found");
-            return;
+            return notFoundResponse(res, "Airline not found");
         }
 
-        const airlineResponse : AirlineDTO = {
-            id: airline.id,
-            name: airline.name,
-            code: airline.code
-        }
-
-        setResponse(res, true, 200, "Airline retrieved successfully", airlineResponse);
+        return successResponse(res, "Airline retrieved successfully", airline, 200);
     }
     catch (error) {
         console.error("Error while retieving airline: ", error);
-        setResponse(res, false, 500, "Internal server error while retrieving airline");
+        return errorResponse(res, "Internal server error while retrieving airline");
     }
 };
 
-const getAirlineRoutes = async(req : AuthenticatedRequest, res : Response): Promise<void> => {
+const getAirlineRoutes = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         
         if(!airlineId){
-            setMissingFieldsResponse(res);
-            return;
+            return missingFieldsResponse(res);
         }
 
         const routes : AirlineRouteDTO[] = await airlineService.getAirlineRoutes(airlineId);
 
-        setResponse(res, true, 200, "Airline routes retrieved successfully", routes);
+        return successResponse(res, "Airline routes retrieved successfully", routes);
     }
     catch (error) {
         console.error("Error while retieving airline routes: ", error);
-        setResponse(res, false, 500, "Internal server error while retrieving airline routes");
+        return errorResponse(res, "Internal server error while retrieving airline routes");
     }
 };
 
-const createAirlineRoute = async(req : AuthenticatedRequest, res : Response): Promise<void> => {
+const createAirlineRoute = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         const { departureAirportCode, arrivalAirportCode } = req.body; 
         
         if(!airlineId || !departureAirportCode || !arrivalAirportCode){
-            setMissingFieldsResponse(res);
-            return;
+            return missingFieldsResponse(res);
         }
 
-        const departureAirport : airports | null = await airportService.getAirportByCode(departureAirportCode);
-        const arrivalAirport : airports | null = await airportService.getAirportByCode(arrivalAirportCode);
+        const departureAirport : AirportDTO | null = await airportService.getAirportByCode(departureAirportCode);
+        const arrivalAirport : AirportDTO | null = await airportService.getAirportByCode(arrivalAirportCode);
 
         if(!departureAirport || !arrivalAirport){
-            setResponse(res, false, 404, "Airports not exists");
-            return;
+            return errorResponse(res, "Airports not exists", null, 404);
         } 
 
         const route : Route = {
-            departureAirportId: departureAirport!.id,
-            arrivalAirportId: arrivalAirport!.id
+            departureAirportId: departureAirport.id,
+            arrivalAirportId: arrivalAirport.id
         }
 
         const newRoute : routes | null = await airlineService.createAirlineRoute(
@@ -88,34 +77,32 @@ const createAirlineRoute = async(req : AuthenticatedRequest, res : Response): Pr
         )
 
         if(!newRoute){
-            setResponse(res, false, 409, "Airline route already registered")
-            return;
+            return errorResponse(res, "Airline route already registered", null, 409);
         }
 
         const routeResult : AirlineRouteDTO = {
             id: newRoute.id,
-            departureAirport: toAirportDTO(departureAirport),
-            arrivalAirport: toAirportDTO(arrivalAirport)
+            departureAirport: departureAirport,
+            arrivalAirport: arrivalAirport
         }   
 
-        setResponse(res, true, 200, "Route created successfully", routeResult);
+        return successResponse(res, "Route created successfully", routeResult, 201);
     }
     catch (error) {
         console.error("Error while creating airline routes: ", error);
-        setResponse(res, false, 500, "Internal server error while creating airline routes");
+        return errorResponse(res, "Internal server error while creating airline routes");
     }
 };
 
 
 
-const getAirlineRoute = async(req : AuthenticatedRequest, res : Response): Promise<void> => {
+const getAirlineRoute = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         const paramsId : string | undefined = req.params.id;
         
         if(!airlineId || !paramsId){
-            setMissingFieldsResponse(res);
-            return;
+            return missingFieldsResponse(res);
         }
 
         const routeId : number = parseInt(paramsId);
@@ -123,26 +110,24 @@ const getAirlineRoute = async(req : AuthenticatedRequest, res : Response): Promi
         const route : AirlineRouteDTO | null = await airlineService.getAirlineRouteById(airlineId, routeId);
 
         if(!route){
-            setResponse(res, false, 404, "Airline route not found");
-            return;
+            return notFoundResponse(res, "Airline route not found");
         }
 
-        setResponse(res, true, 200, "Airline route retrieved successfully", route);
+        return successResponse(res, "Airline route retrieved successfully", route);
     }
     catch (error) {
         console.error("Error while retieving airline route: ", error);
-        setResponse(res, false, 500, "Internal server error while retrieving airline route");
+        return errorResponse(res, "Internal server error while retrieving airline route");
     }
 };
 
-const deleteAirlineRoute = async(req : AuthenticatedRequest, res : Response): Promise<void> => {
+const deleteAirlineRoute = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         const paramsId : string | undefined = req.params.id;
         
         if(!airlineId || !paramsId){
-            setMissingFieldsResponse(res);
-            return;
+            return missingFieldsResponse(res);
         }
 
         const routeId : number = parseInt(paramsId);
@@ -150,27 +135,25 @@ const deleteAirlineRoute = async(req : AuthenticatedRequest, res : Response): Pr
         const route : airlineRoute | null = await airlineService.deleteAirlineRouteById(airlineId, routeId);
 
         if(!route){
-            setResponse(res, false, 404, "Airline route not found");
-            return;
+            return notFoundResponse(res, "Airline route not found");
         }
 
-        setResponse(res, true, 200, "Airline route deleted successfully");
+        return successResponse(res, "Airline route deleted successfully");
     }
     catch (error) {
         console.error("Error while deleting airline route: ", error);
-        setResponse(res, false, 500, "Internal server error while deleting airline route");
+        return errorResponse(res, "Internal server error while deleting airline route");
     }
 };
 
 
-const createExtra = async(req : AuthenticatedRequest, res : Response): Promise<void> => {
+const createExtra = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         const {name, price} = req.body;
         
         if(!airlineId || !name || !price){
-            setMissingFieldsResponse(res);
-            return;
+            return missingFieldsResponse(res);
         }
 
         const extra : Extra = {
@@ -180,42 +163,40 @@ const createExtra = async(req : AuthenticatedRequest, res : Response): Promise<v
 
         const newExtra : ExtraDTO = await airlineService.createExtra(airlineId, extra);
 
-        setResponse(res, true, 200, "Extra created successfully", newExtra);
+        return successResponse(res, "Extra created successfully", newExtra);
     }
     catch (error) {
         console.error("Error while creating extra: ", error);
-        setResponse(res, false, 500, "Internal server error while creating extra");
+        return errorResponse(res, "Internal server error while creating extra");
     }
 };
 
 
-const getAirlineExtras = async(req : AuthenticatedRequest, res : Response): Promise<void> => {
+const getAirlineExtras = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         
         if(!airlineId){
-            setMissingFieldsResponse(res);
-            return;
+            return missingFieldsResponse(res);
         }
 
         const extras : ExtraDTO[] = await airlineService.getAirlineExtras(airlineId);
 
-        setResponse(res, true, 200, "Airline extras retrieved successfully", extras);
+        return successResponse(res, "Airline extras retrieved successfully", extras);
     }
     catch (error) {
         console.error("Error while retrieving airline extras: ", error);
-        setResponse(res, false, 500, "Internal server error while retrieving airline extras");
+        return errorResponse(res, "Internal server error while retrieving airline extras");
     }
 };
 
-const deleteExtraById = async(req : AuthenticatedRequest, res : Response): Promise<void> => {
+const deleteExtraById = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         const paramsExtraId : string | undefined = req.params.extraId;
         
         if(!airlineId || !paramsExtraId){
-            setMissingFieldsResponse(res);
-            return;
+            return missingFieldsResponse(res);
         }
 
         const extraId : number = parseInt(paramsExtraId);
@@ -223,26 +204,24 @@ const deleteExtraById = async(req : AuthenticatedRequest, res : Response): Promi
         const extra : extras | null = await airlineService.deleteExtraById(airlineId, extraId);
 
         if(!extra){
-            setResponse(res, false, 404, "Extra not found");
-            return;
+            return notFoundResponse(res, "Extra not found");
         }
 
-        setResponse(res, true, 200, "Extra deleted successfully");
+        return successResponse(res, "Extra deleted successfully");
     }
     catch (error) {
         console.error("Error while deleting extra: ", error);
-        setResponse(res, false, 500, "Internal server error while deleting extra");
+        return errorResponse(res, "Internal server error while deleting extra");
     }
 };
 
 
-const getAirlineDashboardStats = async(req : AuthenticatedRequest, res : Response): Promise<void> => {
+const getAirlineDashboardStats = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         
         if(!airlineId){
-            setMissingFieldsResponse(res);
-            return;
+            return missingFieldsResponse(res);
         }
 
         const passengerCount : number = await airlineService.getAirlinePassengerCount(airlineId);
@@ -251,20 +230,79 @@ const getAirlineDashboardStats = async(req : AuthenticatedRequest, res : Respons
         const filghtsInProgress : number = await airlineService.getAirlineFlightsInProgressCount(airlineId);
 
 
-        const dashBoard : DashBoardDTO = {
-            passengerCount: passengerCount,
-            monthlyIncome: monthlyIncome,
-            activeRoutes: activeRoutes,
-            filghtsInProgress: filghtsInProgress
-        }
+        const dashBoard : DashBoardDTO = new DashBoardDTO (
+            passengerCount,
+            monthlyIncome,
+            activeRoutes,
+            filghtsInProgress
+        )
 
-        console.log(dashBoard)
-
-        setResponse(res, true, 200, "DashBoard stats retrieved successfully", dashBoard);
+        return successResponse(res, "DashBoard stats retrieved successfully", dashBoard);
     }
     catch (error) {
         console.error("Error while retrieving dashboard stats: ", error);
-        setResponse(res, false, 500, "Internal server error while retrieving dashboard stats");
+        return errorResponse(res, "Internal server error while retrieving dashboard stats");
+    }
+};
+
+
+const createAircraft = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+    try{
+        const airlineId : number | null = req.user!.id;
+        const {model, nSeats, classes} = req.body; 
+        
+        if(!airlineId || !model || !nSeats || !classes){
+            return missingFieldsResponse(res);
+        }
+
+        const aircraft : Aircraft = {
+            model: model,
+            nSeats: nSeats,
+            classes: classes
+        };
+
+        const newAircraft : aircrafts | null = await airlineService.createAirlineAircraft(airlineId, aircraft);
+        if(!newAircraft){
+            return errorResponse(res, "Aircraft not created", null, 409);
+        }
+
+        const aircraftId : number = newAircraft.id;
+        const aircraftClasses : ClassDTO[] = await airlineService.createAircraftClasses(aircraftId, classes);
+
+        const aircraftResult : AircraftDTO = AircraftDTO.fromPrismaDTO(newAircraft, aircraftClasses);
+
+        return successResponse(res, "Aircraft created successfully", aircraftResult, 201);
+    }
+    catch (error) {
+        console.error("Error while creating aircraft: ", error);
+        return errorResponse(res, "Internal server error while creating aircraft");
+    }
+};
+
+// ###
+const createFlight = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+    try{
+        const airlineId : number | null = req.user!.id;
+        const {routeId, aircraftId, departureTime, arrivalTime, basePrice} = req.body; 
+        
+        if(!airlineId || !routeId || !aircraftId || !departureTime || !arrivalTime || !basePrice){
+            return missingFieldsResponse(res);
+        }
+
+        const route : AirlineRouteDTO | null = await airlineService.getAirlineRouteById(airlineId, routeId);
+        if(!route){
+            return notFoundResponse(res, "Airline route not found");
+        }
+
+        // const aircraft  = await airlineService.get
+
+
+
+        return successResponse(res, "Flight created successfully");
+    }
+    catch (error) {
+        console.error("Error while creating flight: ", error);
+        return errorResponse(res, "Internal server error while creating flight");
     }
 };
 
@@ -277,5 +315,7 @@ export {
     createExtra,
     getAirlineExtras,
     deleteExtraById,
-    getAirlineDashboardStats
+    getAirlineDashboardStats,
+    createAircraft,
+    createFlight
 }
