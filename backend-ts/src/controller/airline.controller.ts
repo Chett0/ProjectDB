@@ -5,7 +5,7 @@ import * as airlineService from "../services/airline.service";
 import * as airportService from "../services/airport.service";
 import { errorResponse, missingFieldsResponse, notFoundResponse, successResponse } from "../utils/helpers/response.helper";
 import { AirlineDTO } from "../dtos/user.dto";
-import { AircraftDTO, AirlineRouteDTO, ClassDTO, DashBoardDTO, ExtraDTO } from "../dtos/airline.dto";
+import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, DashBoardDTO, ExtraDTO } from "../dtos/airline.dto";
 import { Aircraft, Extra, Route } from "../types/airline.types";
 import { AirportDTO } from "../dtos/airport.dto";
 
@@ -201,13 +201,13 @@ const deleteExtraById = async(req : AuthenticatedRequest, res : Response): Promi
 
         const extraId : number = parseInt(paramsExtraId);
 
-        const extra : extras | null = await airlineService.deleteExtraById(airlineId, extraId);
+        const extra : ExtraDTO | null = await airlineService.deleteExtraById(airlineId, extraId);
 
         if(!extra){
             return notFoundResponse(res, "Extra not found");
         }
 
-        return successResponse(res, "Extra deleted successfully");
+        return successResponse(res, "Extra deleted successfully", extra);
     }
     catch (error) {
         console.error("Error while deleting extra: ", error);
@@ -261,17 +261,12 @@ const createAircraft = async(req : AuthenticatedRequest, res : Response): Promis
             classes: classes
         };
 
-        const newAircraft : aircrafts | null = await airlineService.createAirlineAircraft(airlineId, aircraft);
+        const newAircraft : AircraftDTO | null = await airlineService.createAirlineAircraft(airlineId, aircraft, classes);
         if(!newAircraft){
             return errorResponse(res, "Aircraft not created", null, 409);
         }
 
-        const aircraftId : number = newAircraft.id;
-        const aircraftClasses : ClassDTO[] = await airlineService.createAircraftClasses(aircraftId, classes);
-
-        const aircraftResult : AircraftDTO = AircraftDTO.fromPrismaDTO(newAircraft, aircraftClasses);
-
-        return successResponse(res, "Aircraft created successfully", aircraftResult, 201);
+        return successResponse(res, "Aircraft created successfully", newAircraft, 201);
     }
     catch (error) {
         console.error("Error while creating aircraft: ", error);
@@ -279,30 +274,67 @@ const createAircraft = async(req : AuthenticatedRequest, res : Response): Promis
     }
 };
 
-// ###
-const createFlight = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+
+const getAirlinesAircrafts = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
-        const airlineId : number | null = req.user!.id;
-        const {routeId, aircraftId, departureTime, arrivalTime, basePrice} = req.body; 
+        const airlineId : number = req.user!.id; 
+
+        const aircrafts : AircraftInfoDTO[] = await airlineService.getAirlinesAircrafts(airlineId);
+
+        return successResponse(res, "Airline's aircraft retrieved successfully", aircrafts);
+    }
+    catch (error) {
+        console.error("Error while retrieving airline's aircrafts: ", error);
+        return errorResponse(res, "Internal server error while retrieving airline's aircrafts");
+    }
+};
+
+const deleteAircraft = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+    try{
+        const airlineId : number = req.user!.id; 
+        const paramsAircraftId : string | undefined = req.params.aircraftId;
         
-        if(!airlineId || !routeId || !aircraftId || !departureTime || !arrivalTime || !basePrice){
+        if(!airlineId || !paramsAircraftId){
             return missingFieldsResponse(res);
         }
 
-        const route : AirlineRouteDTO | null = await airlineService.getAirlineRouteById(airlineId, routeId);
-        if(!route){
-            return notFoundResponse(res, "Airline route not found");
-        }
+        const aircraftId : number = parseInt(paramsAircraftId);
 
-        // const aircraft  = await airlineService.get
+        const aircraft : AircraftInfoDTO | null = await airlineService.deleteAircraft(airlineId, aircraftId);
+
+        if(!aircraft)
+            return notFoundResponse(res, "Aircraft not found");
 
 
-
-        return successResponse(res, "Flight created successfully");
+        return successResponse(res, "Airline's aircraft deleted successfully", aircraft);
     }
     catch (error) {
-        console.error("Error while creating flight: ", error);
-        return errorResponse(res, "Internal server error while creating flight");
+        console.error("Error while deleting aircraft: ", error);
+        return errorResponse(res, "Internal server error while deleting aircrafts");
+    }
+};
+
+const getAircraftClasses = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+    try{
+        const airlineId : number = req.user!.id; 
+        const paramsAircraftId : string | undefined = req.params.aircraftId;
+        
+        if(!airlineId || !paramsAircraftId){
+            return missingFieldsResponse(res);
+        }
+
+        const aircraftId : number = parseInt(paramsAircraftId);
+
+        const classes : ClassDTO[] | null = await airlineService.getAircraftClasses(airlineId, aircraftId);
+
+        if(!classes)
+            return notFoundResponse(res, "Aircraft not found");
+
+        return successResponse(res, "Airline's aircraft deleted successfully", classes);
+    }
+    catch (error) {
+        console.error("Error while deleting aircraft: ", error);
+        return errorResponse(res, "Internal server error while deleting aircrafts");
     }
 };
 
@@ -317,5 +349,7 @@ export {
     deleteExtraById,
     getAirlineDashboardStats,
     createAircraft,
-    createFlight
+    getAirlinesAircrafts,   
+    deleteAircraft,
+    getAircraftClasses
 }

@@ -1,6 +1,6 @@
 import { aircraft_classes, aircrafts, airlineRoute, airlines, extras, routes } from "../../prisma/generated/prisma";
 import prisma from "../config/db";
-import { AirlineRouteDTO, ClassDTO, ExtraDTO } from "../dtos/airline.dto";
+import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO } from "../dtos/airline.dto";
 import { AirlineDTO } from "../dtos/user.dto";
 import { Aircraft, Class, Extra, Route } from "../types/airline.types";
 
@@ -282,9 +282,9 @@ const getAirlineExtras = async (
 const deleteExtraById = async (
     airlineId : number,
     extraId: number
-) : Promise<extras | null> => {
+) : Promise<ExtraDTO | null> => {
     try{
-        const extras : extras | null = await prisma.extras.update({
+        const extra : extras | null = await prisma.extras.update({
             where: {
                 airline_id: airlineId,
                 id: extraId,
@@ -296,7 +296,7 @@ const deleteExtraById = async (
             }
         });
 
-        return extras;
+        return extra ? ExtraDTO.fromPrisma(extra) : null;
 
     } catch(err){
         throw new Error(
@@ -409,10 +409,33 @@ const getAirlineFlightsInProgressCount = async (
 };
 
 
+const getAirlinesAircrafts = async (
+    airlineId : number
+) : Promise<AircraftInfoDTO[]> => {
+    try{
+
+        const aircrafts : aircrafts[] = await prisma.aircrafts.findMany({
+            where: {
+                airline_id: airlineId,
+                active: true
+            }
+        });
+
+        return AircraftInfoDTO.fromPrismaList(aircrafts);
+
+    } catch(err){
+        throw new Error(
+            `Failed to creating aircraft: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
+
 const createAirlineAircraft = async (
     airlineId : number,
-    aircraft : Aircraft
-) : Promise<aircrafts | null> => {
+    aircraft : Aircraft,
+    classes: Class[]
+) : Promise<AircraftDTO | null> => {
     try{
 
         const newAircraft : aircrafts | null = await prisma.aircrafts.create({
@@ -422,7 +445,13 @@ const createAirlineAircraft = async (
                 nSeats: aircraft.nSeats,
             }
         })
-        return newAircraft;
+
+        if(!newAircraft)
+            return null;
+
+        const newClasses : ClassDTO[] = await createAircraftClasses(newAircraft.id, classes);
+
+        return AircraftDTO.fromPrismaDTO(newAircraft, newClasses);
 
     } catch(err){
         throw new Error(
@@ -457,6 +486,77 @@ const createAircraftClasses = async (
     }
 };
 
+const deleteAircraft = async (
+    airlineId : number,
+    aircraftId : number
+) : Promise<AircraftInfoDTO | null> => {
+    try{
+        
+        const aircraft : aircrafts | null = await prisma.aircrafts.findUnique({
+            where : {
+                id: aircraftId,
+                airline_id: airlineId,
+                active: true
+            }
+        });
+
+        if(!aircraft)
+            return null;
+
+        await prisma.aircrafts.update({
+            where: {
+                id: aircraftId
+            },
+            data: {
+                active: false,
+                deletion_time: new Date()
+            }
+        })
+
+        return AircraftInfoDTO.fromPrisma(aircraft);
+
+
+    } catch(err){
+        throw new Error(
+            `Failed to creating aircraft classes: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
+
+const getAircraftClasses = async (
+    airlineId : number,
+    aircraftId : number
+) : Promise<ClassDTO[] | null> => {
+    try{
+        
+        const aircraft : aircrafts | null = await prisma.aircrafts.findUnique({
+            where : {
+                id: aircraftId,
+                airline_id: airlineId,
+                active: true
+            }
+        });
+
+        if(!aircraft)
+            return null;
+
+        const classes : aircraft_classes[] = await prisma.aircraft_classes.findMany({
+            where: {
+                aircraft_id: aircraftId
+            }
+        })
+
+        return ClassDTO.fromPrismaList(classes);
+
+
+    } catch(err){
+        throw new Error(
+            `Failed to creating aircraft classes: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
 
 export {
     getAirlineById,
@@ -473,5 +573,8 @@ export {
     getAirlineRouteCount,
     getAirlineFlightsInProgressCount,
     createAirlineAircraft,
-    createAircraftClasses
+    createAircraftClasses,
+    getAirlinesAircrafts,
+    deleteAircraft,
+    getAircraftClasses
 }

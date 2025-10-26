@@ -136,10 +136,35 @@ class AircraftDTO {
     }
 }
 
+class AircraftInfoDTO {
+    id: number;
+    model: string;
+    nSeats: number;
+
+    constructor(id: number, model: string, nSeats: number) {
+        this.id = id;
+        this.model = model;
+        this.nSeats = nSeats;
+    }
+
+    static fromPrisma(aircraft : aircrafts): AircraftInfoDTO {
+        return new AircraftInfoDTO(
+            aircraft.id,
+            aircraft.model,
+            aircraft.nSeats
+        );
+    }
+
+    static fromPrismaList(list: aircrafts[]): AircraftInfoDTO[] {
+        return list.map(AircraftInfoDTO.fromPrisma);
+    }
+}
+
 export {
     ClassDTO,
     ExtraDTO,
     DashBoardDTO,
     AircraftDTO,
+    AircraftInfoDTO,
     AirlineRouteDTO
 }

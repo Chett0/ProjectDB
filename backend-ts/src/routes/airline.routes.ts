@@ -13,11 +13,15 @@ router.delete("/routes/:id", airlinesController.deleteAirlineRoute);
 
 router.post('/extras', airlinesController.createExtra);
 router.get('/extras', airlinesController.getAirlineExtras);
-router.delete('/extras/:extrasId', airlinesController.deleteExtraById);
+router.delete('/extras/:extraId', airlinesController.deleteExtraById);
 
 router.post('/aircrafts', airlinesController.createAircraft);
+router.get('/aircrats', airlinesController.getAirlinesAircrafts)
+router.delete('/aircrats/:aircraftId', airlinesController.deleteAircraft)
 
-router.post('/flights', airlinesController.createFlight)
+router.get('/aircrafts/aircraftId/classes', airlinesController.getAircraftClasses);
+
+// router.post('/flights', airlinesController.createFlight)
 
 
 export default router;
