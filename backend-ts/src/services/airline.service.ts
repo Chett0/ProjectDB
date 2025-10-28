@@ -149,6 +149,36 @@ const getRouteByAirports = async (
 };
 
 
+const getRouteByAirportsIds = async (
+    AirportIds : number[],
+    departure : boolean = true
+) : Promise<routes[]> => {
+    try{
+
+        let airportField : string = "departure_airport_id";
+        if(!departure)
+            airportField = "arrival_airport_id";
+
+
+        const routes : routes[] = await prisma.routes.findMany({
+            where: {
+                [airportField]: {
+                    in : AirportIds
+                }
+            }
+        })
+
+        return routes;
+    } catch(err){
+        throw new Error(
+            `Failed to retrieving route by airports: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
+
+
+
 const getAirlineRouteById = async (
     airlineId: number,
     routeId: number
@@ -558,6 +588,9 @@ const getAircraftClasses = async (
 };
 
 
+
+
+
 export {
     getAirlineById,
     getAirlineRoutes,
@@ -576,5 +609,6 @@ export {
     createAircraftClasses,
     getAirlinesAircrafts,
     deleteAircraft,
-    getAircraftClasses
+    getAircraftClasses,
+    getRouteByAirportsIds
 }

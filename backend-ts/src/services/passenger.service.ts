@@ -3,7 +3,6 @@ import prisma from "../config/db";
 import { ExtraDTO } from "../dtos/airline.dto";
 import { Ticket } from "../types/passenger.types";
 import * as flightService from "../services/flight.service"
-import { posix } from "path";
 import { TicketInfoDTO } from "../dtos/passenger.dto";
 
 const getPassengerById = async (

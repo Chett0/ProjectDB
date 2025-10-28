@@ -6,5 +6,6 @@ import { UserRole } from "../types/auth.types";
 const router = Router();
 
 // router.post('/', verifyToken, verifyRole(UserRole.AIRLINE), flightController.)
+router.get('/', flightController.searchFlight)
 
 export default router;

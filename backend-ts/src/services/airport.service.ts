@@ -29,8 +29,32 @@ const getAirportByCode = async (
     }
 };
 
+const getAirportsByCity = async (
+    city : string
+) : Promise<airports[]> => {
+    try{
+        const airports : airports[] = await prisma.airports.findMany({
+            where: {
+                city: {
+                    contains: city,
+                    mode: "insensitive"
+                },
+                active: true
+            }
+        })
+
+        return airports;
+
+    } catch(err){
+        throw new Error(
+            `Failed to retrieving airport: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
 export {
     createAirport,
-    getAirportByCode
+    getAirportByCode,
+    getAirportsByCity
 }
 
