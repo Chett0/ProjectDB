@@ -11,5 +11,6 @@ router.post('/admin/register', verifyToken, verifyRole(UserRole.ADMIN), authCont
 router.post('/login', authController.login);
 router.post('/refresh', authController.refreshToken);
 router.put('/users/password', authController.updatePassword);
+router.delete('/users/:userId', verifyToken, verifyRole(UserRole.ADMIN), authController.deleteUser);
 
 export default router;

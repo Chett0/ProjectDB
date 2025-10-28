@@ -287,11 +287,36 @@ const updatePassword = async(req : Request, res : Response) : Promise<Response> 
     }
 };
 
+const deleteUser = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        const userIdParam = req.params.userId;
+        if (!userIdParam) {
+            return missingFieldsResponse(res);
+        }
+        const userId = parseInt(userIdParam);
+        if (isNaN(userId)) {
+            return missingFieldsResponse(res);
+        }
+        const result = await authService.deleteUser(userId);
+        if (result === 'not_found') {
+            return notFoundResponse(res, "User not found");
+        }
+        if (result === 'not_active') {
+            return errorResponse(res, "User not active", null, 410);
+        }
+        return successResponse(res, "User deleted successfully");
+    } catch (error) {
+        console.error("Error while deleting user: ", error);
+        return errorResponse(res, "Internal error deleting user");
+    }
+};
+
 export {
     registerPassenger,
     registerAirline,
     registerAdmin,
     login,
     refreshToken,
-    updatePassword
+    updatePassword,
+    deleteUser
 }
