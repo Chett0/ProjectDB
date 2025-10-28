@@ -69,7 +69,55 @@ const createTicket = async(req : AuthenticatedRequest, res : Response): Promise<
 };
 
 
+const getPassengersCount = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        const count = await passengerService.getPassengersCount();
+        return successResponse(res, "Passengers count retrieved", { count });
+    } catch (error) {
+        console.error("Error while retrieving passengers count: ", error);
+        return errorResponse(res, "Internal error retrieving passengers count");
+    }
+};
+
+const getPassengerTickets = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
+    try {
+        const passengerId: number | null = req.user!.id;
+        if (!passengerId) {
+            return missingFieldsResponse(res);
+        }
+        const page = req.query.page ? parseInt(req.query.page as string) : 1;
+        const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+        const { tickets, totalPages } = await passengerService.getPassengerTickets(passengerId, page, limit);
+        return successResponse(res, "Tickets retrieved successfully", { tickets, totalPages });
+    } catch (error) {
+        console.error("Error while retrieving tickets: ", error);
+        return errorResponse(res, "Internal error retrieving tickets");
+    }
+};
+
+const getPassengerTicketById = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
+    try {
+        const passengerId: number | null = req.user!.id;
+        const paramsTicketId: string | undefined = req.params.ticketId;
+        if (!passengerId || !paramsTicketId) {
+            return missingFieldsResponse(res);
+        }
+        const ticketId = parseInt(paramsTicketId);
+        const ticket = await passengerService.getPassengerTicketById(passengerId, ticketId);
+        if (!ticket) {
+            return notFoundResponse(res, "Ticket not found");
+        }
+        return successResponse(res, "Ticket retrieved successfully", ticket);
+    } catch (error) {
+        console.error("Error while retrieving ticket: ", error);
+        return errorResponse(res, "Internal error retrieving ticket");
+    }
+};
+
 export {
     getPassengerDetails,
-    createTicket
+    createTicket,
+    getPassengersCount,
+    getPassengerTickets,
+    getPassengerTicketById
 }

@@ -104,7 +104,62 @@ const createTicket = async (
     }
 };
 
+const getPassengersCount = async (): Promise<number> => {
+    try {
+        return await prisma.passengers.count();
+    } catch (err) {
+        throw new Error(
+            `Failed to count passengers: ${err instanceof Error ? err.message : "Unknown error"}`
+        );
+    }
+};
+
+const getPassengerTickets = async (
+    passengerId: number,
+    page: number = 1,
+    limit: number = 10
+): Promise<{ tickets: tickets[]; totalPages: number }> => {
+    try {
+        const totalItems = await prisma.tickets.count({
+            where: { passenger_id: passengerId }
+        });
+        const totalPages = totalItems > 0 ? Math.ceil(totalItems / limit) : 0;
+        const offset = (page - 1) * limit;
+        const ticketsList = await prisma.tickets.findMany({
+            where: { passenger_id: passengerId },
+            skip: offset,
+            take: limit
+        });
+        return { tickets: ticketsList, totalPages };
+    } catch (err) {
+        throw new Error(
+            `Failed to retrieve tickets: ${err instanceof Error ? err.message : "Unknown error"}`
+        );
+    }
+};
+
+const getPassengerTicketById = async (
+    passengerId: number,
+    ticketId: number
+): Promise<tickets | null> => {
+    try {
+        return await prisma.tickets.findFirst({
+            where: {
+                id: ticketId,
+                passenger_id: passengerId
+            }
+        });
+    } catch (err) {
+        throw new Error(
+            `Failed to retrieve ticket: ${err instanceof Error ? err.message : "Unknown error"}`
+        );
+    }
+};
+
 export {
     getPassengerById,
-    createTicket
+    createTicket,
+    getPassengersCount,
+    getPassengerTickets,
+    getPassengerTicketById
 }

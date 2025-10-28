@@ -139,10 +139,28 @@ const updatePassword = async(
 };
 
 
+const deleteUser = async (userId: number): Promise<'deleted' | 'not_found' | 'not_active'> => {
+    try {
+        const user = await prisma.users.findUnique({ where: { id: userId } });
+        if (!user) return 'not_found';
+        if (!user.active) return 'not_active';
+        await prisma.users.update({
+            where: { id: userId },
+            data: { active: false }
+        });
+        return 'deleted';
+    } catch (err) {
+        throw new Error(
+            `Failed to delete user: ${err instanceof Error ? err.message : "Unknown error"}`
+        );
+    }
+};
+
 export {
     registerPassenger,
     registerAirline,
     registerAdmin,
     getUserByEmail,
-    updatePassword
+    updatePassword,
+    deleteUser
 }
