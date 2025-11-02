@@ -1,13 +1,70 @@
-import { airports, flights, routes } from "../../prisma/generated/prisma";
+import { aircraft_classes, airports, flights, routes, seats, seatstate } from "../../prisma/generated/prisma";
 import prisma from "../config/db";
-import { SearchFlightsParams } from "../types/flight.types";
+import { Flight, SearchFlightsParams } from "../types/flight.types";
 import * as airportService from "../services/airport.service";
 import * as airlineService from "../services/airline.service";
 import { FlightInfoDTO, JourneysInfoDTO } from "../dtos/flight.dto";
 import { Decimal } from "@prisma/client/runtime/library";
+import { ClassDTO } from "../dtos/airline.dto";
 
 const MINIMUM_CONNECTION_SECONDS = 2 * 3600;
 const MAXIMUM_CONNECTION_SECONDS = 12 * 3600;
+
+const createFlight = async (
+    flight: Flight,
+    aircraftClasses: ClassDTO[]
+) : Promise<flights | null> => {
+    try{
+        
+        const newFlight : flights | null = await prisma.$transaction(async(tx) => {
+
+            const result : flights = await tx.flights.create({
+                data: {
+                    departure_time: flight.departureTime,
+                    arrival_time: flight.arrivalTime,
+                    aircraft_id: flight.aircraftId,
+                    route_id: flight.routeId,
+                    base_price: flight.basePrice,
+                    duration_seconds: flight.durationSeconds
+                }
+            });
+
+            let letter : string = 'A';
+            let rowNumber : number = 1;
+
+            for(const cls of aircraftClasses){
+                for(let p = 1; p < cls.nSeats; p++){
+                    const seat : seats = await tx.seats.create({
+                        data: {
+                            number: rowNumber.toString() + letter,
+                            flight_id: result.id,
+                            class_id: cls.id,
+                            state: seatstate.AVAILABLE,
+                            price: flight.basePrice * cls.priceMultiplier 
+                        }
+                    })
+
+                    letter = String.fromCharCode(letter.charCodeAt(0) + 1);
+                    if (letter === 'G') {
+                        rowNumber += 1;
+                        letter = 'A';
+                    }
+                }
+            }
+
+            return result;
+            
+        });
+
+        return newFlight;
+
+    } catch(err){
+        throw new Error(
+            `Failed to creating aircraft classes: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};
+
 
 const getFlightbyId = async (
     flightId: number
@@ -180,8 +237,37 @@ const getJourneys = async (
 };
 
 
+const getFlightSeats = async (
+    flightId: number
+) : Promise<seats[]> => {
+    try{
+        
+        const seats : seats[] = await prisma.seats.findMany({
+            where: {
+                flight_id : flightId,
+            },
+            orderBy: {
+                id: 'asc'
+            }
+        })
+
+        const seats : 
+
+        return seats;
+
+
+    } catch(err){
+        throw new Error(
+            `Failed to retrieving flight seats: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+}; 
+
+
 
 export {
     getFlightbyId,
-    searchFlights
+    searchFlights,
+    getFlightSeats,
+    createFlight
 }

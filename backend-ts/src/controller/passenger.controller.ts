@@ -69,16 +69,6 @@ const createTicket = async(req : AuthenticatedRequest, res : Response): Promise<
 };
 
 
-const getPassengersCount = async (req: Request, res: Response): Promise<Response> => {
-    try {
-        const count = await passengerService.getPassengersCount();
-        return successResponse(res, "Passengers count retrieved", { count });
-    } catch (error) {
-        console.error("Error while retrieving passengers count: ", error);
-        return errorResponse(res, "Internal error retrieving passengers count");
-    }
-};
-
 const getPassengerTickets = async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
     try {
         const passengerId: number | null = req.user!.id;
@@ -117,7 +107,6 @@ const getPassengerTicketById = async (req: AuthenticatedRequest, res: Response):
 export {
     getPassengerDetails,
     createTicket,
-    getPassengersCount,
     getPassengerTickets,
     getPassengerTicketById
 }

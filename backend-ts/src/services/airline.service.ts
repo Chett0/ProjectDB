@@ -588,6 +588,33 @@ const getAircraftClasses = async (
 };
 
 
+const getAircraftById = async (
+    airlineId : number,
+    aircraftId : number
+) : Promise<aircrafts | null> => {
+     try{
+        
+        const aircraft : aircrafts | null = await prisma.aircrafts.findUnique({
+            where : {
+                id: aircraftId,
+                airline_id: airlineId,
+                active: true
+            }
+        });
+
+        if(!aircraft)
+            return null;
+
+        return aircraft; 
+
+    } catch(err){
+        throw new Error(
+            `Failed to retrieving aircraft: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+}
+
+
 
 
 
@@ -610,5 +637,6 @@ export {
     getAirlinesAircrafts,
     deleteAircraft,
     getAircraftClasses,
-    getRouteByAirportsIds
+    getRouteByAirportsIds,
+    getAircraftById
 }

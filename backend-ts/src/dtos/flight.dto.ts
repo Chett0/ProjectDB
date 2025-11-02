@@ -1,5 +1,6 @@
 import { Decimal } from "@prisma/client/runtime/library";
-import { flights } from "../../prisma/generated/prisma";
+import { flights, seatstate } from "../../prisma/generated/prisma";
+import { ClassDTO } from "./airline.dto";
 
 class FlightInfoDTO {
     id: number;
@@ -26,6 +27,44 @@ class FlightInfoDTO {
     static fromPrismaList(list: flights[]): FlightInfoDTO[] {
         return list.map(FlightInfoDTO.fromPrisma);
     }
+}
+
+class SeatsDTO {
+    id: number;
+    number: string;
+    state: seatstate;
+    price: Decimal;
+    class: ClassDTO;
+
+    constructor(
+    id: number,
+    number: string,
+    state: seatstate,
+    price: Decimal,
+    seatClass: ClassDTO
+  ) {
+    this.id = id;
+    this.number = number;
+    this.state = state;
+    this.price = price;
+    this.class = seatClass;
+  }
+
+  
+  static fromPrisma(seat: any): SeatsDTO {
+    return new SeatsDTO(
+      seat.id,
+      seat.number,
+      seat.state,
+      seat.price,
+      seat.class 
+    );
+  }
+
+  
+  static fromPrismaList(list: any[]): SeatsDTO[] {
+    return list.map(SeatsDTO.fromPrisma);
+  }
 }
 
 class JourneysInfoDTO {

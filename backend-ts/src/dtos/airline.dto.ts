@@ -77,9 +77,9 @@ class ClassDTO {
     id: number;
     name: string;
     nSeats: number;
-    priceMultiplier: Decimal;
+    priceMultiplier: number;
 
-    constructor(id: number, name: string, nSeats: number, priceMultiplier: Decimal){
+    constructor(id: number, name: string, nSeats: number, priceMultiplier: number){
         this.id = id;
         this.name = name;
         this.nSeats = nSeats;
@@ -91,7 +91,7 @@ class ClassDTO {
             aircraftClass.id,
             aircraftClass.name,
             aircraftClass.nSeats,
-            aircraftClass.price_multiplier
+            Number(aircraftClass.price_multiplier)
         );
     }
 

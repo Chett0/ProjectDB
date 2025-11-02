@@ -103,16 +103,6 @@ const createTicket = async (
     }
 };
 
-const getPassengersCount = async (): Promise<number> => {
-    try {
-        return await prisma.passengers.count();
-    } catch (err) {
-        throw new Error(
-            `Failed to count passengers: ${err instanceof Error ? err.message : "Unknown error"}`
-        );
-    }
-};
-
 const getPassengerTickets = async (
     passengerId: number,
     page: number = 1,
@@ -158,7 +148,6 @@ const getPassengerTicketById = async (
 export {
     getPassengerById,
     createTicket,
-    getPassengersCount,
     getPassengerTickets,
     getPassengerTicketById
 }
