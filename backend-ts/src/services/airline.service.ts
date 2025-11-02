@@ -574,6 +574,9 @@ const getAircraftClasses = async (
         const classes : aircraft_classes[] = await prisma.aircraft_classes.findMany({
             where: {
                 aircraft_id: aircraftId
+            },
+            orderBy: {
+                price_multiplier: 'desc'
             }
         })
 

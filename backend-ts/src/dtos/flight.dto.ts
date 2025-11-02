@@ -33,14 +33,14 @@ class SeatsDTO {
     id: number;
     number: string;
     state: seatstate;
-    price: Decimal;
+    price: number;
     class: ClassDTO;
 
     constructor(
     id: number,
     number: string,
     state: seatstate,
-    price: Decimal,
+    price: number,
     seatClass: ClassDTO
   ) {
     this.id = id;
@@ -84,5 +84,6 @@ class JourneysInfoDTO {
 
 export {
     FlightInfoDTO,
-    JourneysInfoDTO
+    JourneysInfoDTO,
+    SeatsDTO
 }

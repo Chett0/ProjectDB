@@ -4,7 +4,7 @@ import * as flightService from "../services/flight.service";
 import * as airlineService from "../services/airline.service";
 import { Flight, SearchFlightsParams, Sort } from "../types/flight.types";
 import { errorResponse, missingFieldsResponse, successResponse } from "../utils/helpers/response.helper";
-import { JourneysInfoDTO } from "../dtos/flight.dto";
+import { JourneysInfoDTO, SeatsDTO } from "../dtos/flight.dto";
 import { aircraft_classes, aircrafts, airlineRoute } from "../../prisma/generated/prisma";
 import { AircraftDTO, AirlineRouteDTO, ClassDTO } from "../dtos/airline.dto";
 
@@ -96,7 +96,7 @@ const getFlightSeats = async(req : AuthenticatedRequest, res : Response): Promis
         if(!flightId)
             return missingFieldsResponse(res);
 
-
+        const seats : SeatsDTO[] = await flightService.getFlightSeats(flightId);
 
         return successResponse(res, "Seats retrieved successfully", seats);
     }

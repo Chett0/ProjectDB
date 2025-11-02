@@ -3,7 +3,7 @@ import prisma from "../config/db";
 import { Flight, SearchFlightsParams } from "../types/flight.types";
 import * as airportService from "../services/airport.service";
 import * as airlineService from "../services/airline.service";
-import { FlightInfoDTO, JourneysInfoDTO } from "../dtos/flight.dto";
+import { FlightInfoDTO, JourneysInfoDTO, SeatsDTO } from "../dtos/flight.dto";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ClassDTO } from "../dtos/airline.dto";
 
@@ -239,19 +239,27 @@ const getJourneys = async (
 
 const getFlightSeats = async (
     flightId: number
-) : Promise<seats[]> => {
+) : Promise<SeatsDTO[]> => {
     try{
-        
-        const seats : seats[] = await prisma.seats.findMany({
-            where: {
-                flight_id : flightId,
-            },
-            orderBy: {
-                id: 'asc'
-            }
-        })
 
-        const seats : 
+        const seats : SeatsDTO[] = await prisma.$queryRaw`
+            SELECT 
+                S.id, 
+                S.number,
+                S.state,
+                S.price,
+                json_build_object(
+                    'id', AC.id,
+                    'name', AC.name,
+                    'nSeats', AC."nSeats",
+                    'priceMultiplier', AC.price_multiplier
+                ) AS "class"
+            FROM Seats S 
+            JOIN Flights F ON F.id = S.flight_id
+            JOIN public.aircraft_classes AC ON F.aircraft_id = AC.aircraft_id 
+            WHERE S.flight_id = ${flightId}
+            ORDER BY id ASC
+        `;
 
         return seats;
 
