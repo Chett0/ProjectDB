@@ -21,3 +21,4 @@ ProgettazioneLogica.png
 *.bkp
 
 .env
+migrations/

@@ -591,7 +591,7 @@ const getAircraftClasses = async (
 };
 
 
-const getAircraftById = async (
+const getAirlineAircraftById = async (
     airlineId : number,
     aircraftId : number
 ) : Promise<aircrafts | null> => {
@@ -617,8 +617,51 @@ const getAircraftById = async (
     }
 }
 
+const getAircraftById = async (
+    aircraftId : number
+) : Promise<aircrafts | null> => {
+     try{
+        
+        const aircraft : aircrafts | null = await prisma.aircrafts.findUnique({
+            where : {
+                id: aircraftId,
+                active: true
+            }
+        });
+
+        if(!aircraft)
+            return null;
+
+        return aircraft; 
+
+    } catch(err){
+        throw new Error(
+            `Failed to retrieving aircraft: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+}
 
 
+// const getRoutesMostInDemand = async (
+//     airlineId : number,
+//     nRoute : number
+// ) : Promise<void> => {
+//      try{
+        
+//         const routes = await prisma.$queryRaw`
+//             SELECT 
+//                 AD.nome AS departureAirport,
+//                 AA.nome AS arrivalAirport,
+//                 COUNT()
+//             FROM Tickets T 
+//         `;
+
+//     } catch(err){
+//         throw new Error(
+//             `Failed to retrieving best routes: ${err instanceof Error ? err.message : "Unknown error"}`
+//         ); 
+//     }
+// }
 
 
 export {
@@ -641,5 +684,6 @@ export {
     deleteAircraft,
     getAircraftClasses,
     getRouteByAirportsIds,
-    getAircraftById
+    getAircraftById,
+    getAirlineAircraftById
 }

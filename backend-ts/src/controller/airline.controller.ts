@@ -246,6 +246,27 @@ const getAirlineDashboardStats = async(req : AuthenticatedRequest, res : Respons
 };
 
 
+const getAirlineChartsStats = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+    try{
+        const airlineId : number | null = req.user!.id;
+
+        let nRoute : number = parseInt(req.query.sort_by as string) || 10;
+        
+        if(!airlineId){
+            return missingFieldsResponse(res);
+        }
+
+        
+
+        return successResponse(res, "Charts stats retrieved successfully");
+    }
+    catch (error) {
+        console.error("Error while retrieving charts stats: ", error);
+        return errorResponse(res, "Internal server error while retrieving charts stats");
+    }
+};
+
+
 const createAircraft = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
@@ -351,5 +372,6 @@ export {
     createAircraft,
     getAirlinesAircrafts,   
     deleteAircraft,
-    getAircraftClasses
+    getAircraftClasses,
+    getAirlineChartsStats
 }

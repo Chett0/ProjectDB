@@ -5,8 +5,8 @@ import { UserRole } from "../types/auth.types";
 
 const router = Router();
 
-router.post('/', verifyToken, verifyRole(UserRole.AIRLINE), flightController.createFlight)
-router.get('/', flightController.searchFlights)
-router.get('/:flightId/seats', flightController.getFlightSeats)
+router.post('/', verifyToken, verifyRole(UserRole.AIRLINE), flightController.createFlight);
+router.get('/', flightController.searchFlights);
+router.get('/:flightId/seats', flightController.getFlightSeats);
 
 export default router;

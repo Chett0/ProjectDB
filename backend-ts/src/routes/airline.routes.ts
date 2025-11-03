@@ -4,7 +4,8 @@ import * as airlinesController from '../controller/airline.controller';
 const router = Router();
 
 router.get('/me', airlinesController.getAirlineDetails);
-router.get('/dashboard-stats', airlinesController.getAirlineDashboardStats)
+router.get('/dashboard-stats', airlinesController.getAirlineDashboardStats);
+router.get('/charts', airlinesController.getAirlineChartsStats);
 
 router.get('/routes', airlinesController.getAirlineRoutes);
 router.post('/routes', airlinesController.createAirlineRoute);

@@ -1,4 +1,4 @@
-import { aircraft_classes, airports, flights, routes, seats, seatstate } from "../../prisma/generated/prisma";
+import { aircraft_classes, aircrafts, airports, flights, routes, seats, seatstate } from "../../prisma/generated/prisma";
 import prisma from "../config/db";
 import { Flight, SearchFlightsParams } from "../types/flight.types";
 import * as airportService from "../services/airport.service";
@@ -15,6 +15,10 @@ const createFlight = async (
     aircraftClasses: ClassDTO[]
 ) : Promise<flights | null> => {
     try{
+
+        const aircraft : aircrafts | null = await airlineService.getAircraftById(flight.aircraftId);
+        if(!aircraft)
+            return null;
         
         const newFlight : flights | null = await prisma.$transaction(async(tx) => {
 
@@ -25,6 +29,8 @@ const createFlight = async (
                     aircraft_id: flight.aircraftId,
                     route_id: flight.routeId,
                     base_price: flight.basePrice,
+                    nSeats_total: aircraft.nSeats,
+                    nSeats_available: aircraft.nSeats,
                     duration_seconds: flight.durationSeconds
                 }
             });
