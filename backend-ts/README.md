@@ -19,5 +19,8 @@ Reset DB:
 
     npx prisma migrate reset
 
+Seed: 
+
+    npx prisma db seed
     
     
