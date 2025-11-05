@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AuthenticatedRequest } from "../types/auth.types";
-import { aircraft_classes, aircrafts, airlineRoute, airlines, airports, extras, routes } from "../../prisma/generated/prisma";
+import { airlineRoute, routes } from '@prisma/client';
 import * as airlineService from "../services/airline.service";
 import * as airportService from "../services/airport.service";
 import { errorResponse, missingFieldsResponse, notFoundResponse, successResponse } from "../utils/helpers/response.helper";

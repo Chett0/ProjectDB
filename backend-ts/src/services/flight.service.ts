@@ -1,4 +1,4 @@
-import { aircraft_classes, aircrafts, airports, flights, routes, seats, seatstate } from "../../prisma/generated/prisma";
+import { aircrafts, airports, flights, routes, seats, seatstate } from '@prisma/client';
 import prisma from "../config/db";
 import { Flight, SearchFlightsParams } from "../types/flight.types";
 import * as airportService from "../services/airport.service";

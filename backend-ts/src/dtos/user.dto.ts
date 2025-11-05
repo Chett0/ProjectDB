@@ -1,4 +1,4 @@
-import { airlines } from "../../prisma/generated/prisma";
+import { airlines } from '@prisma/client';
 
 interface UserDTO {
   email: string;

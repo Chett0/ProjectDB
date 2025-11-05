@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 import { NextFunction, Response } from "express";
-import { AuthenticatedRequest, PayloadJWT, User, UserRole } from "../../types/auth.types";
+import { AuthenticatedRequest, UserRole } from "../../types/auth.types";
 
 const JWT_ACCESS_TOKEN_SECRET = process.env.JWT_ACCESS_TOKEN_SECRET!;
 

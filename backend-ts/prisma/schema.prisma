@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "./generated/prisma"
+  
 }
 
 datasource db {
@@ -18,6 +18,8 @@ model aircraft_classes {
   deletion_time    DateTime? @db.Timestamp(6)
   aircrafts        aircrafts @relation(fields: [aircraft_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   seats            seats[]
+
+  @@unique([aircraft_id, name])
 }
 
 model aircrafts {
@@ -32,6 +34,7 @@ model aircrafts {
   flights          flights[]
 
   @@index([airline_id], map: "ix_aircrafts_airline_id")
+  @@unique([airline_id, model])
 }
 
 model airlineRoute {
@@ -60,11 +63,16 @@ model airlines {
 
 model airports {
   id                                           Int       @id @default(autoincrement())
-  name                                         String    @unique(map: "ix_airports_name") @db.VarChar(255)
-  code                                         String    @unique(map: "ix_airports_code") @db.VarChar(3)
+  name                                         String    
+  iata                                         String    @unique(map: "ix_airports_iata") @db.VarChar(3)
+  icao                                         String    @unique(map: "ix_airports_icao") @db.VarChar(4)
   city                                         String    @db.VarChar(100)
-  country                                      String    @db.VarChar(100)
-  active                                       Boolean?
+  subd                                         String    @db.VarChar(100)
+  country                                      String    @db.VarChar(2)
+  lat                                          Decimal
+  lon                                          Decimal
+  tz                                           String    @db.VarChar(100)
+  active                                       Boolean?  @default(true)
   deletion_time                                DateTime? @db.Timestamp(6)
   routes_routes_arrival_airport_idToairports   routes[]  @relation("routes_arrival_airport_idToairports")
   routes_routes_departure_airport_idToairports routes[]  @relation("routes_departure_airport_idToairports")
@@ -83,6 +91,8 @@ model extras {
   deletion_time DateTime?      @db.Timestamp(6)
   airlines      airlines       @relation(fields: [airline_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   ticket_extra  ticket_extra[]
+
+  @@unique([airline_id, name])
 }
 
 model flights {
@@ -125,6 +135,8 @@ model routes {
 
   @@index([arrival_airport_id], map: "ix_routes_arrival_airport_id")
   @@index([departure_airport_id], map: "ix_routes_departure_airport_id")
+
+  @@unique([departure_airport_id, arrival_airport_id])
 }
 
 model seats {

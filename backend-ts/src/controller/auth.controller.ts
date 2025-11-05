@@ -3,7 +3,7 @@ import * as authService from "../services/auth.service";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { CreatePassengerResult, PayloadJWT, User, UserAirline, UserPassenger, UserRole } from "../types/auth.types";
-import { users } from "../../prisma/generated/prisma";
+import { users } from '@prisma/client';
 import { errorResponse, missingFieldsResponse, notFoundResponse, successResponse } from "../utils/helpers/response.helper";
 import { AdminDTO, PassengerDTO, PassengerUserDTO, TokenDTO, UserDTO } from "../dtos/user.dto";
 

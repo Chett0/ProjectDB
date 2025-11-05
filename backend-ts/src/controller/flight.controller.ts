@@ -5,7 +5,7 @@ import * as airlineService from "../services/airline.service";
 import { Flight, SearchFlightsParams, Sort } from "../types/flight.types";
 import { errorResponse, missingFieldsResponse, successResponse } from "../utils/helpers/response.helper";
 import { JourneysInfoDTO, SeatsDTO } from "../dtos/flight.dto";
-import { aircraft_classes, aircrafts, airlineRoute } from "../../prisma/generated/prisma";
+import { aircraft_classes, aircrafts, airlineRoute } from '@prisma/client';
 import { AircraftDTO, AirlineRouteDTO, ClassDTO } from "../dtos/airline.dto";
 
 const createFlight = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {

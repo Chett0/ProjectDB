@@ -1,18 +1,18 @@
-import { airports } from '../../prisma/generated/prisma';
+import { airports } from '@prisma/client';
 import * as airportService from '../services/airport.service';
 import { Request, Response, NextFunction } from 'express';
 
-const createAirport = async(req : Request, res : Response, next : NextFunction) => {
-    try{
-        const airport : airports = req.body;
-        const newAirport = await airportService.createAirport(airport);
-        res.status(201).json(newAirport);
-    }
-    catch (error) {
-        next(error); // Pass to error-handling middleware
-    }
-}
+// const createAirport = async(req : Request, res : Response, next : NextFunction) => {
+//     try{
+//         const airport : airports = req.body;
+//         const newAirport = await airportService.createAirport(airport);
+//         res.status(201).json(newAirport);
+//     }
+//     catch (error) {
+//         next(error); // Pass to error-handling middleware
+//     }
+// }
 
 export {
-    createAirport
+    // createAirport
 }

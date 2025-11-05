@@ -1,5 +1,5 @@
 import prisma from "../config/db";
-import { airlines, passengers, userrole, users } from '../../prisma/generated/prisma';
+import {airlines, userrole, users} from '@prisma/client';
 import { CreateAirlineResult, CreatePassengerResult, User, UserAirline, UserPassenger } from "../types/auth.types";
 
 const registerPassenger = async (

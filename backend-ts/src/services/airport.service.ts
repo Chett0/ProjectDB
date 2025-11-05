@@ -1,13 +1,13 @@
-import { airports } from '../../prisma/generated/prisma';
+import { airports } from '@prisma/client';
 import prisma from '../config/db';
 import { AirportDTO } from '../dtos/airport.dto';
 
-const createAirport = async (airport : airports) => {
-    airport.active = true;
-    return prisma.airports.create({
-        data: airport,
-    });
-}
+// const createAirport = async (airport : airports) => {
+//     airport.active = true;
+//     return prisma.airports.create({
+//         data: airport,
+//     });
+// }
 
 const getAirportByCode = async (
     code : string
@@ -15,7 +15,7 @@ const getAirportByCode = async (
     try{
         const airport : airports | null = await prisma.airports.findFirst({
             where: {
-                code: code,
+                iata: code,
                 active: true
             }
         })
@@ -53,7 +53,7 @@ const getAirportsByCity = async (
 };
 
 export {
-    createAirport,
+    // createAirport,
     getAirportByCode,
     getAirportsByCity
 }

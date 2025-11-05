@@ -1,4 +1,4 @@
-import { bookingstate, extras, flights, passengers, seats, seatstate, tickets } from "../../prisma/generated/prisma";
+import { bookingstate, extras, flights, passengers, seats, seatstate, tickets } from '@prisma/client';
 import prisma from "../config/db";
 import { ExtraDTO } from "../dtos/airline.dto";
 import { Ticket } from "../types/passenger.types";

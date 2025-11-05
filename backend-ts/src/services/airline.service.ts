@@ -1,4 +1,4 @@
-import { aircraft_classes, aircrafts, airlineRoute, airlines, extras, routes } from "../../prisma/generated/prisma";
+import { aircraft_classes, aircrafts, airlineRoute, airlines, extras, routes } from '@prisma/client';
 import prisma from "../config/db";
 import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO } from "../dtos/airline.dto";
 import { AirlineDTO } from "../dtos/user.dto";

@@ -14,5 +14,10 @@ Pull:
 View DB:
 
     npx prisma studio
+
+Reset DB:
+
+    npx prisma migrate reset
+
     
     

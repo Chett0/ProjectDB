@@ -1,6 +1,6 @@
 import { Decimal } from "@prisma/client/runtime/library";
 import { AirportDTO } from "./airport.dto";
-import { aircraft_classes, aircrafts, airports, extras } from "../../prisma/generated/prisma";
+import { aircraft_classes, aircrafts, extras } from '@prisma/client';
 
 class AirlineRouteDTO {
     id: number;

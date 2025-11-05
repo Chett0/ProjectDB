@@ -1,5 +1,5 @@
 import { Decimal } from "@prisma/client/runtime/library";
-import { tickets } from "../../prisma/generated/prisma";
+import { tickets } from '@prisma/client';
 
 class TicketInfoDTO {
     id: number;

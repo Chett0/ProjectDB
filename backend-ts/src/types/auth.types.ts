@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { airlines, passengers, users } from "../../prisma/generated/prisma";
+import { airlines, passengers, users } from '@prisma/client';
 
 
 export enum UserRole {

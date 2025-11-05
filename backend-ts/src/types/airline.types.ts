@@ -1,5 +1,4 @@
 import { Decimal } from "@prisma/client/runtime/library"
-import { airlines } from "../../prisma/generated/prisma"
 
 interface Route {
     departureAirportId : number,

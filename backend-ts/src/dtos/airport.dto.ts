@@ -1,4 +1,4 @@
-import { airports } from "../../prisma/generated/prisma"
+import { airports } from '@prisma/client';
 
 class AirportDTO {
     id: number;
@@ -19,7 +19,7 @@ class AirportDTO {
         return new AirportDTO(
             airport.id,
             airport.name,
-            airport.code,
+            airport.iata,
             airport.city,
             airport.country
         );

@@ -1,5 +1,5 @@
 import { Decimal } from "@prisma/client/runtime/library";
-import { flights, seatstate } from "../../prisma/generated/prisma";
+import { flights, seatstate } from '@prisma/client';
 import { ClassDTO } from "./airline.dto";
 
 class FlightInfoDTO {

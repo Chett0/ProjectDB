@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { AuthenticatedRequest } from "../types/auth.types";
 import { errorResponse, missingFieldsResponse, notFoundResponse, successResponse } from "../utils/helpers/response.helper";
-import { passengers } from "../../prisma/generated/prisma";
+import { passengers } from '@prisma/client';
 import { PassengerDTO } from "../dtos/user.dto";
 import * as passengerService from "./../services/passenger.service";
 import { BookingState, Ticket } from "../types/passenger.types";

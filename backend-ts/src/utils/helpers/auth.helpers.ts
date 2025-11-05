@@ -1,4 +1,5 @@
-
+import bcrypt from "bcrypt";
+const BCRYPT_SALT_ROUNDS = Number(process.env.BCRYPT_SALT_ROUNDS) || 10;
 
 const generateRandomPassword = async(length : number = 12) : Promise<string> => {
     try{
@@ -26,6 +27,11 @@ const generateRandomPassword = async(length : number = 12) : Promise<string> => 
     };
 };
 
+const hashPassword = async(password : string) : Promise<string> => {
+    return await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
+}
+
 export {
-    generateRandomPassword
+    generateRandomPassword,
+    hashPassword
 }
