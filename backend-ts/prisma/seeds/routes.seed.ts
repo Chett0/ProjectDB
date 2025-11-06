@@ -17,12 +17,12 @@ export async function seedRoutes() {
         ["AMS", "CDG"], ["CDG", "AMS"],
         ["CDG", "JFK"], ["JFK", "CDG"],
         ["JFK", "LAX"], ["LAX", "JFK"],
-        ["CDG", "LAX"], ["LAX", "CDG"],
-        ["AMS", "LHR"], ["LHR", "AMS"],
-        ["VCE", "LHR"], ["LHR", "VCE"],
-        ["LHR", "JFK"], ["JFK", "LHR"],
-        ["LHR", "LAX"], ["LAX", "LHR"],
-        ["CDG", "LHR"], ["LHR", "CDG"]
+        // ["CDG", "LAX"], ["LAX", "CDG"],
+        // ["AMS", "LHR"], ["LHR", "AMS"],
+        // ["VCE", "LHR"], ["LHR", "VCE"],
+        // ["LHR", "JFK"], ["JFK", "LHR"],
+        // ["LHR", "LAX"], ["LAX", "LHR"],
+        // ["CDG", "LHR"], ["LHR", "CDG"]
     ];
 
     for(const route of routesList) {

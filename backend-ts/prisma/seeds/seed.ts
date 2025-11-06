@@ -6,6 +6,7 @@ import { seedAirports } from './airports.seed';
 import { seedExtras } from './extras.seed';
 import { seedRoutes } from './routes.seed';
 import { seedUsers } from './users.seed';
+import { seedFlights } from './flights.seed';
 
 async function main() {
   
@@ -15,6 +16,7 @@ async function main() {
   await seedAircrafts();
   await seedExtras();
   await seedRoutes();
+  await seedFlights();
   console.log("🌾 Seeding complete!");
 }
 
