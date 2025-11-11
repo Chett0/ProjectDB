@@ -1,6 +1,6 @@
 import { aircraft_classes, aircrafts, airlineRoute, airlines, airports, extras, routes } from '@prisma/client';
 import prisma from "../config/db";
-import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, RoutesMostInDemandDTO } from "../dtos/airline.dto";
+import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RoutesMostInDemandDTO } from "../dtos/airline.dto";
 import { AirlineDTO } from "../dtos/user.dto";
 import { Aircraft, Class, Extra, Route, RoutesMostInDemand } from "../types/airline.types";
 import { AirportDTO } from '../dtos/airport.dto';
@@ -689,6 +689,34 @@ const getRoutesMostInDemand = async (
     }
 }
 
+const getAirlineMonthlyIncomesByYear = async (
+    airlineId : number,
+    year : number
+) : Promise<MonthlyIncomeDTO[]> => {
+     try{
+        
+        const monthlyIncomes : MonthlyIncomeDTO[] = await prisma.$queryRaw`
+            SELECT 
+                TO_CHAR(DATE_TRUNC('month', T.purchase_date), 'YYYY-MM') AS "month",
+                SUM(T.final_cost) AS "monthlyIncome"
+            FROM Tickets T 
+            JOIN Flights F ON T.flight_id = F.id 
+            JOIN Aircrafts A ON F.aircraft_id = A.id
+            WHERE A.airline_id = ${airlineId} 
+                AND EXTRACT(YEAR FROM T.purchase_date) = ${year}
+            GROUP BY DATE_TRUNC('month', T.purchase_date)
+            ORDER BY "month" ASC;
+        `;
+
+        return monthlyIncomes;
+
+    } catch(err){
+        throw new Error(
+            `Failed to retrieving best routes: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+}
+
 
 export {
     getAirlineById,
@@ -712,5 +740,6 @@ export {
     getRouteByAirportsIds,
     getAircraftById,
     getAirlineAircraftById,
-    getRoutesMostInDemand
+    getRoutesMostInDemand,
+    getAirlineMonthlyIncomesByYear
 }

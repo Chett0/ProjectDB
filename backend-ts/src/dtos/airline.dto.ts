@@ -58,27 +58,21 @@ class ExtraDTO {
     }
 }
 
-class DashBoardDTO {
+class AirlineDashBoardDTO {
     passengerCount: number;
     monthlyIncome: number;
     activeRoutes: number;
     flightsInProgress: number;
+    routesMostInDemand: RoutesMostInDemandDTO[];
+    monthlyIncomes : MonthlyIncomeDTO[];
 
-    constructor(passengerCount: number, monthlyIncome: number, activeRoutes: number, flightsInProgress: number) {
+    constructor(passengerCount: number, monthlyIncome: number, activeRoutes: number, flightsInProgress: number, routesMostInDemand: RoutesMostInDemandDTO[], monthlyIncomes : MonthlyIncomeDTO[]) {
         this.passengerCount = passengerCount;
         this.monthlyIncome = monthlyIncome;
         this.activeRoutes = activeRoutes;
         this.flightsInProgress = flightsInProgress;
-    }
-}
-
-
-//Si potrebbe mettere dentro dashboard
-class ChartsDTO {
-    routesMostInDemand : RoutesMostInDemandDTO[]
-
-    constructor(routesMostInDemand: RoutesMostInDemandDTO[]) {
         this.routesMostInDemand = routesMostInDemand;
+        this.monthlyIncomes = monthlyIncomes;
     }
 }
 
@@ -182,13 +176,24 @@ class RoutesMostInDemandDTO {
     }
 }
 
+class MonthlyIncomeDTO {
+    month: string;
+    income: number;
+
+    constructor(month : string, income : number) {
+        this.month = month;
+        this.income = income;
+    }
+}
+
+
 export {
     ClassDTO,
     ExtraDTO,
-    DashBoardDTO,
+    AirlineDashBoardDTO,
     AircraftDTO,
     AircraftInfoDTO,
     AirlineRouteDTO,
     RoutesMostInDemandDTO,
-    ChartsDTO
+    MonthlyIncomeDTO
 }

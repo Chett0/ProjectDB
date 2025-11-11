@@ -5,7 +5,7 @@ import * as airlineService from "../services/airline.service";
 import * as airportService from "../services/airport.service";
 import { errorResponse, missingFieldsResponse, notFoundResponse, successResponse } from "../utils/helpers/response.helper";
 import { AirlineDTO } from "../dtos/user.dto";
-import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ChartsDTO, ClassDTO, DashBoardDTO, ExtraDTO, RoutesMostInDemandDTO } from "../dtos/airline.dto";
+import { AircraftDTO, AircraftInfoDTO, AirlineDashBoardDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RoutesMostInDemandDTO } from "../dtos/airline.dto";
 import { Aircraft, Extra, Route } from "../types/airline.types";
 import { AirportDTO } from "../dtos/airport.dto";
 
@@ -218,6 +218,9 @@ const deleteExtraById = async(req : AuthenticatedRequest, res : Response): Promi
 
 const getAirlineDashboardStats = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
+
+        const nRoutes : number = parseInt(req.query.nRoutes as string) || 10;
+        const year : number = parseInt(req.query.year as string) || new Date().getFullYear();
         const airlineId : number | null = req.user!.id;
         
         if(!airlineId){
@@ -229,15 +232,20 @@ const getAirlineDashboardStats = async(req : AuthenticatedRequest, res : Respons
         const activeRoutes : number = await airlineService.getAirlineRouteCount(airlineId);
         const filghtsInProgress : number = await airlineService.getAirlineFlightsInProgressCount(airlineId);
 
+        const routesMostInDemand : RoutesMostInDemandDTO[] = await airlineService.getRoutesMostInDemand(airlineId, nRoutes);
+        const monthlyIncomes : MonthlyIncomeDTO[] = await airlineService.getAirlineMonthlyIncomesByYear(airlineId, year);
 
-        const dashBoard : DashBoardDTO = new DashBoardDTO (
+
+        const dashBoard : AirlineDashBoardDTO = new AirlineDashBoardDTO (
             passengerCount,
             monthlyIncome,
             activeRoutes,
-            filghtsInProgress
+            filghtsInProgress,
+            routesMostInDemand,
+            monthlyIncomes
         )
 
-        return successResponse(res, "DashBoard stats retrieved successfully", dashBoard);
+        return successResponse<AirlineDashBoardDTO>(res, "DashBoard stats retrieved successfully", dashBoard);
     }
     catch (error) {
         console.error("Error while retrieving dashboard stats: ", error);
@@ -245,28 +253,23 @@ const getAirlineDashboardStats = async(req : AuthenticatedRequest, res : Respons
     }
 };
 
-
-const getAirlineChartsStats = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+const getMonthlyIncomesByYear = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
-        const airlineId : number | null = req.user!.id;
 
-        let nRoutes : number = parseInt(req.query.nRoutes as string) || 10;
+        const year : number = parseInt(req.query.year as string) || new Date().getFullYear();
+        const airlineId : number | null = req.user!.id;
         
         if(!airlineId){
             return missingFieldsResponse(res);
         }
 
-        const routesMostInDemand : RoutesMostInDemandDTO[] = await airlineService.getRoutesMostInDemand(airlineId, nRoutes);
+        const monthlyIncomes : MonthlyIncomeDTO[] = await airlineService.getAirlineMonthlyIncomesByYear(airlineId, year);
 
-        const charts : ChartsDTO = new ChartsDTO(
-            routesMostInDemand
-        )
-
-        return successResponse<ChartsDTO>(res, "Charts stats retrieved successfully", charts);
+        return successResponse<MonthlyIncomeDTO[]>(res, "Airline monthly incomes retrieved successfully", monthlyIncomes);
     }
     catch (error) {
-        console.error("Error while retrieving charts stats: ", error);
-        return errorResponse(res, "Internal server error while retrieving charts stats");
+        console.error("Error while retrieving airline monthly incomes: ", error);
+        return errorResponse(res, "Internal server error while retrieving airline monthly incomes");
     }
 };
 
@@ -377,5 +380,5 @@ export {
     getAirlinesAircrafts,   
     deleteAircraft,
     getAircraftClasses,
-    getAirlineChartsStats
+    getMonthlyIncomesByYear
 }

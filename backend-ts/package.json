@@ -6,8 +6,8 @@
     "build": "tsc",
     "debug": "tsc --watch",
     "start": "node \"./dist/src/server.js\"",
-    "dev": "npm run build && nodemon \"./dist/src/server.js\"",
-    "dev-debug": "npm run debug && nodemon --inspect \"./dist/src/server.js\"",
+    "dev": "npm run dev && nodemon --inspect \"./dist/src/server.js\"",
+    "dev-debug": "concurrently \"npm run debug\" \"nodemon --inspect ./dist/src/server.js\"",
     "seed": "npm run build && node \"./dist/prisma/seeds/seed.js\""
   },
   "prisma": {
