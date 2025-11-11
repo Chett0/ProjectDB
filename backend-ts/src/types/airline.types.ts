@@ -22,9 +22,15 @@ interface Aircraft {
     classes: Class[]
 }
 
+interface RoutesMostInDemand {
+    id: number, 
+    passengersCount : number
+}
+
 export type {
     Route,
     Extra,
     Aircraft, 
-    Class
+    Class,
+    RoutesMostInDemand
 }

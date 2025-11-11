@@ -1,4 +1,15 @@
-import { aircraft_classes, aircrafts, airlineRoute, airports, bookingstate, flights, passengers, routes, seats, seatstate } from "@prisma/client";
+import {
+  aircraft_classes,
+  aircrafts,
+  airlineRoute,
+  airports,
+  bookingstate,
+  flights,
+  passengers,
+  routes,
+  seats,
+  seatstate,
+} from "@prisma/client";
 import prisma from "./seed";
 import {
   addMonths,
@@ -52,10 +63,9 @@ export async function seedFlights() {
   console.log("✈️ Seeding flights, seats, tickets...");
 
   const airlineRoutes: airlineRoute[] = await prisma.airlineRoute.findMany();
-  const passenger : passengers | null = await prisma.passengers.findFirst();
+  const passenger: passengers | null = await prisma.passengers.findFirst();
 
-  if(!passenger)
-        return;
+  if (!passenger) return;
 
   for (const airlineRoute of airlineRoutes) {
     const route: routes | null = await prisma.routes.findUnique({
@@ -72,7 +82,9 @@ export async function seedFlights() {
 
     if (!depAirport || !arrAirport) continue;
 
-    console.log(`Seeding flights for route: ${depAirport.iata}-${arrAirport.iata}`)
+    console.log(
+      `Seeding flights for route: ${depAirport.iata}-${arrAirport.iata}`
+    );
 
     const flightPrice: number = estimateFlightPrice(
       haversineDistance(
@@ -85,94 +97,103 @@ export async function seedFlights() {
 
     for (let m = -3; m < 3; m++) {
       const monthStart = startOfMonth(addMonths(new Date(), m));
-    //   const monthEnd = endOfMonth(monthStart);
+      //   const monthEnd = endOfMonth(monthStart);
 
       // Ottieni tutti i giorni del mese
-    //   const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+      //   const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-    //   for (const day of days) {
-        // Orari di partenza giornalieri
-        const departureTimes = [9, 15, 21];
-        const aircrafts : aircrafts[] = await prisma.aircrafts.findMany({take : 3});
+      //   for (const day of days) {
+      // Orari di partenza giornalieri
+      const departureTimes = [9, 15, 21];
+      const aircrafts: aircrafts[] = await prisma.aircrafts.findMany({
+        take: 3,
+      });
 
-        const aircraftClasses : aircraft_classes[][] = [];
+      const aircraftClasses: aircraft_classes[][] = [];
 
-        for(const aircraft of aircrafts){
-            aircraftClasses.push(await prisma.aircraft_classes.findMany({where : {aircraft_id : aircraft.id}}))
+      for (const aircraft of aircrafts) {
+        aircraftClasses.push(
+          await prisma.aircraft_classes.findMany({
+            where: { aircraft_id: aircraft.id },
+          })
+        );
+      }
+
+      for (let i = 0; i < departureTimes.length; i++) {
+        const departureTime = setMinutes(
+          setHours(monthStart, departureTimes[i]!),
+          0
+        );
+
+        // Durata stimata in ore basata sulla distanza (es. 800 km/h)
+        const distanceKm = haversineDistance(
+          Number(depAirport.lat),
+          Number(depAirport.lon),
+          Number(arrAirport.lat),
+          Number(arrAirport.lon)
+        );
+        const flightDurationHours = distanceKm / 800;
+        const arrivalTime = new Date(
+          departureTime.getTime() + flightDurationHours * 60 * 60 * 1000
+        );
+
+        const flight: flights | null = await prisma.flights.create({
+          data: {
+            aircraft_id: aircrafts[i]!.id,
+            route_id: route.id,
+            departure_time: departureTime,
+            arrival_time: arrivalTime,
+            base_price: flightPrice,
+            nSeats_available: aircrafts[i]!.nSeats,
+            nSeats_total: aircrafts[i]!.nSeats,
+            duration_seconds: Math.floor(
+              (arrivalTime.getTime() - departureTime.getTime()) / 1000
+            ),
+          },
+        });
+
+        if (!flight) continue;
+
+        let letter: string = "A";
+        let rowNumber: number = 1;
+
+        for (const cls of aircraftClasses[i]!) {
+          for (let p = 1; p < cls.nSeats; p++) {
+            const seat: seats = await prisma.seats.create({
+              data: {
+                number: rowNumber.toString() + letter,
+                flight_id: flight.id,
+                class_id: cls.id,
+                state: seatstate.AVAILABLE,
+                price: Number(flight.base_price) * Number(cls.price_multiplier),
+              },
+            });
+
+            const pseudoRandom: number =
+              letter.toUpperCase().charCodeAt(0) - 64 + rowNumber;
+
+            if (pseudoRandom % 2 == 0) {
+              await prisma.tickets.create({
+                data: {
+                  passenger_id: passenger.id,
+                  purchase_date: subDays(flight.departure_time, pseudoRandom),
+                  final_cost: Number(seat.price),
+                  state: bookingstate.CONFIRMED,
+                  seat_id: seat.id,
+                  flight_id: flight.id,
+                },
+              });
+            }
+
+            letter = String.fromCharCode(letter.charCodeAt(0) + 1);
+            if (letter === "G") {
+              rowNumber += 1;
+              letter = "A";
+            }
+          }
         }
-
-        for (let i = 0; i < departureTimes.length; i++) {
-          const departureTime = setMinutes(setHours(monthStart, departureTimes[i]!), 0);
-
-          // Durata stimata in ore basata sulla distanza (es. 800 km/h)
-          const distanceKm = haversineDistance(
-            Number(depAirport.lat),
-            Number(depAirport.lon),
-            Number(arrAirport.lat),
-            Number(arrAirport.lon)
-          );
-          const flightDurationHours = distanceKm / 800;
-          const arrivalTime = new Date(
-            departureTime.getTime() + flightDurationHours * 60 * 60 * 1000
-          );
-
-          const flight : flights | null = await prisma.flights.create({
-            data: {
-              aircraft_id: aircrafts[i]!.id,
-              route_id: route.id,
-              departure_time: departureTime,
-              arrival_time: arrivalTime,
-              base_price: flightPrice,
-              nSeats_available: aircrafts[i]!.nSeats,
-              nSeats_total : aircrafts[i]!.nSeats,
-              duration_seconds: Math.floor((arrivalTime.getTime() - departureTime.getTime()) / 1000)
-            },
-          });
-
-          if(!flight)
-            continue;
-
-
-          let letter : string = 'A';
-                      let rowNumber : number = 1;
-          
-                      for(const cls of aircraftClasses[i]!){
-                          for(let p = 1; p < cls.nSeats; p++){
-                              const seat : seats = await prisma.seats.create({
-                                  data: {
-                                      number: rowNumber.toString() + letter,
-                                      flight_id: flight.id,
-                                      class_id: cls.id,
-                                      state: seatstate.AVAILABLE,
-                                      price: Number(flight.base_price) * Number(cls.price_multiplier) 
-                                  }
-                              })
-
-                              const pseudoRandom : number = letter.toUpperCase().charCodeAt(0) - 64 + rowNumber;
-
-                              if(pseudoRandom % 2 == 0){
-                                await prisma.tickets.create({
-                                    data: {
-                                        passenger_id : passenger.id,
-                                        purchase_date : subDays(flight.departure_time, pseudoRandom),
-                                        final_cost : Number(seat.price),
-                                        state: bookingstate.CONFIRMED,
-                                        seat_id: seat.id,
-                                        flight_id: flight.id
-                                    }
-                                })
-                              }
-          
-                              letter = String.fromCharCode(letter.charCodeAt(0) + 1);
-                              if (letter === 'G') {
-                                  rowNumber += 1;
-                                  letter = 'A';
-                              }
-                          }
-                      }
-
-        }
-    //   }
+      }
+      //   }
     }
   }
 

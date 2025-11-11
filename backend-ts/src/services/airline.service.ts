@@ -1,8 +1,9 @@
-import { aircraft_classes, aircrafts, airlineRoute, airlines, extras, routes } from '@prisma/client';
+import { aircraft_classes, aircrafts, airlineRoute, airlines, airports, extras, routes } from '@prisma/client';
 import prisma from "../config/db";
-import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO } from "../dtos/airline.dto";
+import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, RoutesMostInDemandDTO } from "../dtos/airline.dto";
 import { AirlineDTO } from "../dtos/user.dto";
-import { Aircraft, Class, Extra, Route } from "../types/airline.types";
+import { Aircraft, Class, Extra, Route, RoutesMostInDemand } from "../types/airline.types";
+import { AirportDTO } from '../dtos/airport.dto';
 
 const getAirlineById = async (
     airlineId : number
@@ -642,26 +643,51 @@ const getAircraftById = async (
 }
 
 
-// const getRoutesMostInDemand = async (
-//     airlineId : number,
-//     nRoute : number
-// ) : Promise<void> => {
-//      try{
+const getRoutesMostInDemand = async (
+    airlineId : number,
+    nRoutes : number
+) : Promise<RoutesMostInDemandDTO[]> => {
+     try{
         
-//         const routes = await prisma.$queryRaw`
-//             SELECT 
-//                 AD.nome AS departureAirport,
-//                 AA.nome AS arrivalAirport,
-//                 COUNT()
-//             FROM Tickets T 
-//         `;
+        const routes : RoutesMostInDemand[] = await prisma.$queryRaw`
+            SELECT 
+                AR.route_id AS id,
+                CAST(COUNT(*) AS INT) AS "passengersCount"
+            FROM Tickets T 
+            JOIN Flights F ON T.flight_id = F.id 
+            JOIN Aircrafts A ON F.aircraft_id = A.id
+            JOIN public."airlineRoute" AR ON F.route_id = AR.route_id 
+            WHERE A.id = ${airlineId}  
+            GROUP BY AR.route_id
+            ORDER BY "passengersCount" DESC
+            LIMIT ${nRoutes}
+        `;
 
-//     } catch(err){
-//         throw new Error(
-//             `Failed to retrieving best routes: ${err instanceof Error ? err.message : "Unknown error"}`
-//         ); 
-//     }
-// }
+        let result : RoutesMostInDemandDTO[] = [];
+
+        for(const route of routes){
+
+            let currRoute : routes = await prisma.routes.findUniqueOrThrow({where : {id : route.id}});
+
+            let departureAirport : airports = await prisma.airports.findUniqueOrThrow({where : {id : currRoute.departure_airport_id}})!
+
+            let arrivalAirport : airports = await prisma.airports.findUniqueOrThrow({where : {id : currRoute.arrival_airport_id}})
+
+            result.push(new RoutesMostInDemandDTO(
+                AirportDTO.fromPrisma(departureAirport),
+                AirportDTO.fromPrisma(arrivalAirport),
+                route.passengersCount
+            ))
+        } 
+        
+        return result;
+
+    } catch(err){
+        throw new Error(
+            `Failed to retrieving best routes: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+}
 
 
 export {
@@ -685,5 +711,6 @@ export {
     getAircraftClasses,
     getRouteByAirportsIds,
     getAircraftById,
-    getAirlineAircraftById
+    getAirlineAircraftById,
+    getRoutesMostInDemand
 }

@@ -5,7 +5,7 @@ import * as airlineService from "../services/airline.service";
 import * as airportService from "../services/airport.service";
 import { errorResponse, missingFieldsResponse, notFoundResponse, successResponse } from "../utils/helpers/response.helper";
 import { AirlineDTO } from "../dtos/user.dto";
-import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, DashBoardDTO, ExtraDTO } from "../dtos/airline.dto";
+import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ChartsDTO, ClassDTO, DashBoardDTO, ExtraDTO, RoutesMostInDemandDTO } from "../dtos/airline.dto";
 import { Aircraft, Extra, Route } from "../types/airline.types";
 import { AirportDTO } from "../dtos/airport.dto";
 
@@ -250,15 +250,19 @@ const getAirlineChartsStats = async(req : AuthenticatedRequest, res : Response):
     try{
         const airlineId : number | null = req.user!.id;
 
-        let nRoute : number = parseInt(req.query.sort_by as string) || 10;
+        let nRoutes : number = parseInt(req.query.nRoutes as string) || 10;
         
         if(!airlineId){
             return missingFieldsResponse(res);
         }
 
-        
+        const routesMostInDemand : RoutesMostInDemandDTO[] = await airlineService.getRoutesMostInDemand(airlineId, nRoutes);
 
-        return successResponse(res, "Charts stats retrieved successfully");
+        const charts : ChartsDTO = new ChartsDTO(
+            routesMostInDemand
+        )
+
+        return successResponse<ChartsDTO>(res, "Charts stats retrieved successfully", charts);
     }
     catch (error) {
         console.error("Error while retrieving charts stats: ", error);

@@ -72,6 +72,16 @@ class DashBoardDTO {
     }
 }
 
+
+//Si potrebbe mettere dentro dashboard
+class ChartsDTO {
+    routesMostInDemand : RoutesMostInDemandDTO[]
+
+    constructor(routesMostInDemand: RoutesMostInDemandDTO[]) {
+        this.routesMostInDemand = routesMostInDemand;
+    }
+}
+
 class ClassDTO {
 
     id: number;
@@ -160,11 +170,25 @@ class AircraftInfoDTO {
     }
 }
 
+class RoutesMostInDemandDTO {
+    departureAirport: AirportDTO;
+    arrivalAirport: AirportDTO;
+    passengerCount: number; 
+
+    constructor(departureAirport: AirportDTO, arrivalAirport: AirportDTO, passengerCount : number) {
+        this.departureAirport = departureAirport;
+        this.arrivalAirport = arrivalAirport;
+        this.passengerCount = passengerCount;
+    }
+}
+
 export {
     ClassDTO,
     ExtraDTO,
     DashBoardDTO,
     AircraftDTO,
     AircraftInfoDTO,
-    AirlineRouteDTO
+    AirlineRouteDTO,
+    RoutesMostInDemandDTO,
+    ChartsDTO
 }
