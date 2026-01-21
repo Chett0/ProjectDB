@@ -59,7 +59,7 @@ export class SearchFlightsComponent implements OnInit{
   ) {
     this.searchFlightsService.getCities().subscribe({
       next: (res : any) => {
-        this.cities = res.cities;
+        this.cities = res.data.cities;
       },
       error: (error) => {
           this.cities = [];
@@ -71,7 +71,7 @@ export class SearchFlightsComponent implements OnInit{
     if(this.cities.length === 0){
       this.searchFlightsService.getCities().subscribe({
         next: (res : any) => {
-          this.cities = res.cities;
+          this.cities = res.data.cities;
           this.filteredDepartureCities = this.cities;
           this.filteredDestinationCities = this.cities;
         },
@@ -108,11 +108,19 @@ export class SearchFlightsComponent implements OnInit{
 
   filterDepartureCities(): void {
     const filterValue = this.departureCity.nativeElement.value.toLowerCase();
+    if(!filterValue || filterValue.length === 0){
+      this.filteredDepartureCities = this.cities.slice(0, 100);
+      return;
+    }
     this.filteredDepartureCities =  this.cities.filter(o => o.toLowerCase().includes(filterValue));
   }
 
   filterDestinationCities(): void {
     const filterValue = this.destinationCity.nativeElement.value.toLowerCase();
+    if(!filterValue || filterValue.length === 0){
+      this.filteredDestinationCities = this.cities.slice(0, 100);
+      return;
+    }
     this.filteredDestinationCities = this.cities.filter(o => o.toLowerCase().includes(filterValue));
   }
 }

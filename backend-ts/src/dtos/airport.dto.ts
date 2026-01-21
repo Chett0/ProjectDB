@@ -30,6 +30,16 @@ class AirportDTO {
     }
 }
 
+
+class CitiesDTO {
+    cities: string[];
+
+    constructor(cities: string[]) {
+        this.cities = cities;
+    }
+}
+
 export {
-    AirportDTO
+    AirportDTO,
+    CitiesDTO
 }

@@ -18,7 +18,7 @@ export class SearchFlightsService {
   }
 
   getCities() : Observable<any> {
-    return this.http.get<any[]>(`${this.apiUrl}/cities`);
+    return this.http.get<any[]>(`${this.apiUrl}/airports/cities`);
   }
 
   searchFlights(

@@ -11,7 +11,7 @@ import { UserRole } from '../types/auth.types';
 
 const router = Router();
 
-router.use('', authRoutes);
+router.use('/auth', authRoutes);
 router.use('/airlines', verifyToken, verifyRole(UserRole.AIRLINE), airlinesRoutes);
 router.use('/passengers', verifyToken, verifyRole(UserRole.PASSENGER), passengerRoutes);
 router.use('/admin', verifyToken, verifyRole(UserRole.ADMIN), adminRoutes);
