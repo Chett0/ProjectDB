@@ -12,6 +12,8 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import {provideNativeDateAdapter} from '@angular/material/core';
 
 import { FooterComponent } from '../../footer/footer.component';
+import { APIResponse } from '../../../../types/responses/responses';
+import { Cities } from '../../../../types/airports/airports';
 
 @Component({
   selector: 'app-search-flights',
@@ -56,32 +58,25 @@ export class SearchFlightsComponent implements OnInit{
     private searchFlightsService: SearchFlightsService,
     private datePipe : DatePipe,
     private route: ActivatedRoute
-  ) {
-    this.searchFlightsService.getCities().subscribe({
-      next: (res : any) => {
-        this.cities = res.data.cities;
-      },
-      error: (error) => {
-          this.cities = [];
-        }
-    })
-  }
+  ) { }
 
   ngOnInit(): void {
-    if(this.cities.length === 0){
-      this.searchFlightsService.getCities().subscribe({
-        next: (res : any) => {
-          this.cities = res.data.cities;
+    if(this.cities.length === 0)
+      this.getCities();
+    
+  }
+
+  getCities(): void {
+    this.searchFlightsService.getCities().subscribe({
+        next: (res : APIResponse<Cities>) => {
+          this.cities = res.data ? res.data.cities : [];
           this.filteredDepartureCities = this.cities;
           this.filteredDestinationCities = this.cities;
         },
         error: (error) => {
-          console.log(error)
             this.cities = [];
           }
       })
-    }
-    
   }
 
   searchFlights(): void {
