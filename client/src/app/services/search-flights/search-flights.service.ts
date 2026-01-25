@@ -1,8 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { filter, Observable } from 'rxjs';
-import { Filters } from '../../components/flights/filters-flights/filters-flights.component';
-import { Journeys } from '../../../types/flights/flights';
+import { Filters, Journeys } from '../../../types/flights/flights';
 import { APIResponse } from '../../../types/responses/responses';
 
 @Injectable({

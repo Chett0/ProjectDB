@@ -1,13 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-
-export interface Filters {
-  maxPrice: number,
-  nStop: number;
-  sortBy: 'total_price' | 'total_duration' | 'departure_time' | 'arrival_time';
-  order: 'asc' | 'desc';
-}
+import { Filters } from '../../../../types/flights/flights';
 
 @Component({
   selector: 'app-filters-flights',

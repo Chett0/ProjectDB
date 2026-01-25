@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LoadingComponent } from "../../utils/loading/loading.component";
 import { APIResponse } from '../../../../types/responses/responses';
-import { Journeys } from '../../../../types/flights/flights';
+import { Filters, Journeys } from '../../../../types/flights/flights';
 
 @Component({
   selector: 'app-list-flights',
@@ -17,7 +17,7 @@ import { Journeys } from '../../../../types/flights/flights';
 })
 export class ListFlightsComponent implements OnInit{
 
-  public flights :  Journeys[] = [];
+  public journeys :  Journeys[] = [];
   public loading : boolean = false;
 
   constructor(
@@ -29,46 +29,50 @@ export class ListFlightsComponent implements OnInit{
 
   ngOnInit(): void {
 
-    const filters = null;
     this.loading = true;
 
     this.route.queryParams.subscribe(params => {
 
-      const departureDate = params['departureDate'] || null;
-      const departureCity = params['departureCity'] || null;
-      const destinationCity = params['destinationCity'] || null;
+      const departureDate : string = params['departureDate'];
+      const departureCity : string = params['departureCity'];
+      const destinationCity : string = params['destinationCity'];
 
-      const filters = {
-        maxPrice : params['maxPrice'] || null,
-        nStop : params['nStop'] || null,
-        sortBy : params['sortBy'] || null,
-        order: params['order'] || null
-      }
+      const filters : Filters = {
+        maxPrice : params['maxPrice'],
+        nStop : params['nStop'],
+        sortBy : params['sortBy'],
+        order: params['order']
+      };
 
+      this.searchFlights(departureDate, departureCity, destinationCity, filters);
+    })
+    
+  }
 
-      this.searchFlightsService.searchFlights(departureCity, destinationCity, departureDate, filters).subscribe({
+  searchFlights(departureDate: string, departureCity: string, destinationCity: string, filters: any) : void {
+    this.searchFlightsService.searchFlights(departureCity, destinationCity, departureDate, filters).subscribe({
       next: (res: APIResponse<Journeys[]>) => {
-        this.flights =  res.data || [];
-        console.log(this.flights);
+        this.journeys =  res.data || [];
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
         console.log(err);
         this.loading = false;
-        this.flights = [];
+        this.journeys = [];
       }
     });
-    })
-    
   }
 
 
-  onBuyTicket(flightIds: number[] | (number | undefined)[]) : void {
-    const validFlightIds = flightIds?.filter(id => id != null); // filtra per i parametri NaN
+  onBuyTicket(journey: Journeys) : void {
+    const flightsId : number[] = [journey.firstFlight.id];
+    if(journey.secondFlight) {
+      flightsId.push(journey.secondFlight.id);
+    } 
     this.router.navigate(
       ['flights', 'buy-ticket'],
-      { queryParams: {ids: validFlightIds}}
+      { queryParams: {ids: flightsId}}
     )
   }
 

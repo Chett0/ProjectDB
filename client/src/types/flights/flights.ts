@@ -37,3 +37,10 @@ export interface Journeys {
     totalDuration: number,
     totalPrice: number
 }
+
+export interface Filters {
+  maxPrice: number,
+  nStop: number;
+  sortBy: 'total_price' | 'total_duration' | 'departure_time' | 'arrival_time';
+  order: 'asc' | 'desc';
+}
