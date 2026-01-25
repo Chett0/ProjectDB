@@ -1,26 +1,25 @@
 import { airlines } from '@prisma/client';
 
-interface UserDTO {
+export interface UserDTO {
   email: string;
   password: string;
 };
 
-
-interface PassengerDTO {
+export interface PassengerDTO {
     id: number,
     name: string,
     surname: string
 }
 
-interface PassengerUserDTO extends PassengerDTO{
+export interface PassengerUserDTO extends PassengerDTO{
     email: string
 }
 
-interface AdminDTO {
+export interface AdminDTO {
     email: string
 }
 
-interface TokenDTO {
+export interface TokenDTO {
     accessToken: string,
     role: string
 }
@@ -36,11 +35,3 @@ export const toAirlineDTO = (airline : airlines) : AirlineDTO => ({
     name: airline.name,
     code: airline.code
 });
-
-export type {
-    UserDTO,
-    PassengerDTO,
-    AdminDTO,
-    TokenDTO,
-    PassengerUserDTO
-}

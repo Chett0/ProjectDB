@@ -16,16 +16,6 @@ export const toAirportDTO = (airport: airports): AirportDTO => ({
     country: airport.country
 })
 
-
-
-class CitiesDTO {
+export interface CitiesDTO {
     cities: string[];
-
-    constructor(cities: string[]) {
-        this.cities = cities;
-    }
-}
-
-export {
-    CitiesDTO
 }
