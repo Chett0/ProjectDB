@@ -1,38 +1,40 @@
-interface Airline {
+export interface Airline {
+    id: number,
     name : string,
     code : string
 }
 
-interface Aircraft {
+export interface AircraftInfo {
     model : string,
     nSeats : number
 }
 
-interface Airport {
+export interface Aircraft {
+    id: number,
+    model: string,
+    nSeats: number,
+    airline : Airline,
+}
+
+export interface Airport {
+    id: number,
     name : string, 
     code : string,
     city : string,
     country : string
 }
 
-interface RouteAirport {
+export interface RouteAirport {
     id : number,
     departure_airport : Airport,
     arrival_airport : Airport
 }
 
-interface Route {
+export interface Route {
     departure_airport_code : string,
     arrival_airport_code : string
 }
 
 
-export type {
-    Aircraft, 
-    Airline,
-    Airport,
-    Route,
-    RouteAirport
-}
 
 

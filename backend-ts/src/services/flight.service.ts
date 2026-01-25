@@ -154,7 +154,11 @@ const getJourneys = async (
                 }
             },
             include : {
-                aircrafts: true,
+                aircrafts: {
+                    include : {
+                        airlines: true
+                    }
+                },
                 routes: {
                     include: {
                         arrival_airport: true,
@@ -193,7 +197,11 @@ const getJourneys = async (
                                 arrival_airport: true
                             }
                         },
-                        aircrafts: true
+                        aircrafts: {
+                            include : {
+                                airlines: true
+                            }
+                        }
                     }
                 }), 
 
@@ -214,7 +222,11 @@ const getJourneys = async (
                                 arrival_airport: true
                             }
                         },
-                        aircrafts: true
+                        aircrafts: {
+                            include : {
+                                airlines: true
+                            }
+                        }
                     }
                 })
             ]);

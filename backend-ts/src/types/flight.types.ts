@@ -25,7 +25,11 @@ export interface Flight {
 
 export type FlightInfo = Prisma.flightsGetPayload<{
     include: { 
-        aircrafts: true,
+        aircrafts: {
+            include: {
+                airlines: true
+            }
+        },
         routes: {
             include: {
                 arrival_airport: true,

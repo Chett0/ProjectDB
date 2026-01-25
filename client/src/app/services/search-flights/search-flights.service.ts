@@ -2,6 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { filter, Observable } from 'rxjs';
 import { Filters } from '../../components/flights/filters-flights/filters-flights.component';
+import { Journeys } from '../../../types/flights/flights';
+import { APIResponse } from '../../../types/responses/responses';
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +28,7 @@ export class SearchFlightsService {
     to: string,
     departure_date: string,
     filters: Filters
-  ): Observable<any[]> {
+  ): Observable<APIResponse<Journeys[]>> {
     let params = new HttpParams()
       .set('from', from)
       .set('to', to)
@@ -41,7 +43,7 @@ export class SearchFlightsService {
       params = params.set('order', filters.order);
     }
 
-    return this.http.get<any[]>(`${this.apiUrl}/flights`, { params });
+    return this.http.get<APIResponse<Journeys[]>>(`${this.apiUrl}/flights`, { params });
   }
 
   searchFlight(id: string): Observable<any> {

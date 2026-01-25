@@ -25,36 +25,17 @@ interface TokenDTO {
     role: string
 }
 
-interface AirlineDTO {
+export interface AirlineDTO {
     id: number, 
     name: string,
     code: string,
 }
 
-class AirlineDTO {
-    id: number;
-    name: string;
-    code: string;
-
-    constructor(id: number, name: string, code: string) {
-        this.id = id;
-        this.name = name;
-        this.code = code;
-    }
-
-    static fromPrisma(airline: airlines): AirlineDTO {
-        return new AirlineDTO(
-            airline.id,
-            airline.name,
-            airline.code
-        );
-    }
-
-    static fromPrismaList(list: airlines[]): AirlineDTO[] {
-        return list.map(AirlineDTO.fromPrisma);
-    }
-}
-
+export const toAirlineDTO = (airline : airlines) : AirlineDTO => ({
+    id: airline.id,
+    name: airline.name,
+    code: airline.code
+});
 
 export type {
     UserDTO,
@@ -62,8 +43,4 @@ export type {
     AdminDTO,
     TokenDTO,
     PassengerUserDTO
-}
-
-export {
-    AirlineDTO
 }

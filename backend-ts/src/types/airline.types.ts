@@ -1,4 +1,5 @@
 import { Decimal } from "@prisma/client/runtime/library"
+import { Prisma } from "@prisma/client";
 
 interface Route {
     departureAirportId : number,
@@ -21,6 +22,13 @@ interface Aircraft {
     nSeats: number,
     classes: Class[]
 }
+
+
+export type AircraftInfo = Prisma.aircraftsGetPayload<{
+    include: {
+        airlines: true
+    }
+}>;
 
 interface RoutesMostInDemand {
     id: number, 

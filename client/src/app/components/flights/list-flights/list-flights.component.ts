@@ -3,7 +3,8 @@ import { SearchFlightsService } from '../../../services/search-flights/search-fl
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LoadingComponent } from "../../utils/loading/loading.component";
-import { filter } from 'rxjs';
+import { APIResponse } from '../../../../types/responses/responses';
+import { Journeys } from '../../../../types/flights/flights';
 
 @Component({
   selector: 'app-list-flights',
@@ -16,7 +17,7 @@ import { filter } from 'rxjs';
 })
 export class ListFlightsComponent implements OnInit{
 
-  public flights :  any [] = [];
+  public flights :  Journeys[] = [];
   public loading : boolean = false;
 
   constructor(
@@ -46,12 +47,14 @@ export class ListFlightsComponent implements OnInit{
 
 
       this.searchFlightsService.searchFlights(departureCity, destinationCity, departureDate, filters).subscribe({
-      next: (res: any) => {
-        this.flights =  Array.isArray(res.flights) ? [...res.flights] : [];
+      next: (res: APIResponse<Journeys[]>) => {
+        this.flights =  res.data || [];
+        console.log(this.flights);
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
+        console.log(err);
         this.loading = false;
         this.flights = [];
       }
@@ -61,8 +64,8 @@ export class ListFlightsComponent implements OnInit{
   }
 
 
-  onBuyTicket(flightIds: string[]) {
-    const validFlightIds = flightIds.filter(id => id != null); // filtra per i parametri NaN
+  onBuyTicket(flightIds: number[] | (number | undefined)[]) : void {
+    const validFlightIds = flightIds?.filter(id => id != null); // filtra per i parametri NaN
     this.router.navigate(
       ['flights', 'buy-ticket'],
       { queryParams: {ids: validFlightIds}}
