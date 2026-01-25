@@ -8,56 +8,45 @@ export enum UserRole {
     AIRLINE = "AIRLINE"
 }
 
-interface PayloadJWT {
+export interface PayloadJWT {
     id: number,
     role: string
 }
 
-interface AuthenticatedUser {
+export interface AuthenticatedUser {
     id : number, 
     role : string
 }
 
-interface AuthenticatedRequest extends Request{
+export interface AuthenticatedRequest extends Request{
     user? : AuthenticatedUser
 }
 
 
-interface User {
+export interface User {
     email: string, 
     password: string,
     role: UserRole
 }
 
-interface UserPassenger extends User {
+export interface UserPassenger extends User {
     name: string,
     surname: string
 }
 
-interface UserAirline extends User {
+export interface UserAirline extends User {
     name: string,
     code: string
 }
 
 
 
-interface CreatePassengerResult {
+export interface CreatePassengerResult {
   newUser: users;
   newPassenger: passengers;
 }
 
-interface CreateAirlineResult {
+export interface CreateAirlineResult {
   newUser: users;
   newAirline: airlines;
-}
-
-export type {
-    AuthenticatedRequest,
-    AuthenticatedUser,
-    User,
-    UserPassenger,
-    UserAirline,
-    CreatePassengerResult,
-    CreateAirlineResult,
-    PayloadJWT
 }

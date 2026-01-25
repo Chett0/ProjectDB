@@ -4,15 +4,11 @@ export enum BookingState {
     CANCELLED = "CANCELLED"
 }
 
-interface Ticket {
+export interface Ticket {
     flightId : number,
     passengerId : number,
     seatNumber: string,
     finalCost : number,
     state: BookingState,
     purchaseDate: Date
-}
-
-export type {
-    Ticket
 }

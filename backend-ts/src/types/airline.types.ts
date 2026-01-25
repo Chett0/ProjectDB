@@ -1,23 +1,23 @@
 import { Decimal } from "@prisma/client/runtime/library"
 import { Prisma } from "@prisma/client";
 
-interface Route {
+export interface Route {
     departureAirportId : number,
     arrivalAirportId : number
 }
 
-interface Extra {
+export interface Extra {
     name: string,
     price: Decimal
 }
 
-interface Class {
+export interface Class {
     name: string,
     nSeats : number,
     priceMultiplier: Decimal
 }
 
-interface Aircraft {
+export interface Aircraft {
     model: string,
     nSeats: number,
     classes: Class[]
@@ -30,15 +30,7 @@ export type AircraftInfo = Prisma.aircraftsGetPayload<{
     }
 }>;
 
-interface RoutesMostInDemand {
+export interface RoutesMostInDemand {
     id: number, 
     passengersCount : number
-}
-
-export type {
-    Route,
-    Extra,
-    Aircraft, 
-    Class,
-    RoutesMostInDemand
 }
