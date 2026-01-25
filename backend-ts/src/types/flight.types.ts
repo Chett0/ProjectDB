@@ -1,11 +1,11 @@
-import { Decimal } from "@prisma/client/runtime/library"
+import { Prisma } from "@prisma/client";
 
-interface Sort {
+export interface Sort {
     sortBy : string,
     order: string
 }
 
-interface SearchFlightsParams {
+export interface SearchFlightsParams {
     sort: Sort,
     departureAiportCity : string,
     arrivalAirportCity : string,
@@ -14,18 +14,24 @@ interface SearchFlightsParams {
     maxPrice: number
 }
 
-interface Flight {
+export interface Flight {
     routeId : number,
-    aircraftId : number,
+    aircraftId : number, 
     departureTime : Date,
     arrivalTime : Date,
     basePrice : number,
     durationSeconds : number
 }
 
+export type FlightInfo = Prisma.flightsGetPayload<{
+    include: { 
+        aircrafts: true,
+        routes: {
+            include: {
+                arrival_airport: true,
+                departure_airport: true
+            }
+        }
+    }
+}>;
 
-export type {
-    Sort,
-    SearchFlightsParams,
-    Flight
-}

@@ -72,7 +72,7 @@ model airports {
   lat                                          Decimal
   lon                                          Decimal
   tz                                           String    @db.VarChar(100)
-  active                                       Boolean?  @default(true)
+  active                                       Boolean?   @default(true)
   deletion_time                                DateTime? @db.Timestamp(6)
   routes_routes_arrival_airport_idToairports   routes[]  @relation("routes_arrival_airport_idToairports")
   routes_routes_departure_airport_idToairports routes[]  @relation("routes_departure_airport_idToairports")
@@ -130,8 +130,8 @@ model routes {
   arrival_airport_id                             Int
   airlineRoute                                   airlineRoute[]
   flights                                        flights[]
-  airports_routes_arrival_airport_idToairports   airports       @relation("routes_arrival_airport_idToairports", fields: [arrival_airport_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  airports_routes_departure_airport_idToairports airports       @relation("routes_departure_airport_idToairports", fields: [departure_airport_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  arrival_airport   airports       @relation("routes_arrival_airport_idToairports", fields: [arrival_airport_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  departure_airport airports       @relation("routes_departure_airport_idToairports", fields: [departure_airport_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([arrival_airport_id], map: "ix_routes_arrival_airport_id")
   @@index([departure_airport_id], map: "ix_routes_departure_airport_id")

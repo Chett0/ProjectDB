@@ -140,29 +140,18 @@ class AircraftDTO {
     }
 }
 
-class AircraftInfoDTO {
+export interface AircraftInfoDTO {
     id: number;
     model: string;
     nSeats: number;
-
-    constructor(id: number, model: string, nSeats: number) {
-        this.id = id;
-        this.model = model;
-        this.nSeats = nSeats;
-    }
-
-    static fromPrisma(aircraft : aircrafts): AircraftInfoDTO {
-        return new AircraftInfoDTO(
-            aircraft.id,
-            aircraft.model,
-            aircraft.nSeats
-        );
-    }
-
-    static fromPrismaList(list: aircrafts[]): AircraftInfoDTO[] {
-        return list.map(AircraftInfoDTO.fromPrisma);
-    }
 }
+
+export const toAircraftInfoDTO = (aircraft: aircrafts): AircraftInfoDTO => ({
+    id: aircraft.id,
+    model: aircraft.model,
+    nSeats: aircraft.nSeats
+});
+
 
 class RoutesMostInDemandDTO {
     departureAirport: AirportDTO;
@@ -192,7 +181,6 @@ export {
     ExtraDTO,
     AirlineDashBoardDTO,
     AircraftDTO,
-    AircraftInfoDTO,
     AirlineRouteDTO,
     RoutesMostInDemandDTO,
     MonthlyIncomeDTO

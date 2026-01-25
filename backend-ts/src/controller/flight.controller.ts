@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Response, Request } from "express";
 import { AuthenticatedRequest } from "../types/auth.types";
 import * as flightService from "../services/flight.service";
 import * as airlineService from "../services/airline.service";
@@ -49,7 +49,7 @@ const createFlight = async(req : AuthenticatedRequest, res : Response): Promise<
 
 
 
-const searchFlights = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+const searchFlights = async(req : Request, res : Response): Promise<Response> => {
     try{
         const pageNumber : number = parseInt(req.query.page as string) || 1;
         const limit : number = parseInt(req.query.limit as string) || 10;
@@ -60,18 +60,16 @@ const searchFlights = async(req : AuthenticatedRequest, res : Response): Promise
         const layovers : number = parseInt(req.query.max_layovers as string) || 1;
         const departureDate : string | undefined = req.query.departure_date as string;
         const maxPrice : number = parseInt(req.query.max_price as string) || 2000; 
-
-        const sort : Sort = {
-            sortBy: sortBy,
-            order: order
-        }
         
         if(!departureAirportCity || !arrivalAirportCity || !departureDate){
             return missingFieldsResponse(res);
         }
 
         const params : SearchFlightsParams = {
-            sort: sort,
+            sort: {
+                sortBy: sortBy,
+                order: order
+            },
             departureAiportCity: departureAirportCity,
             arrivalAirportCity: arrivalAirportCity,
             layovers: layovers,

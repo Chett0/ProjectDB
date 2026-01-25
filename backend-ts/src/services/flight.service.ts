@@ -1,9 +1,9 @@
 import { aircrafts, airports, flights, routes, seats, seatstate } from '@prisma/client';
 import prisma from "../config/db";
-import { Flight, SearchFlightsParams } from "../types/flight.types";
+import { Flight, FlightInfo, SearchFlightsParams } from "../types/flight.types";
 import * as airportService from "../services/airport.service";
 import * as airlineService from "../services/airline.service";
-import { FlightInfoDTO, JourneysInfoDTO, SeatsDTO } from "../dtos/flight.dto";
+import { FlightInfoDTO, JourneysInfoDTO, SeatsDTO, toFlightInfoDTO } from "../dtos/flight.dto";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ClassDTO } from "../dtos/airline.dto";
 
@@ -136,25 +136,14 @@ const getJourneys = async (
         const endOfDay : Date = new Date(startOfDay);
         endOfDay.setDate(startOfDay.getDate() + 1);
 
-        const directRoutes : routes[] = [];
-        let currRoutes;
-        
-        for(const depAirport of departureAirports){
-            for(const arrAirport of arrivalAirports){
-                currRoutes = await airlineService.getRouteByAirports(
-                    depAirport.id,
-                    arrAirport.id
-                )
-                if(currRoutes)
-                    directRoutes.push(currRoutes);
-            }
-        }
+        const departureAirportIds : number[] = departureAirports.map(d => d.id);
+        const arrivalAirportsIds : number[] = arrivalAirports.map(a => a.id);
 
-        const routeIds : number[] = directRoutes.map(r => r.id);
-        const directFlights : flights[] = await prisma.flights.findMany({
+        const directFlights : FlightInfo[] = await prisma.flights.findMany({
             where: {
-                route_id: { 
-                    in: routeIds 
+                routes : {
+                    departure_airport_id : { in : departureAirportIds },
+                    arrival_airport_id: { in : arrivalAirportsIds }
                 },
                 base_price: { 
                     lt: params.maxPrice 
@@ -163,71 +152,96 @@ const getJourneys = async (
                     gt: startOfDay,
                     lt: endOfDay
                 }
+            },
+            include : {
+                aircrafts: true,
+                routes: {
+                    include: {
+                        arrival_airport: true,
+                        departure_airport: true
+                    }
+                }
             }
         });
 
-        for(const flight of directFlights){
-            journeys.push(new JourneysInfoDTO(
-                FlightInfoDTO.fromPrisma(flight),
-                null,
-                flight.duration_seconds,
-                flight.base_price
-            ))
+        for(const flight of directFlights){   
+            journeys.push({
+                firstFlight: toFlightInfoDTO(flight),
+                secondFlight: null,
+                totalDuration: flight.duration_seconds,
+                totalPrice: flight.base_price
+            });
         };
 
         if(params.layovers){
 
-            const departureAirportIds : number[] = departureAirports.map(d => d.id);
-            const arrivalAirportsIds : number[] = arrivalAirports.map(a => a.id);
-
-            const departureRoutes : routes[] = await airlineService.getRouteByAirportsIds(departureAirportIds, true);
-            const arrivalRoutes : routes[] = await airlineService.getRouteByAirportsIds(arrivalAirportsIds, false);
-
-            for(const depRoute of departureRoutes){
-                for(const arrRoute of arrivalRoutes){
-                    if(depRoute.arrival_airport_id == arrRoute.departure_airport_id){
-
-                        const firstFlights : flights[] = await prisma.flights.findMany({
-                            where: {
-                                route_id: depRoute.id,
-                                departure_time: {
-                                    gt: startOfDay,
-                                    lt: endOfDay
-                                }
+            const [firstFlights, secondFlights] : [FlightInfo[], FlightInfo[]] = await Promise.all([
+                prisma.flights.findMany({
+                    where : {
+                        routes : {
+                            departure_airport_id : { in : departureAirportIds, notIn: arrivalAirportsIds }
+                        },
+                        departure_time: {
+                            gt: startOfDay,
+                            lt: endOfDay
+                        }
+                    },
+                    include : {
+                        routes : {
+                            include: {
+                                departure_airport: true,
+                                arrival_airport: true
                             }
-                        });
-                        const secondFlights : flights[] = await prisma.flights.findMany({
-                            where: {
-                                route_id: arrRoute.id,
-                                departure_time: {
-                                    gt: startOfDay,
-                                    lt: endOfDay
-                                }
+                        },
+                        aircrafts: true
+                    }
+                }), 
+
+                prisma.flights.findMany({
+                    where : {
+                        routes : {
+                            arrival_airport_id : { in : arrivalAirportsIds, notIn: departureAirportIds }
+                        },
+                        departure_time: {
+                            gt: startOfDay,
+                            lt: endOfDay
+                        }
+                    },
+                    include : {
+                        routes : {
+                            include: {
+                                departure_airport: true,
+                                arrival_airport: true
                             }
-                        });
+                        },
+                        aircrafts: true
+                    }
+                })
+            ]);
 
-                        for(const firstFlight of firstFlights){
-                            for(const secondFlight of secondFlights){
+            for(const firstFlight of firstFlights){
+                for(const secondFlight of secondFlights){
 
-                                const layoversTimeSeconds : number = (secondFlight.departure_time.getTime() - firstFlight.arrival_time.getTime()) / 1000;
-                                if(layoversTimeSeconds >= MINIMUM_CONNECTION_SECONDS && layoversTimeSeconds <= MAXIMUM_CONNECTION_SECONDS){
-                                    const totalJourneyDuration : number =  (secondFlight.arrival_time.getTime() - firstFlight.departure_time.getTime()) / 1000;
-                                    const totalPrice : Decimal = firstFlight.base_price.add(secondFlight.base_price);
-                                    if(totalPrice.lte(params.maxPrice)){
+                    if(firstFlight.routes.arrival_airport_id == secondFlight.routes.departure_airport_id){
 
-                                        journeys.push(new JourneysInfoDTO(
-                                            FlightInfoDTO.fromPrisma(firstFlight),
-                                            FlightInfoDTO.fromPrisma(secondFlight),
-                                            totalJourneyDuration,
-                                            totalPrice
-                                        ));
+                        const layoversTimeSeconds : number = (secondFlight.departure_time.getTime() - firstFlight.arrival_time.getTime()) / 1000;
 
-                                    }
-                                }
+                        if(layoversTimeSeconds >= MINIMUM_CONNECTION_SECONDS && layoversTimeSeconds <= MAXIMUM_CONNECTION_SECONDS){
+
+                            const totalJourneyDuration : number =  (secondFlight.arrival_time.getTime() - firstFlight.departure_time.getTime()) / 1000;
+                            const totalPrice : Decimal = firstFlight.base_price.add(secondFlight.base_price);
+
+                            if(totalPrice.lte(params.maxPrice)){
+
+                                journeys.push({
+                                    firstFlight: toFlightInfoDTO(firstFlight),
+                                    secondFlight: toFlightInfoDTO(secondFlight),
+                                    totalDuration: totalJourneyDuration,
+                                    totalPrice: totalPrice
+                                });
 
                             }
                         }
-
                     }
                 }
             }
