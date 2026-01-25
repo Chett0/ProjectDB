@@ -3,14 +3,15 @@ import prisma from "../config/db";
 import { Flight, FlightInfo, SearchFlightsParams } from "../types/flight.types";
 import * as airportService from "../services/airport.service";
 import * as airlineService from "../services/airline.service";
-import { FlightInfoDTO, JourneysInfoDTO, SeatsDTO, toFlightInfoDTO } from "../dtos/flight.dto";
+import { JourneysInfoDTO, SeatsDTO, toFlightInfoDTO } from "../dtos/flight.dto";
 import { Decimal } from "@prisma/client/runtime/library";
 import { ClassDTO } from "../dtos/airline.dto";
+import { Prisma } from '@prisma/client';
 
 const MINIMUM_CONNECTION_SECONDS = 2 * 3600;
 const MAXIMUM_CONNECTION_SECONDS = 12 * 3600;
 
-const createFlight = async (
+export const createFlight = async (
     flight: Flight,
     aircraftClasses: ClassDTO[]
 ) : Promise<flights | null> => {
@@ -19,6 +20,28 @@ const createFlight = async (
         const aircraft : aircrafts | null = await airlineService.getAircraftById(flight.aircraftId);
         if(!aircraft)
             return null;
+
+            let letter : string = 'A';
+            let rowNumber : number = 1;
+
+            let seatsData : Omit<Prisma.seatsCreateManyInput, 'flight_id'>[] = [];
+
+            for(const cls of aircraftClasses){
+                for(let p = 1; p < cls.nSeats; p++){
+                    seatsData.push({
+                        number: `${rowNumber}${letter}`,
+                        class_id: cls.id,
+                        state: seatstate.AVAILABLE,
+                        price: flight.basePrice * cls.priceMultiplier 
+                    })
+
+                    letter = String.fromCharCode(letter.charCodeAt(0) + 1);
+                    if (letter === 'G') {
+                        rowNumber += 1;
+                        letter = 'A';
+                    }
+                }
+            }
         
         const newFlight : flights | null = await prisma.$transaction(async(tx) => {
 
@@ -31,32 +54,14 @@ const createFlight = async (
                     base_price: flight.basePrice,
                     nSeats_total: aircraft.nSeats,
                     nSeats_available: aircraft.nSeats,
-                    duration_seconds: flight.durationSeconds
-                }
-            });
-
-            let letter : string = 'A';
-            let rowNumber : number = 1;
-
-            for(const cls of aircraftClasses){
-                for(let p = 1; p < cls.nSeats; p++){
-                    const seat : seats = await tx.seats.create({
-                        data: {
-                            number: rowNumber.toString() + letter,
-                            flight_id: result.id,
-                            class_id: cls.id,
-                            state: seatstate.AVAILABLE,
-                            price: flight.basePrice * cls.priceMultiplier 
+                    duration_seconds: flight.durationSeconds,
+                    seats : {
+                        createMany: {
+                            data: seatsData
                         }
-                    })
-
-                    letter = String.fromCharCode(letter.charCodeAt(0) + 1);
-                    if (letter === 'G') {
-                        rowNumber += 1;
-                        letter = 'A';
                     }
                 }
-            }
+            });
 
             return result;
             
@@ -72,7 +77,7 @@ const createFlight = async (
 };
 
 
-const getFlightbyId = async (
+export const getFlightbyId = async (
     flightId: number
 ) : Promise<flights | null> => {
     try{
@@ -95,12 +100,12 @@ const getFlightbyId = async (
 };
 
 
-const searchFlights = async (
+export const searchFlights = async (
     params : SearchFlightsParams
 ) : Promise<JourneysInfoDTO[]> => {
     try{
         
-        const departure_airports : airports[] = await airportService.getAirportsByCity(params.departureAiportCity);
+        const departure_airports : airports[] = await airportService.getAirportsByCity(params.departureAirportCity);
         if(departure_airports.length == 0)
             throw new Error("Departure airports not found");
         
@@ -269,7 +274,7 @@ const getJourneys = async (
 };
 
 
-const getFlightSeats = async (
+export const getFlightSeats = async (
     flightId: number
 ) : Promise<SeatsDTO[]> => {
     try{
@@ -304,10 +309,3 @@ const getFlightSeats = async (
 }; 
 
 
-
-export {
-    getFlightbyId,
-    searchFlights,
-    getFlightSeats,
-    createFlight
-}
