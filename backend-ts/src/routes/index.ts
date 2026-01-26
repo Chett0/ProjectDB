@@ -14,8 +14,8 @@ const router = Router();
 router.use('/auth', authRoutes);
 router.use('/airlines', verifyToken, verifyRole(UserRole.AIRLINE), airlinesRoutes);
 router.use('/passengers', verifyToken, verifyRole(UserRole.PASSENGER), passengerRoutes);
-router.use('/admin', verifyToken, verifyRole(UserRole.ADMIN), adminRoutes);
 router.use('/airports', airportRoutes);
 router.use('/flights', flightRoutes);
+router.use('/admin', verifyToken, verifyRole(UserRole.ADMIN), adminRoutes);
 
 export default router;

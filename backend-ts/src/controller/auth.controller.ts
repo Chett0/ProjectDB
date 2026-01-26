@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import { CreatePassengerResult, PayloadJWT, User, UserAirline, UserPassenger, UserRole } from "../types/auth.types";
 import { users } from '@prisma/client';
 import { errorResponse, missingFieldsResponse, notFoundResponse, successResponse } from "../utils/helpers/response.helper";
-import { AdminDTO, PassengerDTO, PassengerUserDTO, TokenDTO, UserDTO } from "../dtos/user.dto";
+import { AdminDTO, CreateAirlineDTO, PassengerDTO, PassengerUserDTO, TokenDTO, UserDTO } from "../dtos/user.dto";
 
 const cookieparser = require('cookie-parser');
 
@@ -41,14 +41,9 @@ const registerAirline = async(req : Request, res : Response): Promise<Response> 
             role: UserRole.AIRLINE
         }
 
-        await authService.registerAirline(userAirline);
+        const airline : CreateAirlineDTO = await authService.registerAirline(userAirline);
 
-        const user : UserDTO = {
-            email: email,
-            password: password
-        }
-
-        return successResponse(res, "Airline created successfully", user, 201);
+        return successResponse(res, "Airline created successfully", airline, 201);
     }
     catch (error) {
         console.error("Error while creating airline: ", error);

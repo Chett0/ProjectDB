@@ -45,8 +45,3 @@ export interface CreatePassengerResult {
   newUser: users;
   newPassenger: passengers;
 }
-
-export interface CreateAirlineResult {
-  newUser: users;
-  newAirline: airlines;
-}

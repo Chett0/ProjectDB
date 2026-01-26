@@ -20,7 +20,7 @@ router.post('/aircrafts', airlinesController.createAircraft);
 router.get('/aircrats', airlinesController.getAirlinesAircrafts)
 router.delete('/aircrats/:aircraftId', airlinesController.deleteAircraft)
 
-router.get('/aircrafts/aircraftId/classes', airlinesController.getAircraftClasses);
+router.get('/aircrafts/:aircraftId/classes', airlinesController.getAircraftClasses);
 
 // router.post('/flights')
 

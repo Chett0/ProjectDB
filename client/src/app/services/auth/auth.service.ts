@@ -1,13 +1,14 @@
  
 import { inject, Injectable, ResourceLoaderParams } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { UserLogin, UserRole } from '../../../types/users/auth';
+import { CreatedAirline, UserLogin, UserRole } from '../../../types/users/auth';
 import { PassengerAsUser } from '../../../types/users/passenger';
 import { BehaviorSubject, tap } from 'rxjs';
 import { enviroment } from '../../enviroments/enviroments';
 import { TokensService } from '../tokens/tokens.service';
 import { Router } from '@angular/router';
 import { AuthResp, Response } from '../../../types/responses/responses';
+import { AirlineAsUser } from '../../../types/users/airlines';
 
 
 
@@ -46,8 +47,8 @@ export class AuthService {
     return this.http.post<void>(`${enviroment.apiUrl}/passengers/register`, passenger);
   }
 
-  registerAirline(airline: { email: string; name: string; code: string }) {
-    return this.http.post<void>(`${enviroment.apiUrl}/airlines/register`, airline);
+  registerAirline(airline: AirlineAsUser) {
+    return this.http.post<Response<CreatedAirline>>(`${enviroment.apiUrl}/auth/airlines/register`, airline);
   }
 
   getAccessToken(): string | null {

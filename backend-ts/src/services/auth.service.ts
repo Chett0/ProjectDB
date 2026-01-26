@@ -1,6 +1,7 @@
 import prisma from "../config/db";
 import {airlines, userrole, users} from '@prisma/client';
-import { CreateAirlineResult, CreatePassengerResult, User, UserAirline, UserPassenger } from "../types/auth.types";
+import { CreatePassengerResult, User, UserAirline, UserPassenger } from "../types/auth.types";
+import { CreateAirlineDTO, toCreateAirlineDTO, toUserDTO } from "../dtos/user.dto";
 
 const registerPassenger = async (
     passenger : UserPassenger
@@ -42,9 +43,9 @@ const registerPassenger = async (
 
 const registerAirline = async (
     airline: UserAirline
-) : Promise<CreateAirlineResult> => {
+) : Promise<CreateAirlineDTO> => {
     try{
-        const result : CreateAirlineResult = await prisma.$transaction(async(tx) => {
+        const result : CreateAirlineDTO = await prisma.$transaction(async(tx) => {
             const newUser : users = await tx.users.create({
                 data: {
                     email: airline.email,
@@ -65,10 +66,7 @@ const registerAirline = async (
             if(!newUser || !newAirline)
                 throw new Error;
 
-            return {
-                newUser: newUser,
-                newAirline: newAirline
-            };
+            return toCreateAirlineDTO(newUser, newAirline);
         });
 
         return result;

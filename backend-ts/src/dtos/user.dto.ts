@@ -1,9 +1,14 @@
-import { airlines } from '@prisma/client';
+import { airlines, users } from '@prisma/client';
 
 export interface UserDTO {
   email: string;
   password: string;
 };
+
+export const toUserDTO = (user : users) : UserDTO => ({
+    email: user.email,
+    password: user.password
+});
 
 export interface PassengerDTO {
     id: number,
@@ -34,4 +39,14 @@ export const toAirlineDTO = (airline : airlines) : AirlineDTO => ({
     id: airline.id,
     name: airline.name,
     code: airline.code
+});
+
+export interface CreateAirlineDTO {
+    user: UserDTO,
+    airline: AirlineDTO
+}
+
+export const toCreateAirlineDTO = (user: users, airline: airlines) : CreateAirlineDTO => ({
+    user: toUserDTO(user),
+    airline: toAirlineDTO(airline)
 });

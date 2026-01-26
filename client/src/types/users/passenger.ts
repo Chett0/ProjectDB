@@ -1,4 +1,4 @@
-import { User } from "./auth";
+import { UserLogin } from "./auth";
 
 export enum UserRole {
     PASSENGER = 'Passenger',
@@ -11,4 +11,4 @@ export interface Passenger {
     surname : string,
 }
 
-export type PassengerAsUser = Passenger & User
+export type PassengerAsUser = Passenger & UserLogin

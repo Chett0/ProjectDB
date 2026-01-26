@@ -7,14 +7,9 @@ import { AuthService } from '../../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { FooterComponent } from '../../footer/footer.component';
 import { AdminDashboard } from '../../../../types/users/admin';
-
-
-interface Airline {
-  id: number;
-  email: string;
-  name: string;
-  code: string;
-}
+import { Airline, AirlineAsUser } from '../../../../types/users/airlines';
+import { Response } from '../../../../types/responses/responses';
+import { CreatedAirline } from '../../../../types/users/auth';
 
 @Component({
   selector: 'app-admin-home',
@@ -59,7 +54,6 @@ export class AdminHomeComponent implements OnInit {
       if(adminData){
         this.airlines = adminData.airlinesResponse.data || [];
         this.dashboardStats = adminData.dashboardResponse.data;
-        console.log(adminData)
       }
     });
   }
@@ -72,25 +66,24 @@ export class AdminHomeComponent implements OnInit {
       this.feedbackType = 'error';
       return;
     }
-    const airline = {
+    const airline : AirlineAsUser = {
       email: this.airlineEmail,
       name: this.airlineName,
       code: this.airlineCode
     };
     this.authService.registerAirline(airline).subscribe({
-      next: (res: any) => {
+      next: (res: Response<CreatedAirline>) => {
         let passwordMsg = '';
-        if (res && res.Password) {
-          passwordMsg = `\nPassword temporanea: ${res.Password}`;
+        if (res && res.data && res.data.user) {
+          passwordMsg = `\nPassword temporanea: ${res.data.user.password}`;
         }
         this.feedbackMsg = 'Compagnia aggiunta!' + passwordMsg;
         this.feedbackType = 'success';
         this.airlineName = '';
         this.airlineCode = '';
         this.airlineEmail = '';
-
-        if (res && res.airline) {
-          this.airlines = [...this.airlines, res.airline];
+        if (res && res.data && res.data.airline) {
+          this.airlines = [...this.airlines, res.data.airline];
           this.dashboardStats.airlinesCount++;
         }
       },

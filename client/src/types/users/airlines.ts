@@ -4,6 +4,12 @@ export interface Airline {
     code : string
 }
 
+export interface AirlineAsUser {
+    email: string,
+    code: string,
+    name: string
+}
+
 export interface AircraftInfo {
     model : string,
     nSeats : number

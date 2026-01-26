@@ -1,11 +1,18 @@
+import { Airline } from "./airlines"
 
 export enum UserRole {
-    ADMIN = "Admin",
-    PASSENGER = "Passenger",
-    AIRLINE = "Airline"
+    ADMIN = "ADMIN",
+    PASSENGER = "PASSENGER",
+    AIRLINE = "AIRLINE"
 }
 
-export interface User {
+export interface UserLogin {
     email : string,
     password : string
+}
+
+
+export interface CreatedAirline {
+    user: UserLogin,
+    airline: Airline
 }
