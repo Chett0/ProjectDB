@@ -1,6 +1,6 @@
 import { aircraft_classes, aircrafts, airlineRoute, airlines, airports, extras, Prisma, routes } from '@prisma/client';
 import prisma from "../config/db";
-import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RoutesMostInDemandDTO } from "../dtos/airline.dto";
+import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RoutesMostInDemandDTO, toAircraftInfoDTO, toExtraDTO } from "../dtos/airline.dto";
 import { AirlineDTO, toAirlineDTO } from "../dtos/user.dto";
 import { Aircraft, Class, Extra, Route, RoutesMostInDemand } from "../types/airline.types";
 import { toAirportDTO } from '../dtos/airport.dto';
@@ -276,7 +276,7 @@ export const createExtra = async (
             }
         });
 
-        return ExtraDTO.fromPrisma(newExtra);
+        return toExtraDTO(newExtra);
 
     } catch(err){
         throw new Error(
@@ -298,7 +298,7 @@ export const getAirlineExtras = async (
             }
         });
 
-        return ExtraDTO.fromPrismaList(extras);
+        return extras.map(toExtraDTO);
 
     } catch(err){
         throw new Error(
@@ -325,7 +325,7 @@ export const deleteExtraById = async (
             }
         });
 
-        return extra ? ExtraDTO.fromPrisma(extra) : null;
+        return extra ? toExtraDTO(extra) : null;
 
     } catch(err){
         throw new Error(
@@ -542,7 +542,7 @@ export const deleteAircraft = async (
             }
         })
 
-        return AircraftInfoDTO.fromPrisma(aircraft);
+        return toAircraftInfoDTO(aircraft);
 
 
     } catch(err){

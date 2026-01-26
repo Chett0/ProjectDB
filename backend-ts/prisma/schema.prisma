@@ -87,7 +87,7 @@ model extras {
   name          String         @db.VarChar(100)
   price         Decimal        @db.Decimal(10, 2)
   airline_id    Int
-  active        Boolean?
+  active        Boolean        @default(true)
   deletion_time DateTime?      @db.Timestamp(6)
   airlines      airlines       @relation(fields: [airline_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   ticket_extra  ticket_extra[]

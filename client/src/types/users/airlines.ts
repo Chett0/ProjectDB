@@ -68,5 +68,13 @@ export interface AirlineResolverResponse {
     dashboardStatsResponse: Response<AirlineDashBoard>;
 }
 
+export interface Extra {
+    id: number;
+    name: string;
+    price: number;
+}
 
-
+export interface CreateExtra {
+    name: string;
+    price: number;
+}

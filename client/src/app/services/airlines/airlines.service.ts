@@ -6,7 +6,7 @@ import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { AdminDashboard } from '../../../types/users/admin';
 import { Response } from '../../../types/responses/responses';
-import { Airline, AirlineDashBoard } from '../../../types/users/airlines';
+import { Airline, AirlineDashBoard, CreateExtra, Extra } from '../../../types/users/airlines';
 
 @Injectable({
   providedIn: 'root'
@@ -76,21 +76,25 @@ export class AirlinesService {
     );
   }
 
-  createExtra(extra: { name: string; price: number }) {
+  createExtra(extra: CreateExtra) {
     this.extrasCache = null;
     this.extrasCacheTimestamp = null;
-    return this.http.post<any>(`${enviroment.apiUrl}/airlines/extras`, extra);
+    return this.http.post<Response<Extra>>(`${enviroment.apiUrl}/airlines/extras`, extra);
   }
 
-  getExtras(forceRefresh = false): Observable<any> {
+  getExtras(forceRefresh = false): Observable<Response<Extra[]>> {
     const now = Date.now();
     if (!forceRefresh && this.extrasCache && this.extrasCacheTimestamp && (now - this.extrasCacheTimestamp < this.cacheTTL)) {
-      return of({ message: 'Extras retrieved successfully (cache)', extras: this.extrasCache });
+      return of({ 
+        success: true,
+        message: 'Extras retrieved successfully (cache)', 
+        data: this.extrasCache 
+      });
     }
-    return this.http.get<any>(`${enviroment.apiUrl}/airlines/extras`).pipe(
+    return this.http.get<Response<Extra[]>>(`${enviroment.apiUrl}/airlines/extras`).pipe(
       tap(res => {
-        if (res && res.extras) {
-          this.extrasCache = res.extras;
+        if (res && res.data) {
+          this.extrasCache = res.data;
           this.extrasCacheTimestamp = Date.now();
         }
       })
@@ -100,6 +104,6 @@ export class AirlinesService {
   deleteExtra(extraId: number) {
     this.extrasCache = null;
     this.extrasCacheTimestamp = null;
-    return this.http.delete<any>(`${enviroment.apiUrl}/airlines/extras/${extraId}`);
+    return this.http.delete<Response<void>>(`${enviroment.apiUrl}/airlines/extras/${extraId}`);
   }
 }

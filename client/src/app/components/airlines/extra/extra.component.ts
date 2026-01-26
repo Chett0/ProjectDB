@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { AirlinesService } from '../../../services/airlines/airlines.service';
+import { Extra } from '../../../../types/users/airlines';
+import { Response } from '../../../../types/responses/responses';
 
 @Component({
   selector: 'app-extra',
@@ -9,7 +11,7 @@ import { AirlinesService } from '../../../services/airlines/airlines.service';
   templateUrl: './extra.component.html',
   styleUrl: './extra.component.css'
 })
-export class ExtraComponent {
+export class ExtraComponent implements OnInit {
   searchControl = new FormControl('');
   showAddModal = false;
   addExtraForm = new FormGroup({
@@ -17,23 +19,27 @@ export class ExtraComponent {
     price: new FormControl('', [Validators.required, Validators.pattern('^[0-9]+(\.[0-9]{1,2})?$')])
   });
   submitting = false;
-  extras: { name: string; price: number; id?: number }[] = [];
-  filteredExtras: { name: string; price: number; id?: number }[] = [];
+  extras: Extra[] = [];
+  filteredExtras: Extra[] = [];
   loading = false;
   error: string | null = null;
 
   constructor(private airlinesService: AirlinesService) {
-    this.fetchExtras();
     this.searchControl.valueChanges.subscribe((search) => {
       this.applySearch(search ?? '');
     });
   }
 
+  ngOnInit(): void {
+    this.fetchExtras();
+  }
+
+
   fetchExtras() {
     this.loading = true;
     this.airlinesService.getExtras().subscribe({
-      next: (res) => {
-        this.extras = res.extras || [];
+      next: (res : Response<Extra[]>) => {
+        this.extras = res.data || [];
         this.applySearch(this.searchControl.value ?? '');
         this.loading = false;
       },
@@ -60,12 +66,20 @@ export class ExtraComponent {
     if (this.addExtraForm.invalid) return;
     this.submitting = true;
     const { name, price } = this.addExtraForm.value;
-    this.airlinesService.createExtra({ name: name ?? '', price: Number(price) }).subscribe({
-      next: () => {
+    this.airlinesService.createExtra({ 
+      name: name ?? '', 
+      price: Number(price) 
+    }).subscribe({
+      next: (res : Response<Extra>) => {
         this.submitting = false;
+        if(!res.success || !res.data){
+          this.error = 'Errore aggiunta extra';
+          return;
+        }
         this.showAddModal = false;
         this.addExtraForm.reset();
-        this.fetchExtras();
+        this.extras.push(res.data);
+        this.applySearch(this.searchControl.value ?? '');
       },
       error: () => {
         this.submitting = false;
@@ -73,11 +87,20 @@ export class ExtraComponent {
     });
   }
 
-  deleteExtra(extra: { name: string; price: number; id?: number }) {
+  deleteExtra(extra: Extra) {
     if (!extra.id) return;
     this.airlinesService.deleteExtra(extra.id).subscribe({
-      next: () => this.fetchExtras(),
-      error: () => { this.error = 'Errore eliminazione extra'; }
+      next: (res : Response<void>) => {
+        if(!res.success){
+          this.error = 'Errore eliminazione extra'; 
+          return;
+        }
+        this.extras = this.extras.filter(e => e.id !== extra.id);
+        this.applySearch(this.searchControl.value ?? '');
+      },
+      error: () => { 
+        this.error = 'Errore eliminazione extra'; 
+      }
     });
   }
 }
