@@ -1,11 +1,11 @@
-import { aircraft_classes, aircrafts, airlineRoute, airlines, airports, extras, routes } from '@prisma/client';
+import { aircraft_classes, aircrafts, airlineRoute, airlines, airports, extras, Prisma, routes } from '@prisma/client';
 import prisma from "../config/db";
 import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RoutesMostInDemandDTO } from "../dtos/airline.dto";
-import { AirlineDTO } from "../dtos/user.dto";
+import { AirlineDTO, toAirlineDTO } from "../dtos/user.dto";
 import { Aircraft, Class, Extra, Route, RoutesMostInDemand } from "../types/airline.types";
-import { AirportDTO } from '../dtos/airport.dto';
+import { toAirportDTO } from '../dtos/airport.dto';
 
-const getAirlineById = async (
+export const getAirlineById = async (
     airlineId : number
 ) : Promise<AirlineDTO | null> => {
     try{
@@ -15,7 +15,7 @@ const getAirlineById = async (
             }
         })
 
-        return airline ? AirlineDTO.fromPrisma(airline) : null;
+        return airline ? toAirlineDTO(airline) : null;
     } catch(err){
         throw new Error(
             `Failed to retrieving airline: ${err instanceof Error ? err.message : "Unknown error"}`
@@ -23,7 +23,7 @@ const getAirlineById = async (
     }
 };
 
-const getAirlineRoutes = async (
+export const getAirlineRoutes = async (
     airlineId : number
 ) : Promise<AirlineRouteDTO[]> => {
     try{
@@ -61,7 +61,7 @@ const getAirlineRoutes = async (
 };
 
 
-const createAirlineRoute = async (
+export const createAirlineRoute = async (
     airlineId : number,
     route : Route
 ) : Promise<routes | null> => {
@@ -129,7 +129,7 @@ const createAirlineRoute = async (
 };
 
 
-const getRouteByAirports = async (
+export const getRouteByAirports = async (
     departureAirportId : number,
     arrivalAirportId : number
 ) : Promise<routes | null> => {
@@ -150,9 +150,8 @@ const getRouteByAirports = async (
 };
 
 
-const getRouteByAirportsIds = async (
+export const getRouteByAirportsIds = async (
     AirportIds : number[],
-    departure : boolean = true
 ) : Promise<routes[]> => {
     try{
 
@@ -179,8 +178,7 @@ const getRouteByAirportsIds = async (
 
 
 
-
-const getAirlineRouteById = async (
+export const getAirlineRouteById = async (
     airlineId: number,
     routeId: number
 ) : Promise<AirlineRouteDTO | null> => {
@@ -219,7 +217,7 @@ const getAirlineRouteById = async (
     }
 };
 
-const getAirlineRoute = async (
+export const getAirlineRoute = async (
     airlineId : number,
     routeId : number
 ) : Promise<airlineRoute | null> => {
@@ -239,7 +237,7 @@ const getAirlineRoute = async (
 };
 
 
-const deleteAirlineRouteById = async (
+export const deleteAirlineRouteById = async (
     airlineId : number,
     routeId : number
 ) : Promise<airlineRoute | null> => {
@@ -265,7 +263,7 @@ const deleteAirlineRouteById = async (
 };
 
 
-const createExtra = async (
+export const createExtra = async (
     airlineId : number,
     extra : Extra
 ) : Promise<ExtraDTO> => {
@@ -288,7 +286,7 @@ const createExtra = async (
 };
 
 
-const getAirlineExtras = async (
+export const getAirlineExtras = async (
     airlineId : number
 ) : Promise<ExtraDTO[]> => {
     try{
@@ -310,7 +308,7 @@ const getAirlineExtras = async (
 };
 
 
-const deleteExtraById = async (
+export const deleteExtraById = async (
     airlineId : number,
     extraId: number
 ) : Promise<ExtraDTO | null> => {
@@ -338,7 +336,7 @@ const deleteExtraById = async (
 
 
 
-const getAirlinePassengerCount = async (
+export const getAirlinePassengerCount = async (
     airlineId : number
 ) : Promise<number> => {
     try{
@@ -361,7 +359,7 @@ const getAirlinePassengerCount = async (
 };
 
 
-const getAirlineMonthlyIncome = async (
+export const getAirlineMonthlyIncome = async (
     airlineId : number
 ) : Promise<number> => {
     try{
@@ -393,7 +391,7 @@ const getAirlineMonthlyIncome = async (
 };
 
 
-const getAirlineRouteCount = async (
+export const getAirlineRouteCount = async (
     airlineId : number
 ) : Promise<number> => {
     try{
@@ -413,7 +411,7 @@ const getAirlineRouteCount = async (
     }
 };
 
-const getAirlineFlightsInProgressCount = async (
+export const getAirlineFlightsInProgressCount = async (
     airlineId : number
 ) : Promise<number> => {
     try{
@@ -440,7 +438,7 @@ const getAirlineFlightsInProgressCount = async (
 };
 
 
-const getAirlinesAircrafts = async (
+export const getAirlinesAircrafts = async (
     airlineId : number
 ) : Promise<AircraftInfoDTO[]> => {
     try{
@@ -462,7 +460,7 @@ const getAirlinesAircrafts = async (
 };
 
 
-const createAirlineAircraft = async (
+export const createAirlineAircraft = async (
     airlineId : number,
     aircraft : Aircraft,
     classes: Class[]
@@ -491,7 +489,7 @@ const createAirlineAircraft = async (
     }
 };
 
-const createAircraftClasses = async (
+export const createAircraftClasses = async (
     aircraftId : number,
     classes : Class[]
 ) : Promise<ClassDTO[]> => {
@@ -517,7 +515,7 @@ const createAircraftClasses = async (
     }
 };
 
-const deleteAircraft = async (
+export const deleteAircraft = async (
     airlineId : number,
     aircraftId : number
 ) : Promise<AircraftInfoDTO | null> => {
@@ -555,7 +553,7 @@ const deleteAircraft = async (
 };
 
 
-const getAircraftClasses = async (
+export const getAircraftClasses = async (
     airlineId : number,
     aircraftId : number
 ) : Promise<ClassDTO[] | null> => {
@@ -592,7 +590,7 @@ const getAircraftClasses = async (
 };
 
 
-const getAirlineAircraftById = async (
+export const getAirlineAircraftById = async (
     airlineId : number,
     aircraftId : number
 ) : Promise<aircrafts | null> => {
@@ -618,7 +616,7 @@ const getAirlineAircraftById = async (
     }
 }
 
-const getAircraftById = async (
+export const getAircraftById = async (
     aircraftId : number
 ) : Promise<aircrafts | null> => {
      try{
@@ -643,44 +641,32 @@ const getAircraftById = async (
 }
 
 
-const getRoutesMostInDemand = async (
+export const getRoutesMostInDemand = async (
     airlineId : number,
     nRoutes : number
 ) : Promise<RoutesMostInDemandDTO[]> => {
      try{
         
-        const routes : RoutesMostInDemand[] = await prisma.$queryRaw`
+        const routes : RoutesMostInDemandDTO[] = await prisma.$queryRaw`
             SELECT 
-                AR.route_id AS id,
+                AR.route_id AS "routeId",
+                Dep.name AS "departureAirportName",
+                Arr.name AS "arrivalAirportName",
                 CAST(COUNT(*) AS INT) AS "passengersCount"
             FROM Tickets T 
             JOIN Flights F ON T.flight_id = F.id 
             JOIN Aircrafts A ON F.aircraft_id = A.id
             JOIN public."airlineRoute" AR ON F.route_id = AR.route_id 
-            WHERE A.id = ${airlineId}  
-            GROUP BY AR.route_id
+            JOIN Routes R ON R.id = AR.route_id
+            JOIN Airports Dep ON R.departure_airport_id = Dep.id
+            JOIN Airports Arr ON R.arrival_airport_id = Arr.id
+            WHERE A.id =  ${airlineId}
+            GROUP BY AR.route_id, Dep.name, Arr.name
             ORDER BY "passengersCount" DESC
             LIMIT ${nRoutes}
         `;
-
-        let result : RoutesMostInDemandDTO[] = [];
-
-        for(const route of routes){
-
-            let currRoute : routes = await prisma.routes.findUniqueOrThrow({where : {id : route.id}});
-
-            let departureAirport : airports = await prisma.airports.findUniqueOrThrow({where : {id : currRoute.departure_airport_id}})!
-
-            let arrivalAirport : airports = await prisma.airports.findUniqueOrThrow({where : {id : currRoute.arrival_airport_id}})
-
-            result.push(new RoutesMostInDemandDTO(
-                AirportDTO.fromPrisma(departureAirport),
-                AirportDTO.fromPrisma(arrivalAirport),
-                route.passengersCount
-            ))
-        } 
         
-        return result;
+        return routes;
 
     } catch(err){
         throw new Error(
@@ -689,7 +675,7 @@ const getRoutesMostInDemand = async (
     }
 }
 
-const getAirlineMonthlyIncomesByYear = async (
+export const getAirlineMonthlyIncomesByYear = async (
     airlineId : number,
     year : number
 ) : Promise<MonthlyIncomeDTO[]> => {
@@ -715,31 +701,4 @@ const getAirlineMonthlyIncomesByYear = async (
             `Failed to retrieving best routes: ${err instanceof Error ? err.message : "Unknown error"}`
         ); 
     }
-}
-
-
-export {
-    getAirlineById,
-    getAirlineRoutes,
-    getRouteByAirports,
-    createAirlineRoute,
-    getAirlineRouteById,
-    deleteAirlineRouteById,
-    createExtra,
-    getAirlineExtras,
-    deleteExtraById,
-    getAirlinePassengerCount,
-    getAirlineMonthlyIncome,
-    getAirlineRouteCount,
-    getAirlineFlightsInProgressCount,
-    createAirlineAircraft,
-    createAircraftClasses,
-    getAirlinesAircrafts,
-    deleteAircraft,
-    getAircraftClasses,
-    getRouteByAirportsIds,
-    getAircraftById,
-    getAirlineAircraftById,
-    getRoutesMostInDemand,
-    getAirlineMonthlyIncomesByYear
 }

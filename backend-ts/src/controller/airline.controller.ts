@@ -230,20 +230,20 @@ const getAirlineDashboardStats = async(req : AuthenticatedRequest, res : Respons
         const passengerCount : number = await airlineService.getAirlinePassengerCount(airlineId);
         const monthlyIncome : number = await airlineService.getAirlineMonthlyIncome(airlineId);
         const activeRoutes : number = await airlineService.getAirlineRouteCount(airlineId);
-        const filghtsInProgress : number = await airlineService.getAirlineFlightsInProgressCount(airlineId);
+        const flightsInProgress : number = await airlineService.getAirlineFlightsInProgressCount(airlineId);
 
         const routesMostInDemand : RoutesMostInDemandDTO[] = await airlineService.getRoutesMostInDemand(airlineId, nRoutes);
         const monthlyIncomes : MonthlyIncomeDTO[] = await airlineService.getAirlineMonthlyIncomesByYear(airlineId, year);
 
 
-        const dashBoard : AirlineDashBoardDTO = new AirlineDashBoardDTO (
-            passengerCount,
-            monthlyIncome,
-            activeRoutes,
-            filghtsInProgress,
-            routesMostInDemand,
-            monthlyIncomes
-        )
+        const dashBoard : AirlineDashBoardDTO = {
+            passengerCount: passengerCount,
+            monthlyIncome: monthlyIncome,
+            activeRoutes: activeRoutes,
+            flightsInProgress: flightsInProgress,
+            routesMostInDemand: routesMostInDemand,
+            monthlyIncomes: monthlyIncomes
+        };
 
         return successResponse<AirlineDashBoardDTO>(res, "DashBoard stats retrieved successfully", dashBoard);
     }

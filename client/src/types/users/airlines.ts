@@ -1,3 +1,5 @@
+import { Response } from '../responses/responses';
+
 export interface Airline {
     id: number,
     name : string,
@@ -41,6 +43,30 @@ export interface Route {
     arrival_airport_code : string
 }
 
+export interface RoutesMostInDemand {
+    departureAirport: Airport;
+    arrivalAirport: Airport;
+    passengerCount: number;
+}
+
+export interface MonthlyIncome {
+    month: string;
+    income: number;
+}
+
+export interface AirlineDashBoard {
+    passengerCount: number;
+    monthlyIncome: number;
+    activeRoutes: number;
+    flightsInProgress: number;
+    routesMostInDemand: RoutesMostInDemand[];
+    monthlyIncomes : MonthlyIncome[];
+}
+
+
+export interface AirlineResolverResponse {
+    dashboardStatsResponse: Response<AirlineDashBoard>;
+}
 
 
 

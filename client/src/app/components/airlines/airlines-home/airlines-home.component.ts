@@ -11,13 +11,7 @@ import { RoutesComponent } from '../routes/routes.component';
 import { FlightsComponent } from '../flights/flights.component';
 import { ExtraComponent } from '../extra/extra.component';
 import { FooterComponent } from '../../footer/footer.component';
-
-interface AirlineStats  {
-  passenger_count : number,
-  monthly_income: number,
-  active_routes: number,
-  flights_in_progress : number
-}
+import { AirlineDashBoard, AirlineResolverResponse } from '../../../../types/users/airlines';
 
 @Component({
   selector: 'app-airlines-home',
@@ -47,29 +41,29 @@ export class AirlinesHomeComponent implements OnInit{
   ) {}
   activeTab: number = 0; 
 
-  stats : AirlineStats = {
-    passenger_count :0,
-    monthly_income: 0,
-    active_routes: 0,
-    flights_in_progress: 0
-  };
+  dashboardStats : AirlineDashBoard = {
+    passengerCount: 0,
+    monthlyIncome: 0,
+    activeRoutes: 0,
+    flightsInProgress: 0,
+    routesMostInDemand: [],
+    monthlyIncomes: []
+  }
 
 
 
   ngOnInit(): void {
+
+    this.route.data.subscribe(({ airlineData }) => {
+      console.log('Resolved Airline Data:', airlineData);
+      if(airlineData){
+        this.dashboardStats = airlineData.dashboardStatsResponse.data;
+      }
+    });
+
     this.airlinesService.getAirlinesInfo().subscribe((info: any) => {
       this.airlineName = info?.name || 'Compagnia Aerea';
     });
-    
-    this.airlinesService.getDashboardStats().subscribe({
-      next: (res) => {
-        this.stats = res.stats
-        console.log(res.stats)
-      },
-      error: (err) => {
-        console.log(err)
-      }
-    })
 
   }
 

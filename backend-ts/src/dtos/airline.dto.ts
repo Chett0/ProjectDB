@@ -61,9 +61,10 @@ export const toAircraftInfoDTO = (aircraft: AircraftInfo): AircraftInfoDTO => ({
 });
 
 export interface RoutesMostInDemandDTO {
-    departureAirport: AirportDTO;
-    arrivalAirport: AirportDTO;
-    passengerCount: number;
+    routeId : number;
+    departureAirportName: string;
+    arrivalAirportName: string;
+    passengersCount: number;
 }
 
 export interface MonthlyIncomeDTO {

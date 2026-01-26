@@ -6,7 +6,7 @@ import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { AdminDashboard } from '../../../types/users/admin';
 import { Response } from '../../../types/responses/responses';
-import { Airline } from '../../../types/users/airlines';
+import { Airline, AirlineDashBoard } from '../../../types/users/airlines';
 
 @Injectable({
   providedIn: 'root'
@@ -48,7 +48,7 @@ export class AirlinesService {
   }
 
   getDashboardStats() {
-    return this.http.get<any>(`${enviroment.apiUrl}/airlines/dashboard-stats`);
+    return this.http.get<Response<AirlineDashBoard>>(`${enviroment.apiUrl}/airlines/dashboard-stats`);
   }
 
   getAdminDashboardStats() {

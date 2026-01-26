@@ -38,7 +38,7 @@ export const routes: Routes = [
         path: 'airlines',
         component: AirlinesHomeComponent,
         canActivate: [airlineGuard],
-        resolve: { airlinesData: AirlinesResolver }
+        resolve: { airlineData: AirlinesResolver }
     },
     {
         path: 'passengers',
