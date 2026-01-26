@@ -1,15 +1,8 @@
 import { airports } from '@prisma/client';
 import prisma from '../config/db';
-import { AirportDTO, CitiesDTO } from '../dtos/airport.dto';
+import { AirportDTO, CitiesDTO, toAirportDTO } from '../dtos/airport.dto';
 
-// const createAirport = async (airport : airports) => {
-//     airport.active = true;
-//     return prisma.airports.create({
-//         data: airport,
-//     });
-// }
-
-const getAirportByCode = async (
+export const getAirportByCode = async (
     code : string
 ) : Promise<AirportDTO | null> => {
     try{
@@ -20,7 +13,7 @@ const getAirportByCode = async (
             }
         })
 
-        return airport ? AirportDTO.fromPrisma(airport) : null;
+        return airport ? toAirportDTO(airport) : null;
 
     } catch(err){
         throw new Error(
@@ -29,7 +22,7 @@ const getAirportByCode = async (
     }
 };
 
-const getAirportsByCity = async (
+export const getAirportsByCity = async (
     city : string
 ) : Promise<airports[]> => {
     try{
@@ -52,7 +45,7 @@ const getAirportsByCity = async (
     }
 };
 
-const getAirportsCities = async () : Promise<CitiesDTO> => {
+export const getAirportsCities = async () : Promise<CitiesDTO> => {
     try{
         const cities = await prisma.airports.findMany({
             select: {
@@ -64,18 +57,13 @@ const getAirportsCities = async () : Promise<CitiesDTO> => {
             },
         });
 
-        return new CitiesDTO(cities.map(c => c.city));
+        return {
+            cities: cities.map(c => c.city)
+        }
     } catch(err){
         throw new Error(
             `Failed to retrieving cities: ${err instanceof Error ? err.message : "Unknown error"}`
         ); 
     }
-}
-
-export {
-    // createAirport,
-    getAirportByCode,
-    getAirportsByCity,
-    getAirportsCities
 }
 

@@ -95,7 +95,7 @@ export async function seedFlights() {
       )
     );
 
-    for (let m = -3; m < 3; m++) {
+    for (let m = -1; m < 5; m++) {
       const monthStart = startOfMonth(addMonths(new Date(), m));
       //   const monthEnd = endOfMonth(monthStart);
 
@@ -146,6 +146,7 @@ export async function seedFlights() {
             base_price: flightPrice,
             nSeats_available: aircrafts[i]!.nSeats,
             nSeats_total: aircrafts[i]!.nSeats,
+            active: true,
             duration_seconds: Math.floor(
               (arrivalTime.getTime() - departureTime.getTime()) / 1000
             ),

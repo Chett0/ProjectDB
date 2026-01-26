@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule, FormsModule} from '@angular/forms';
-import { User } from '../../../../types/users/auth';
+import { UserLogin } from '../../../../types/users/auth';
 import { AuthService } from '../../../services/auth/auth.service';
-import { ActivatedRoute, Router, RouterLink, RouterModule, RouterOutlet} from '@angular/router';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AuthResp, Response } from '../../../../types/responses/responses';
 
 
 @Component({
@@ -32,9 +33,9 @@ export class LoginComponent {
     const email = this.loginForm.value.email;
     const password = this.loginForm.value.password;
     if(email && password){
-      const user : User = {email : email, password : password};
+      const user : UserLogin = {email : email, password : password};
       this.authService.login(user).subscribe({
-        next: (response: any) => {
+        next: (response: Response<AuthResp>) => {
             this.loginError = 'Login effettuato con successo!';
             this.loginMsgType = 'success';
             let redirect = '';
@@ -48,12 +49,12 @@ export class LoginComponent {
               });
               return;
             }
-          if (response.role && response.role.toUpperCase() === 'ADMIN') 
+          if (response.data?.role && response.data.role.toUpperCase() === 'ADMIN') 
             redirect = '/admin';
-           else if (response.role && response.role.toUpperCase() === 'PASSENGER')
-              redirect = '/passengers';
-           else 
-            redirect = `${response.role.toLowerCase()}s`;
+           else if (response.data?.role && response.data.role.toUpperCase() === 'PASSENGER')
+            redirect = '/passengers';
+           else if (response.data?.role && response.data.role.toUpperCase() === 'AIRLINE')
+            redirect = '/airlines';
            this.router.navigate([redirect]);
         },
         error: (err: any) => {

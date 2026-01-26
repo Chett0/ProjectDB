@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { FooterComponent } from '../../footer/footer.component';
+import { AdminDashboard } from '../../../../types/users/admin';
 
 
 interface Airline {
@@ -31,10 +32,13 @@ export class AdminHomeComponent implements OnInit {
   feedbackType: 'success' | 'error' | '' = '';
   activeTab = 0;
   airlines: Airline[] = [];
-  airlinesCount = 0;
-  flightsCount = 0;
-  routesCount = 0;
-  passengersCount = 0;
+
+  dashboardStats : AdminDashboard = {
+    passengersCount: 0,
+    airlinesCount: 0,
+    activeRoutesCount: 0,
+    flightsCount: 0
+  }
 
   constructor(
     private authService: AuthService,
@@ -51,12 +55,13 @@ export class AdminHomeComponent implements OnInit {
 
   ngOnInit(): void {
 
-    const data = this.route.snapshot.data['adminData'];
-    this.airlines = data?.airlines?.airlines || [];
-    this.airlinesCount = data?.airlinesCount?.count || 0;
-    this.flightsCount = data?.flightsCount?.count || 0;
-    this.routesCount = data?.routesCount?.count || 0;
-    this.passengersCount = data?.passengersCount?.count || 0;
+    this.route.data.subscribe(({ adminData }) => {
+      if(adminData){
+        this.airlines = adminData.airlinesResponse.data || [];
+        this.dashboardStats = adminData.dashboardResponse.data;
+        console.log(adminData)
+      }
+    });
   }
 
   addAirline() {
@@ -86,7 +91,7 @@ export class AdminHomeComponent implements OnInit {
 
         if (res && res.airline) {
           this.airlines = [...this.airlines, res.airline];
-          this.airlinesCount++;
+          this.dashboardStats.airlinesCount++;
         }
       },
       error: (err) => {

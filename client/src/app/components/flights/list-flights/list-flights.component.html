@@ -64,7 +64,7 @@
 
         <!-- Info generali -->
         <div class="d-flex justify-content-between align-items-center mt-3">
-            <span><strong>Durata totale:</strong> {{ journey.totalDuration }} ore</span>
+            <span><strong>Durata totale:</strong> {{ (journey.totalDuration / 3600) | number: '1.1-1' }} ore</span>
             <button class="btn btn-primary btn-sm"
                 (click)="onBuyTicket(journey)">Select</button>
         </div>

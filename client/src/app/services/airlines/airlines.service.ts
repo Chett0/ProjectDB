@@ -4,6 +4,9 @@ import { Injectable } from '@angular/core';
 import { enviroment } from '../../enviroments/enviroments';
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { AdminDashboard } from '../../../types/users/admin';
+import { Response } from '../../../types/responses/responses';
+import { Airline } from '../../../types/users/airlines';
 
 @Injectable({
   providedIn: 'root'
@@ -32,16 +35,9 @@ export class AirlinesService {
   }
 
   getAllAirlines() {
-    return this.http.get<any>(`${enviroment.apiUrl}/airlines`);
+    return this.http.get<Response<Airline[]>>(`${enviroment.apiUrl}/admin/airlines`);
   }
 
-  getAirlinesCount() {
-    return this.http.get<any>(`${enviroment.apiUrl}/airlines/count`);
-  }
-
-  getFlightsCountAll() {
-    return this.http.get<any>(`${enviroment.apiUrl}/flights/count-all`);
-  }
   
   getAirlineFlightsCount() {
     return this.http.get<any>(`${enviroment.apiUrl}/flights/count`);
@@ -51,12 +47,12 @@ export class AirlinesService {
     return this.http.get<any>(`${enviroment.apiUrl}/passengers/count`);
   }
 
-    getPassengersCountAll() {
-    return this.http.get<any>(`${enviroment.apiUrl}/passengers/airline/count`);
-  }
-
   getDashboardStats() {
     return this.http.get<any>(`${enviroment.apiUrl}/airlines/dashboard-stats`);
+  }
+
+  getAdminDashboardStats() {
+    return this.http.get<Response<AdminDashboard>>(`${enviroment.apiUrl}/admin/dashboard-stats`);
   }
 
   createFlight(payload: { route_id: number; aircraft_id: number; departure_time: string; arrival_time: string; base_price: number }) {

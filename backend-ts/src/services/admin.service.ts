@@ -1,7 +1,9 @@
+import { airlines } from "@prisma/client";
 import prisma from "../config/db";
+import { AirlineDTO, toAirlineDTO } from "../dtos/user.dto";
 
 
-const getActivePassengersCount = async () : Promise<number> => {
+export const getActivePassengersCount = async () : Promise<number> => {
     try{
 
         const passengersCount : number = await prisma.passengers.count({
@@ -21,7 +23,7 @@ const getActivePassengersCount = async () : Promise<number> => {
     }
 };
 
-const getActiveAirlinesCount = async () : Promise<number> => {
+export const getActiveAirlinesCount = async () : Promise<number> => {
     try{
 
         const airlinesCount : number = await prisma.airlines.count({
@@ -42,7 +44,7 @@ const getActiveAirlinesCount = async () : Promise<number> => {
 };
 
 
-const getActiveFlights = async () : Promise<number> => {
+export const getActiveFlights = async () : Promise<number> => {
     try{
 
         const airlinesCount : number = await prisma.flights.count({
@@ -63,7 +65,7 @@ const getActiveFlights = async () : Promise<number> => {
     }
 };
 
-const getActiveRoutes = async () : Promise<number> => {
+export const getActiveRoutes = async () : Promise<number> => {
     try{
 
         const airlinesCount : number = await prisma.routes.count({});       // check on airlineRoute active 
@@ -77,9 +79,17 @@ const getActiveRoutes = async () : Promise<number> => {
     }
 };
 
-export {
-    getActivePassengersCount,
-    getActiveAirlinesCount,
-    getActiveFlights,
-    getActiveRoutes
-}
+
+export const getAllAirlines = async () : Promise<AirlineDTO[]> => {
+    try{
+
+        const airlines : airlines[] = await prisma.airlines.findMany({});
+
+        return airlines.map(toAirlineDTO);
+
+    } catch(err){
+        throw new Error(
+            `Failed to retrieving airlines count: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+};

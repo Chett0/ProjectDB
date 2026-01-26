@@ -2,10 +2,11 @@ import { Response } from "express";
 import { AuthenticatedRequest } from "../types/auth.types";
 import { errorResponse, missingFieldsResponse, successResponse } from "../utils/helpers/response.helper";
 import * as adminService from "../services/admin.service"
-import { AdminDashBoardDTO } from "../dtos/admin.dtos";
+import { AdminDashboardDTO } from "../dtos/admin.dtos";
+import { AirlineDTO } from "../dtos/user.dto";
 
 
-const getAdminDashboardStats = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+export const getAdminDashboardStats = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const adminId : number | null = req.user!.id;
         
@@ -19,12 +20,12 @@ const getAdminDashboardStats = async(req : AuthenticatedRequest, res : Response)
         const routesCount : number = await adminService.getActiveRoutes();
 
 
-        const dashBoard : AdminDashBoardDTO = new AdminDashBoardDTO (
-            passengersCount,
-            airlinesCount,
-            flightsCount,
-            routesCount
-        )
+        const dashBoard : AdminDashboardDTO = {
+            passengersCount: passengersCount,
+            airlinesCount: airlinesCount,
+            flightsCount: flightsCount,
+            activeRoutesCount: routesCount
+        }
 
         return successResponse(res, "DashBoard stats retrieved successfully", dashBoard);
     }
@@ -35,6 +36,20 @@ const getAdminDashboardStats = async(req : AuthenticatedRequest, res : Response)
 };
 
 
-export {
-    getAdminDashboardStats
-}
+export const getAllAirlines = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+    try{
+        const adminId : number | null = req.user!.id;
+        
+        if(!adminId){
+            return missingFieldsResponse(res);
+        }
+
+        const airlines : AirlineDTO[] = await adminService.getAllAirlines();
+
+        return successResponse(res, "Airlines retrieved successfully", airlines);
+    }
+    catch (error) {
+        console.error("Error while retrieving airlines: ", error);
+        return errorResponse(res, "Internal server error while retrieving airlines");
+    }
+};

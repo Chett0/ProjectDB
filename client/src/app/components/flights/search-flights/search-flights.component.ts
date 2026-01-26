@@ -12,7 +12,7 @@ import {MatDatepickerModule} from '@angular/material/datepicker';
 import {provideNativeDateAdapter} from '@angular/material/core';
 
 import { FooterComponent } from '../../footer/footer.component';
-import { APIResponse } from '../../../../types/responses/responses';
+import { Response } from '../../../../types/responses/responses';
 import { Cities } from '../../../../types/airports/airports';
 
 @Component({
@@ -68,7 +68,7 @@ export class SearchFlightsComponent implements OnInit{
 
   getCities(): void {
     this.searchFlightsService.getCities().subscribe({
-        next: (res : APIResponse<Cities>) => {
+        next: (res : Response<Cities>) => {
           this.cities = res.data ? res.data.cities : [];
           this.filteredDepartureCities = this.cities;
           this.filteredDestinationCities = this.cities;

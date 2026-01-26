@@ -195,12 +195,6 @@ const login = async(req : Request, res : Response) : Promise<Response> => {
         }
 
         return successResponse(res, "Login successful", loginResponse, 201);
-        // res.status(201).json({
-        //     message: "Login successful",
-        //     accessToken: accessToken,
-        //     // refreshToken: refreshToken,
-        //     role: user.role
-        // })
 
     } catch (error) {
         console.error("Error while login: ", error);

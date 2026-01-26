@@ -51,8 +51,6 @@ const createFlight = async(req : AuthenticatedRequest, res : Response): Promise<
 
 const searchFlights = async(req : Request, res : Response): Promise<Response> => {
     try{
-        const pageNumber : number = parseInt(req.query.page as string) || 1;
-        const limit : number = parseInt(req.query.limit as string) || 10;
         const sortBy : string = (req.query.sort_by as string) || 'total_duration';
         const order : string = ((req.query.order as string) || 'asc').toLowerCase();
         const departureAirportCity : string | undefined = req.query.from as string;
@@ -70,7 +68,7 @@ const searchFlights = async(req : Request, res : Response): Promise<Response> =>
                 sortBy: sortBy,
                 order: order
             },
-            departureAiportCity: departureAirportCity,
+            departureAirportCity: departureAirportCity,
             arrivalAirportCity: arrivalAirportCity,
             layovers: layovers,
             departureDate: departureDate,

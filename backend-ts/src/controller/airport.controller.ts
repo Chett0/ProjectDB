@@ -4,17 +4,6 @@ import { Request, Response, NextFunction } from 'express';
 import { errorResponse, successResponse } from '../utils/helpers/response.helper';
 import { CitiesDTO } from '../dtos/airport.dto';
 
-// const createAirport = async(req : Request, res : Response, next : NextFunction) => {
-//     try{
-//         const airport : airports = req.body;
-//         const newAirport = await airportService.createAirport(airport);
-//         res.status(201).json(newAirport);
-//     }
-//     catch (error) {
-//         next(error); // Pass to error-handling middleware
-//     }
-// }
-
 const getAirportsCities = async(req : Request, res : Response, next : NextFunction) => {
     try{
         const cities : CitiesDTO = await airportService.getAirportsCities();

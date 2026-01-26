@@ -3,7 +3,7 @@ import { SearchFlightsService } from '../../../services/search-flights/search-fl
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LoadingComponent } from "../../utils/loading/loading.component";
-import { APIResponse } from '../../../../types/responses/responses';
+import { Response } from '../../../../types/responses/responses';
 import { Filters, Journeys } from '../../../../types/flights/flights';
 
 @Component({
@@ -51,7 +51,7 @@ export class ListFlightsComponent implements OnInit{
 
   searchFlights(departureDate: string, departureCity: string, destinationCity: string, filters: any) : void {
     this.searchFlightsService.searchFlights(departureCity, destinationCity, departureDate, filters).subscribe({
-      next: (res: APIResponse<Journeys[]>) => {
+      next: (res: Response<Journeys[]>) => {
         this.journeys =  res.data || [];
         this.loading = false;
         this.cdr.detectChanges();

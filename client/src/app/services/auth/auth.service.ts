@@ -1,19 +1,14 @@
  
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, ResourceLoaderParams } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { User, UserRole } from '../../../types/users/auth';
+import { UserLogin, UserRole } from '../../../types/users/auth';
 import { PassengerAsUser } from '../../../types/users/passenger';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, tap } from 'rxjs';
 import { enviroment } from '../../enviroments/enviroments';
 import { TokensService } from '../tokens/tokens.service';
 import { Router } from '@angular/router';
+import { AuthResp, Response } from '../../../types/responses/responses';
 
-
-export interface AuthResp {
-  access_token : string,
-  refresh_token: string,
-  role : string
-}
 
 
 @Injectable({
@@ -21,7 +16,6 @@ export interface AuthResp {
 })
 export class AuthService {
 
-  private apiUrl : string = 'http://localhost:5000/api'
   public isLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   static redirectPath : string | null = null;
   static redirectQuery : any = null;
@@ -30,12 +24,12 @@ export class AuthService {
     this.isLoggedIn.next(!!localStorage.getItem('access_token'))
   }
 
-  login(user : User) {
-    return this.http.post<AuthResp>(`${this.apiUrl}/login`, user)
+  login(user : UserLogin) {
+    return this.http.post<Response<AuthResp>>(`${enviroment.apiUrl}/auth/login`, user)
     .pipe(
-      tap((response: AuthResp) => {
-        this.token.setTokens(response.access_token, response.refresh_token);
-        localStorage.setItem('access_token', response.access_token);
+      tap((response: Response<AuthResp>) => {
+        this.token.setTokens(response.data!.accessToken, response.data!.refreshToken);
+        localStorage.setItem('access_token', response.data!.accessToken);
         this.isLoggedIn.next(true);
       })
     );
@@ -79,7 +73,7 @@ export class AuthService {
   }
 
   changePassword(data: { email: string; old_password: string; new_password: string }) {
-    return this.http.put<void>(`${this.apiUrl}/password`, data);
+    return this.http.put<void>(`${enviroment.apiUrl}/password`, data);
   }
 
   static clearRedirectPath() {
