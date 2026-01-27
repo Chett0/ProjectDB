@@ -1,3 +1,4 @@
+import { Expansion } from "@angular/compiler"
 import { Airport } from "../airports/airports"
 import { Aircraft } from "../users/airlines"
 
@@ -30,6 +31,14 @@ export interface Flight {
     aircraft : Aircraft,
     departureAirport: Airport,
     arrivalAirport: Airport
+}
+
+export interface CreateFlight {
+    routeId: number;
+    aircraftId: number;
+    departureTime: string;
+    arrivalTime: string;
+    basePrice: number;
 }
 
 export interface Journeys {

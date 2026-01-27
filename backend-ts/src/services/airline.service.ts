@@ -5,6 +5,7 @@ import { AirlineDTO, toAirlineDTO } from "../dtos/user.dto";
 import { AircraftWithClasses, AirlineRoute, Class, CreateAircraft, Extra, Route, RoutesMostInDemand } from "../types/airline.types";
 import { FlightInfoDTO, toFlightInfoDTO } from '../dtos/flight.dto';
 import { Flight, FlightInfo } from '../types/flight.types';
+import { connect } from 'http2';
 
 export const getAirlineById = async (
     airlineId : number
@@ -750,8 +751,16 @@ export const createAirlineFlight = async (
         
         const newFlight : FlightInfo = await prisma.flights.create({
             data: {
-                route_id: flight.routeId,
-                aircraft_id: flight.aircraftId,
+                routes : {
+                    connect : {
+                        id: flight.routeId
+                    }
+                },
+                aircrafts : {
+                    connect : {
+                        id: flight.aircraftId
+                    }
+                },
                 departure_time: flight.departureTime,
                 arrival_time: flight.arrivalTime,
                 base_price: flight.basePrice,

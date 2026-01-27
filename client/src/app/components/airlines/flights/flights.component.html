@@ -16,17 +16,17 @@
 				<div class="flight-main">
 					<div class="route">
 						<span class="route-name">
-							{{ (f.route?.departure_airport?.name || f.route?.departure_airport?.city || f.departure_airport?.name || f.departure_airport?.city || '-') }}
-							(<span class="code">{{ f.route?.departure_airport?.code || f.departure_airport_code || '-' }}</span>)
+							{{ (f.departureAirport.name || f.departureAirport.city || f.departureAirport.name || f.departureAirport.city || '-') }}
+							(<span class="code">{{ f.departureAirport.code || f.departureAirport.code || '-' }}</span>)
 							&nbsp;→&nbsp;
-							{{ (f.route?.arrival_airport?.name || f.route?.arrival_airport?.city || f.arrival_airport?.name || f.arrival_airport?.city || '-') }}
-							(<span class="code">{{ f.route?.arrival_airport?.code || f.arrival_airport_code || '-' }}</span>)
+							{{ (f.arrivalAirport.name || f.arrivalAirport.city || f.arrivalAirport.name || f.arrivalAirport.city || '-') }}
+							(<span class="code">{{ f.arrivalAirport.code || f.arrivalAirport.code || '-' }}</span>)
 						</span>
 					</div>
 					<div class="meta">
-						<span class="time">{{ formatFlightTime(f.departure_time) }} - {{ formatFlightTime(f.arrival_time) }}</span>
-						<span class="aircraft">{{ f.aircraft?.model || f.aircraft_model || '' }}</span>
-						<span class="price">€ {{ f.base_price }}</span>
+						<span class="time">{{ f.departureTime }} - {{ f.arrivalTime }}</span>
+						<span class="aircraft">{{ f.aircraft.model }}</span>
+						<span class="price">€ {{ f.basePrice }}</span>
 					</div>
 				</div>
 			</li>
@@ -39,7 +39,7 @@
 				<span class="close" (click)="closeAddFlightModal()">&times;</span>
 				<h2>Aggiungi nuovo volo</h2>
 					<form (ngSubmit)="onAddFlightSubmit()" #addFlightForm="ngForm">
-							<div *ngIf="routesCompact && routesCompact.length" class="modal-route-dropdown-wrapper modal-aircraft-selection">
+							<div *ngIf="routes && routes.length" class="modal-route-dropdown-wrapper modal-aircraft-selection">
 								<label class="selector-label">Seleziona rotta per il volo</label>
 								<div class="modal-selector-toggle" (click)="toggleModalRoutesDropdown()">
 									<span *ngIf="!selectedRouteId">Seleziona rotta...</span>
@@ -52,11 +52,11 @@
 											<ul>
 												<li *ngFor="let r of modalFilteredRoutes" (click)="selectRoute(r.id); toggleModalRoutesDropdown()" class="compact-item">
 													<div class="model">
-														<ng-container *ngIf="r.name; else showRouteCodes">
-															{{ r.name }} ({{ r.departure_airport_code || r.departure_airport?.code || '-' }} → {{ r.arrival_airport_code || r.arrival_airport?.code || '-' }})
+														<ng-container *ngIf="r; else showRouteCodes">
+															({{ r.departureAirport.code }} → {{ r.arrivalAirport.code }})
 														</ng-container>
 														<ng-template #showRouteCodes>
-															{{ r.departure_airport_code || r.departure_airport?.code || '-' }} → {{ r.arrival_airport_code || r.arrival_airport?.code || '-' }}
+															{{ r.departureAirport.code || '-' }} → {{ r.arrivalAirport.code || '-' }}
 														</ng-template>
 													</div>
 												</li>
@@ -72,7 +72,7 @@
 
 					<label for="base_price">Prezzo base:</label>
 					<input type="number" id="base_price" name="base_price" [(ngModel)]="newFlight.base_price" step="0.01" required>
-					<div *ngIf="aircraftsCompact && aircraftsCompact.length" class="modal-aircraft-dropdown-wrapper">
+					<div *ngIf="aircrafts && aircrafts.length" class="modal-aircraft-dropdown-wrapper">
 						<label class="selector-label">Seleziona aereo per il volo</label>
 						<div class="modal-selector-toggle" (click)="toggleModalAircraftsDropdown()">
 							<span *ngIf="!selectedAircraftId">Seleziona aereo...</span>
@@ -83,7 +83,7 @@
 							<input type="text" [formControl]="modalAircraftSearchControl" placeholder="Cerca aereo..." class="modal-search-input" />
 							<div class="modal-aircraft-list">
 								<ul>
-									<li *ngFor="let a of modalFilteredAircrafts" (click)="selectAircraft(a.id); toggleModalAircraftsDropdown()" class="compact-item">
+									<li *ngFor="let a of filteredAircrafts" (click)="selectAircraft(a.id); toggleModalAircraftsDropdown()" class="compact-item">
 										<div class="model">{{ a.model }}</div>
 										<div class="seats">{{ a.nSeats }} posti</div>
 									</li>

@@ -395,13 +395,16 @@ export const createAirlineFlight = async(req : AuthenticatedRequest, res : Respo
             return missingFieldsResponse(res);
         }
 
+        const dep = new Date(departureTime);
+        const arr = new Date(arrivalTime);
+
         const flight : Flight = {
             routeId : routeId,
             aircraftId : aircraftId,
-            departureTime: departureTime,
-            arrivalTime: arrivalTime,
+            departureTime: dep,
+            arrivalTime: arr,
             basePrice: basePrice,
-            durationSeconds: (arrivalTime - departureTime)
+            durationSeconds: Math.floor((arr.getTime() - dep.getTime()) / 1000),
         }
 
         const newFlight : FlightInfoDTO = await airlineService.createAirlineFlight(airlineId, flight);

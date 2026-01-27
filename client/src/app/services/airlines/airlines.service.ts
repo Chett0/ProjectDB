@@ -7,6 +7,7 @@ import { tap } from 'rxjs/operators';
 import { AdminDashboard } from '../../../types/users/admin';
 import { Response } from '../../../types/responses/responses';
 import { Airline, AirlineDashBoard, CreateExtra, Extra } from '../../../types/users/airlines';
+import { CreateFlight, Flight } from '../../../types/flights/flights';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ import { Airline, AirlineDashBoard, CreateExtra, Extra } from '../../../types/us
 export class AirlinesService {
   private extrasCache: any[] | null = null;
   private extrasCacheTimestamp: number | null = null;
-  private flightCache: any[] | null = null;
+  private flightCache: Flight[] | null = null;
   private flightCacheTimestamp: number | null = null;
 
 
@@ -38,15 +39,6 @@ export class AirlinesService {
     return this.http.get<Response<Airline[]>>(`${enviroment.apiUrl}/admin/airlines`);
   }
 
-  
-  getAirlineFlightsCount() {
-    return this.http.get<any>(`${enviroment.apiUrl}/flights/count`);
-  }
-
-  getPassengersCount() {
-    return this.http.get<any>(`${enviroment.apiUrl}/passengers/count`);
-  }
-
   getDashboardStats() {
     return this.http.get<Response<AirlineDashBoard>>(`${enviroment.apiUrl}/airlines/dashboard-stats`);
   }
@@ -55,23 +47,35 @@ export class AirlinesService {
     return this.http.get<Response<AdminDashboard>>(`${enviroment.apiUrl}/admin/dashboard-stats`);
   }
 
-  createFlight(payload: { route_id: number; aircraft_id: number; departure_time: string; arrival_time: string; base_price: number }) {
-    this.flightCache = null;
-    this.flightCacheTimestamp = null;
-    return this.http.post<any>(`${enviroment.apiUrl}/flights`, payload);
+  createFlight(newFlight: CreateFlight) : Observable<Response<Flight>> {
+    return this.http.post<any>(`${enviroment.apiUrl}/airlines/flights`, newFlight).pipe(
+      tap((res : Response<Flight>) => {
+        if(res.success && res.data) {
+          if(!this.flightCache)
+            this.flightCache = [];
+          this.flightCache.push(res.data);
+          this.flightCacheTimestamp = Date.now();
+        }
+      })
+    );
   }
 
 
-  getAirlinesFlights() {
+  getAirlinesFlights() : Observable<Response<Flight[]>> {
     const now = Date.now();
     if (this.flightCache && this.flightCacheTimestamp && (now - this.flightCacheTimestamp < this.cacheTTL)) {
-      return of({ message: 'Flights retrieved successfully (cache)', flights: this.flightCache });
+      return of({ 
+        success: true,
+        message: 'Flights retrieved successfully (cache)', 
+        data: this.flightCache 
+      });
     }
-    return this.http.get<any>(`${enviroment.apiUrl}/airline/flights`).pipe(
-      tap(res => {
-        const list = Array.isArray(res) ? res : (res as any)?.flights ?? [];
-        this.flightCache = list;
-        this.flightCacheTimestamp = Date.now();
+    return this.http.get<Response<Flight[]>>(`${enviroment.apiUrl}/airlines/flights`).pipe(
+      tap((res : Response<Flight[]>) => {
+        if(res.success && res.data) {
+          this.flightCache = res.data;
+          this.flightCacheTimestamp = Date.now();
+        }
       })
     );
   }
@@ -92,7 +96,7 @@ export class AirlinesService {
       });
     }
     return this.http.get<Response<Extra[]>>(`${enviroment.apiUrl}/airlines/extras`).pipe(
-      tap(res => {
+      tap((res : Response<Extra[]>) => {
         if (res && res.data) {
           this.extrasCache = res.data;
           this.extrasCacheTimestamp = Date.now();
