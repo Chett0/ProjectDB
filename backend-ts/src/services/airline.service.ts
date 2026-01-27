@@ -3,7 +3,8 @@ import prisma from "../config/db";
 import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RoutesMostInDemandDTO, toAircraftDTO, toAircraftInfoDTO, toAirlineRouteDTO, toClassDTO, toExtraDTO } from "../dtos/airline.dto";
 import { AirlineDTO, toAirlineDTO } from "../dtos/user.dto";
 import { AircraftWithClasses, AirlineRoute, Class, CreateAircraft, Extra, Route, RoutesMostInDemand } from "../types/airline.types";
-import { toAirportDTO } from '../dtos/airport.dto';
+import { FlightInfoDTO, toFlightInfoDTO } from '../dtos/flight.dto';
+import { FlightInfo } from '../types/flight.types';
 
 export const getAirlineById = async (
     airlineId : number
@@ -690,6 +691,41 @@ export const getAirlineMonthlyIncomesByYear = async (
     } catch(err){
         throw new Error(
             `Failed to retrieving best routes: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+}
+
+export const getAirlineFlights = async (
+    airlineId : number
+) : Promise<FlightInfoDTO[]> => {
+     try{
+        
+        const flights : FlightInfo[] = await prisma.flights.findMany({
+            where: {
+                aircrafts: {
+                    airline_id: airlineId
+                }
+            },
+            include: {
+                aircrafts: {
+                    include: {
+                        airlines: true
+                    }
+                },
+                routes: {
+                    include: {
+                        departure_airport: true,
+                        arrival_airport: true
+                    }
+                }
+            }
+        });
+
+        return flights.map(toFlightInfoDTO);
+
+    } catch(err){
+        throw new Error(
+            `Failed to retrieving airline flights: ${err instanceof Error ? err.message : "Unknown error"}`
         ); 
     }
 }

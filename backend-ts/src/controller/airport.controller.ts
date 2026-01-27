@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from 'express';
 import { errorResponse, successResponse } from '../utils/helpers/response.helper';
 import { CitiesDTO } from '../dtos/airport.dto';
 
-const getAirportsCities = async(req : Request, res : Response, next : NextFunction) => {
+export const getAirportsCities = async(req : Request, res : Response, next : NextFunction) => {
     try{
         const cities : CitiesDTO = await airportService.getAirportsCities();
         if(!cities)
@@ -14,9 +14,4 @@ const getAirportsCities = async(req : Request, res : Response, next : NextFuncti
     catch (error) {
         return errorResponse(res, "Internal server error while retrieving cities");
     }
-}
-
-export {
-    getAirportsCities
-    // createAirport
 }

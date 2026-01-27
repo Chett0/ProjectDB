@@ -8,6 +8,8 @@ import { AirlineDTO } from "../dtos/user.dto";
 import { AircraftDTO, AircraftInfoDTO, AirlineDashBoardDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RoutesMostInDemandDTO } from "../dtos/airline.dto";
 import { AircraftWithClasses, CreateAircraft, Extra, Route } from "../types/airline.types";
 import { AirportDTO } from "../dtos/airport.dto";
+import { Flight } from "../types/flight.types";
+import { FlightInfoDTO } from "../dtos/flight.dto";
 
 
 export const getAirlineDetails = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
@@ -363,5 +365,23 @@ export const getAircraftClasses = async(req : AuthenticatedRequest, res : Respon
     catch (error) {
         console.error("Error while deleting aircraft: ", error);
         return errorResponse(res, "Internal server error while deleting aircrafts");
+    }
+};
+
+export const getAirlineFlights = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+    try{
+        const airlineId : number = req.user!.id; 
+        
+        if(!airlineId){
+            return missingFieldsResponse(res);
+        }
+
+        const flights : FlightInfoDTO[] | null = await airlineService.getAirlineFlights(airlineId);
+
+        return successResponse(res, "Airline's flights retrieved successfully", flights);
+    }
+    catch (error) {
+        console.error("Error while retrieving flights: ", error);
+        return errorResponse(res, "Internal server error while retrieving flights");
     }
 };

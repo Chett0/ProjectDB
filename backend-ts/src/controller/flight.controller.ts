@@ -8,7 +8,7 @@ import { JourneysInfoDTO, SeatsDTO } from "../dtos/flight.dto";
 import { aircraft_classes, aircrafts, airlineRoute } from '@prisma/client';
 import { AircraftDTO, AirlineRouteDTO, ClassDTO } from "../dtos/airline.dto";
 
-const createFlight = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+export const createFlight = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         
         const {routeId, aircraftId, departureTime, arrivalTime, basePrice} = req.body;
@@ -49,7 +49,7 @@ const createFlight = async(req : AuthenticatedRequest, res : Response): Promise<
 
 
 
-const searchFlights = async(req : Request, res : Response): Promise<Response> => {
+export const searchFlights = async(req : Request, res : Response): Promise<Response> => {
     try{
         const sortBy : string = (req.query.sort_by as string) || 'total_duration';
         const order : string = ((req.query.order as string) || 'asc').toLowerCase();
@@ -86,7 +86,7 @@ const searchFlights = async(req : Request, res : Response): Promise<Response> =>
 };
 
 
-const getFlightSeats = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+export const getFlightSeats = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const flightId : number | null = parseInt(req.params.flightId as string) || null; 
         if(!flightId)
@@ -101,9 +101,3 @@ const getFlightSeats = async(req : AuthenticatedRequest, res : Response): Promis
         return errorResponse(res, "Internal server error while retrieving seats");
     }
 };
-
-export {
-    searchFlights,
-    getFlightSeats,
-    createFlight
-}
