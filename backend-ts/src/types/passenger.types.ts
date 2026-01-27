@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client"
+
 export enum BookingState {
     PENDING = "PENDING",
     CONFIRMED = "CONFIRMED",
@@ -12,3 +14,9 @@ export interface Ticket {
     state: BookingState,
     purchaseDate: Date
 }
+
+export type PassengerUser = Prisma.passengersGetPayload<{
+    include: {
+        users: true
+    }
+}>;

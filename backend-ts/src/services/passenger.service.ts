@@ -1,21 +1,25 @@
 import { bookingstate, extras, flights, passengers, seats, seatstate, tickets } from '@prisma/client';
 import prisma from "../config/db";
 import { ExtraDTO } from "../dtos/airline.dto";
-import { Ticket } from "../types/passenger.types";
+import { PassengerUser, Ticket } from "../types/passenger.types";
 import * as flightService from "../services/flight.service"
 import { TicketInfoDTO } from "../dtos/passenger.dto";
+import { PassengerUserDTO, toPassengerUserDTO } from '../dtos/user.dto';
 
-const getPassengerById = async (
+export const getPassengerById = async (
     passengerId : number
-) : Promise<passengers | null> => {
+) : Promise<PassengerUserDTO> => {
     try{
-        const passenger : passengers | null = await prisma.passengers.findUnique({
+        const passenger : PassengerUser = await prisma.passengers.findUniqueOrThrow({
             where: {
                 id: passengerId
+            },
+            include : {
+                users: true
             }
-        })
+        });
 
-        return passenger;
+        return toPassengerUserDTO(passenger);
     } catch(err){
         throw new Error(
             `Failed to retrieving airline: ${err instanceof Error ? err.message : "Unknown error"}`
@@ -24,7 +28,7 @@ const getPassengerById = async (
 };
 
 
-const createTicket = async (
+export const createTicket = async (
     ticket : Ticket,
     extras : ExtraDTO[] | null  
 ) : Promise<TicketInfoDTO | null> => {
@@ -103,7 +107,7 @@ const createTicket = async (
     }
 };
 
-const getPassengerTickets = async (
+export const getPassengerTickets = async (
     passengerId: number,
     page: number = 1,
     limit: number = 10
@@ -127,7 +131,7 @@ const getPassengerTickets = async (
     }
 };
 
-const getPassengerTicketById = async (
+export const getPassengerTicketById = async (
     passengerId: number,
     ticketId: number
 ): Promise<tickets | null> => {
@@ -144,10 +148,3 @@ const getPassengerTicketById = async (
         );
     }
 };
-
-export {
-    getPassengerById,
-    createTicket,
-    getPassengerTickets,
-    getPassengerTicketById
-}

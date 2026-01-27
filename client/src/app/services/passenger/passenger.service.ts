@@ -3,31 +3,35 @@ import { Injectable } from '@angular/core';
 import { enviroment } from '../../enviroments/enviroments';
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { PassengerInfo } from '../../../types/users/passenger';
+import { Response } from '../../../types/responses/responses';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PassengerService {
-  private passengerCache: any = null;
+
+  private passengerCache: PassengerInfo | null = null;
   private passengerCacheTimestamp: number | null = null;
   private readonly cacheTTL = 2 * 60 * 1000; 
 
   constructor(private http: HttpClient) { }
 
-  getPassengerInfo(forceRefresh = false): Observable<any> {
+  getPassengerInfo(forceRefresh = false): Observable<Response<PassengerInfo>> {
     const now = Date.now();
     if (!forceRefresh && this.passengerCache && this.passengerCacheTimestamp && (now - this.passengerCacheTimestamp < this.cacheTTL)) {
-      return of(this.passengerCache);
+      return of({ 
+        success: true,
+        message: 'Fetched from cache',
+        data: this.passengerCache 
+      });
     }
-    const token = localStorage.getItem('access_token');
-    return this.http.get<any>(`${enviroment.apiUrl}/passengers/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }).pipe(
-      tap(data => {
-        this.passengerCache = data;
-        this.passengerCacheTimestamp = Date.now();
+    return this.http.get<Response<PassengerInfo>>(`${enviroment.apiUrl}/passengers/me`).pipe(
+      tap(res => {
+        if(res.success){
+          this.passengerCache = res.data || null;
+          this.passengerCacheTimestamp = Date.now();
+        }
       })
     );
   }

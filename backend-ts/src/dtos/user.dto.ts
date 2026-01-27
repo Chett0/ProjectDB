@@ -1,4 +1,5 @@
 import { airlines, users } from '@prisma/client';
+import { PassengerUser } from '../types/passenger.types';
 
 export interface UserDTO {
   email: string;
@@ -19,6 +20,13 @@ export interface PassengerDTO {
 export interface PassengerUserDTO extends PassengerDTO{
     email: string
 }
+
+export const toPassengerUserDTO = (passenger : PassengerUser) : PassengerUserDTO => ({
+    id: passenger.id,
+    name: passenger.name,
+    surname: passenger.surname,
+    email: passenger.users.email
+});
 
 export interface AdminDTO {
     email: string

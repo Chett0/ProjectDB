@@ -16,9 +16,7 @@ export class PassengersResolver implements Resolve<any> {
 
   resolve(): Observable<any> {
     return forkJoin({
-      passenger: this.passengerService.getPassengerInfo().pipe(
-        catchError(() => of({ name: '', surname: '', user: { email: '' } }))
-      ),
+      passengerResponse: this.passengerService.getPassengerInfo().pipe(),
       tickets: this.ticketBookingService.getTickets(1, 10).pipe(
         catchError(() => of({ tickets: [] }))
       )

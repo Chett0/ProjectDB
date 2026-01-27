@@ -64,7 +64,7 @@ export async function seedUsers() {
       create: {
         email: email,
         password: await hashPassword("test"),
-        role: userrole.AIRLINE,
+        role: userrole.PASSENGER,
         passengers: {
           create: {
             name: passenger,

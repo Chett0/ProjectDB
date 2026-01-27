@@ -1,11 +1,10 @@
 import { aircraft_classes, aircrafts, airlineRoute, airlines, airports, extras, Prisma, routes } from '@prisma/client';
 import prisma from "../config/db";
-import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RoutesMostInDemandDTO, toAircraftDTO, toAircraftInfoDTO, toAirlineRouteDTO, toClassDTO, toExtraDTO } from "../dtos/airline.dto";
+import { AircraftDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RoutesMostInDemandDTO, toAircraftDTO, toAirlineRouteDTO, toClassDTO, toExtraDTO } from "../dtos/airline.dto";
 import { AirlineDTO, toAirlineDTO } from "../dtos/user.dto";
 import { AircraftWithClasses, AirlineRoute, Class, CreateAircraft, Extra, Route, RoutesMostInDemand } from "../types/airline.types";
 import { FlightInfoDTO, toFlightInfoDTO } from '../dtos/flight.dto';
 import { Flight, FlightInfo } from '../types/flight.types';
-import { connect } from 'http2';
 
 export const getAirlineById = async (
     airlineId : number

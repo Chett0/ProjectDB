@@ -44,7 +44,7 @@ export class AuthService {
   }
 
   registerPassenger(passenger : PassengerAsUser) {
-    return this.http.post<void>(`${enviroment.apiUrl}/passengers/register`, passenger);
+    return this.http.post<Response<void>>(`${enviroment.apiUrl}/auth/passengers/register`, passenger);
   }
 
   registerAirline(airline: AirlineAsUser) {

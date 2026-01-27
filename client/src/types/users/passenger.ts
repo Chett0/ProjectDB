@@ -1,4 +1,5 @@
 import { UserLogin } from "./auth";
+import { Response } from "../responses/responses";
 
 export enum UserRole {
     PASSENGER = 'Passenger',
@@ -12,3 +13,14 @@ export interface Passenger {
 }
 
 export type PassengerAsUser = Passenger & UserLogin
+
+export interface PassengerInfo {
+    id: number,
+    name: string,
+    surname: string,
+    email: string
+}
+
+export interface PassengerResolverResponse {
+    passengerResponse: Response<PassengerInfo>;
+}
