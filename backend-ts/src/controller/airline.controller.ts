@@ -6,11 +6,11 @@ import * as airportService from "../services/airport.service";
 import { errorResponse, missingFieldsResponse, notFoundResponse, successResponse } from "../utils/helpers/response.helper";
 import { AirlineDTO } from "../dtos/user.dto";
 import { AircraftDTO, AircraftInfoDTO, AirlineDashBoardDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RoutesMostInDemandDTO } from "../dtos/airline.dto";
-import { Aircraft, Extra, Route } from "../types/airline.types";
+import { AircraftWithClasses, CreateAircraft, Extra, Route } from "../types/airline.types";
 import { AirportDTO } from "../dtos/airport.dto";
 
 
-const getAirlineDetails = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+export const getAirlineDetails = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         
@@ -32,7 +32,7 @@ const getAirlineDetails = async(req : AuthenticatedRequest, res : Response): Pro
     }
 };
 
-const getAirlineRoutes = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+export const getAirlineRoutes = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         
@@ -50,7 +50,7 @@ const getAirlineRoutes = async(req : AuthenticatedRequest, res : Response): Prom
     }
 };
 
-const createAirlineRoute = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+export const createAirlineRoute = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         const { departureAirportCode, arrivalAirportCode } = req.body; 
@@ -96,7 +96,7 @@ const createAirlineRoute = async(req : AuthenticatedRequest, res : Response): Pr
 
 
 
-const getAirlineRoute = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+export const getAirlineRoute = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         const paramsId : string | undefined = req.params.id;
@@ -121,7 +121,7 @@ const getAirlineRoute = async(req : AuthenticatedRequest, res : Response): Promi
     }
 };
 
-const deleteAirlineRoute = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+export const deleteAirlineRoute = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         const paramsId : string | undefined = req.params.id;
@@ -147,7 +147,7 @@ const deleteAirlineRoute = async(req : AuthenticatedRequest, res : Response): Pr
 };
 
 
-const createExtra = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+export const createExtra = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         const {name, price} = req.body;
@@ -172,7 +172,7 @@ const createExtra = async(req : AuthenticatedRequest, res : Response): Promise<R
 };
 
 
-const getAirlineExtras = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+export const getAirlineExtras = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         
@@ -190,7 +190,7 @@ const getAirlineExtras = async(req : AuthenticatedRequest, res : Response): Prom
     }
 };
 
-const deleteExtraById = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+export const deleteExtraById = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         const paramsExtraId : string | undefined = req.params.extraId;
@@ -216,7 +216,7 @@ const deleteExtraById = async(req : AuthenticatedRequest, res : Response): Promi
 };
 
 
-const getAirlineDashboardStats = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+export const getAirlineDashboardStats = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
 
         const nRoutes : number = parseInt(req.query.nRoutes as string) || 10;
@@ -253,7 +253,7 @@ const getAirlineDashboardStats = async(req : AuthenticatedRequest, res : Respons
     }
 };
 
-const getMonthlyIncomesByYear = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+export const getMonthlyIncomesByYear = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
 
         const year : number = parseInt(req.query.year as string) || new Date().getFullYear();
@@ -274,7 +274,7 @@ const getMonthlyIncomesByYear = async(req : AuthenticatedRequest, res : Response
 };
 
 
-const createAircraft = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+export const createAircraft = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number | null = req.user!.id;
         const {model, nSeats, classes} = req.body; 
@@ -283,7 +283,7 @@ const createAircraft = async(req : AuthenticatedRequest, res : Response): Promis
             return missingFieldsResponse(res);
         }
 
-        const aircraft : Aircraft = {
+        const aircraft : CreateAircraft = {
             model: model,
             nSeats: nSeats,
             classes: classes
@@ -303,7 +303,7 @@ const createAircraft = async(req : AuthenticatedRequest, res : Response): Promis
 };
 
 
-const getAirlinesAircrafts = async(req : AuthenticatedRequest, res : Response): Promise<Response<AircraftDTO[]>> => {
+export const getAirlinesAircrafts = async(req : AuthenticatedRequest, res : Response): Promise<Response<AircraftDTO[]>> => {
     try{
         const airlineId : number = req.user!.id; 
 
@@ -317,7 +317,7 @@ const getAirlinesAircrafts = async(req : AuthenticatedRequest, res : Response): 
     }
 };
 
-const deleteAircraft = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+export const deleteAircraft = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number = req.user!.id; 
         const paramsAircraftId : string | undefined = req.params.aircraftId;
@@ -342,7 +342,7 @@ const deleteAircraft = async(req : AuthenticatedRequest, res : Response): Promis
     }
 };
 
-const getAircraftClasses = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+export const getAircraftClasses = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const airlineId : number = req.user!.id; 
         const paramsAircraftId : string | undefined = req.params.aircraftId;
@@ -365,20 +365,3 @@ const getAircraftClasses = async(req : AuthenticatedRequest, res : Response): Pr
         return errorResponse(res, "Internal server error while deleting aircrafts");
     }
 };
-
-export {
-    getAirlineDetails,
-    getAirlineRoutes,
-    createAirlineRoute,
-    getAirlineRoute,
-    deleteAirlineRoute,
-    createExtra,
-    getAirlineExtras,
-    deleteExtraById,
-    getAirlineDashboardStats,
-    createAircraft,
-    getAirlinesAircrafts,   
-    deleteAircraft,
-    getAircraftClasses,
-    getMonthlyIncomesByYear
-}

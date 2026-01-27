@@ -1,8 +1,8 @@
 import { aircraft_classes, aircrafts, airlineRoute, airlines, airports, extras, Prisma, routes } from '@prisma/client';
 import prisma from "../config/db";
-import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RoutesMostInDemandDTO, toAircraftDTO, toAircraftInfoDTO, toAirlineRouteDTO, toExtraDTO } from "../dtos/airline.dto";
+import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RoutesMostInDemandDTO, toAircraftDTO, toAircraftInfoDTO, toAirlineRouteDTO, toClassDTO, toExtraDTO } from "../dtos/airline.dto";
 import { AirlineDTO, toAirlineDTO } from "../dtos/user.dto";
-import { Aircraft, AirlineRoute, Class, Extra, Route, RoutesMostInDemand } from "../types/airline.types";
+import { AircraftWithClasses, AirlineRoute, Class, CreateAircraft, Extra, Route, RoutesMostInDemand } from "../types/airline.types";
 import { toAirportDTO } from '../dtos/airport.dto';
 
 export const getAirlineById = async (
@@ -138,6 +138,7 @@ export const getRouteByAirports = async (
 
 export const getRouteByAirportsIds = async (
     AirportIds : number[],
+    departure : boolean
 ) : Promise<routes[]> => {
     try{
 
@@ -429,7 +430,7 @@ export const getAirlinesAircrafts = async (
 ) : Promise<AircraftDTO[]> => {
     try{
 
-        const aircrafts : Aircraft[] = await prisma.aircrafts.findMany({
+        const aircrafts : AircraftWithClasses[] = await prisma.aircrafts.findMany({
             where: {
                 airline_id: airlineId,
                 active: true
@@ -451,7 +452,7 @@ export const getAirlinesAircrafts = async (
 
 export const createAirlineAircraft = async (
     airlineId : number,
-    aircraft : Aircraft,
+    aircraft : CreateAircraft,
     classes: Class[]
 ) : Promise<AircraftDTO> => {
     try{
@@ -554,28 +555,22 @@ export const getAircraftClasses = async (
     aircraftId : number
 ) : Promise<ClassDTO[] | null> => {
     try{
-        
-        const aircraft : aircrafts | null = await prisma.aircrafts.findUnique({
-            where : {
-                id: aircraftId,
-                airline_id: airlineId,
-                active: true
-            }
-        });
-
-        if(!aircraft)
-            return null;
 
         const classes : aircraft_classes[] = await prisma.aircraft_classes.findMany({
             where: {
-                aircraft_id: aircraftId
+                aircrafts : {
+                    id: aircraftId,
+                    airline_id: airlineId,
+                    active: true
+                },
+                active: true
             },
             orderBy: {
                 price_multiplier: 'desc'
             }
         })
 
-        return ClassDTO.fromPrismaList(classes);
+        return classes.map(toClassDTO);
 
 
     } catch(err){
