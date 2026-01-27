@@ -1,8 +1,8 @@
 import { aircraft_classes, aircrafts, airlineRoute, airlines, airports, extras, Prisma, routes } from '@prisma/client';
 import prisma from "../config/db";
-import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RoutesMostInDemandDTO, toAircraftInfoDTO, toAirlineRouteDTO, toExtraDTO } from "../dtos/airline.dto";
+import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RoutesMostInDemandDTO, toAircraftDTO, toAircraftInfoDTO, toAirlineRouteDTO, toExtraDTO } from "../dtos/airline.dto";
 import { AirlineDTO, toAirlineDTO } from "../dtos/user.dto";
-import { Aircraft, AirlineRoutes, Class, Extra, Route, RoutesMostInDemand } from "../types/airline.types";
+import { Aircraft, AirlineRoute, Class, Extra, Route, RoutesMostInDemand } from "../types/airline.types";
 import { toAirportDTO } from '../dtos/airport.dto';
 
 export const getAirlineById = async (
@@ -28,7 +28,7 @@ export const getAirlineRoutes = async (
 ) : Promise<AirlineRouteDTO[]> => {
     try{
 
-        const routes : AirlineRoutes[] = await prisma.airlineRoute.findMany({
+        const routes : AirlineRoute[] = await prisma.airlineRoute.findMany({
             where: {
                 airline_id: airlineId,
                 active: true
@@ -426,17 +426,20 @@ export const getAirlineFlightsInProgressCount = async (
 
 export const getAirlinesAircrafts = async (
     airlineId : number
-) : Promise<AircraftInfoDTO[]> => {
+) : Promise<AircraftDTO[]> => {
     try{
 
-        const aircrafts : aircrafts[] = await prisma.aircrafts.findMany({
+        const aircrafts : Aircraft[] = await prisma.aircrafts.findMany({
             where: {
                 airline_id: airlineId,
                 active: true
+            },
+            include: {
+                aircraft_classes: true
             }
         });
 
-        return aircrafts.map(toAircraftInfoDTO);
+        return aircrafts.map(toAircraftDTO);
 
     } catch(err){
         throw new Error(
@@ -450,7 +453,7 @@ export const createAirlineAircraft = async (
     airlineId : number,
     aircraft : Aircraft,
     classes: Class[]
-) : Promise<AircraftDTO | null> => {
+) : Promise<AircraftDTO> => {
     try{
 
         const newAircraft : aircrafts | null = await prisma.aircrafts.create({
@@ -462,11 +465,14 @@ export const createAirlineAircraft = async (
         })
 
         if(!newAircraft)
-            return null;
+            throw new Error("Aircraft creation failed");
 
-        const newClasses : ClassDTO[] = await createAircraftClasses(newAircraft.id, classes);
+        const newClasses : aircraft_classes[] = await createAircraftClasses(newAircraft.id, classes);
 
-        return AircraftDTO.fromPrismaDTO(newAircraft, newClasses);
+        return toAircraftDTO({
+            ...newAircraft,
+            aircraft_classes: newClasses
+        })
 
     } catch(err){
         throw new Error(
@@ -478,21 +484,22 @@ export const createAirlineAircraft = async (
 export const createAircraftClasses = async (
     aircraftId : number,
     classes : Class[]
-) : Promise<ClassDTO[]> => {
+) : Promise<aircraft_classes[]> => {
     try{
-        let aircraftClasses : aircraft_classes[] = [];
-        for(const cls of classes){
-            aircraftClasses.push(await prisma.aircraft_classes.create({
-                data:{
+        const aircraftClasses : aircraft_classes[] = await prisma.$transaction(
+            classes.map(cls => 
+                prisma.aircraft_classes.create({
+                data: {
                     aircraft_id: aircraftId,
                     name: cls.name,
                     nSeats: cls.nSeats,
                     price_multiplier: cls.priceMultiplier
                 }
-            }));
-        };
+                })
+            )
+        );
 
-        return ClassDTO.fromPrismaList(aircraftClasses);
+        return aircraftClasses
 
     } catch(err){
         throw new Error(
@@ -504,31 +511,34 @@ export const createAircraftClasses = async (
 export const deleteAircraft = async (
     airlineId : number,
     aircraftId : number
-) : Promise<AircraftInfoDTO | null> => {
+) : Promise<aircrafts | null> => {
     try{
         
-        const aircraft : aircrafts | null = await prisma.aircrafts.findUnique({
+        const aircraft : aircrafts | null = await prisma.aircrafts.update({
             where : {
                 id: aircraftId,
                 airline_id: airlineId,
                 active: true
-            }
-        });
-
-        if(!aircraft)
-            return null;
-
-        await prisma.aircrafts.update({
-            where: {
-                id: aircraftId
             },
             data: {
                 active: false,
-                deletion_time: new Date()
+                deletion_time: new Date(),
+                aircraft_classes : {
+                    updateMany: {
+                        where: {
+                            aircraft_id: aircraftId,
+                            active: true
+                        },
+                        data: {
+                            active: false,
+                            deletion_time: new Date()
+                        }
+                    }
+                }
             }
-        })
+        });
 
-        return toAircraftInfoDTO(aircraft);
+        return aircraft;
 
 
     } catch(err){

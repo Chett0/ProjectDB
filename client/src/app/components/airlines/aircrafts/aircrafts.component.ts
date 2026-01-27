@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AircraftsService } from '../../../services/airlines/aircrafts.service';
+import { Response } from '../../../../types/responses/responses';
+import { AircraftWithClasses, Class, ClassInfo, CreateAircraft } from '../../../../types/users/airlines';
 
 @Component({
   selector: 'app-aircrafts',
@@ -21,7 +23,7 @@ export class AircraftsComponent implements OnInit {
   // Form fields
   newModel = '';
   newSeats = '';
-  classes: { name: string; nSeats: number | null; price_multiplier: number | null }[] = [];
+  classes: ClassInfo[] = [];
   addLoading = false;
   addError = '';
   addSuccess: string | null = null;
@@ -37,15 +39,14 @@ export class AircraftsComponent implements OnInit {
   }
 
   fetchAircrafts() {
-    this.loading = true;
-    this.error = '';
+  this.loading = true;
+  this.error = '';
   this.aircraftsService.getAircrafts().subscribe({
-      next: (data: any) => {
-        // The backend sometimes returns an object { message, aircrafts: [...] }
-        // Normalize to always have an array to avoid runtime errors.
-        const list = Array.isArray(data) ? data : (data?.aircrafts ?? []);
-        this.aircrafts = list;
-        this.filteredAircrafts = this.aircrafts.slice();
+      next: (res: Response<AircraftWithClasses[]>) => {
+        if(res.success){
+          this.aircrafts = res.data || [];
+          this.applyFilter((this.searchControl.value || '').trim().toLowerCase());
+        }
         this.loading = false;
       },
       error: () => {
@@ -74,7 +75,7 @@ export class AircraftsComponent implements OnInit {
       return;
     }
     for (const c of this.classes) {
-      if (!c.name || !c.nSeats || !c.price_multiplier) {
+      if (!c.name || !c.nSeats || !c.priceMultiplier) {
         this.addError = 'Compila tutti i campi delle classi o rimuovi classi incomplete.';
         return;
       }
@@ -88,16 +89,21 @@ export class AircraftsComponent implements OnInit {
     }
     this.addLoading = true;
     this.addError = '';
-    const payload: any = { model: this.newModel, nSeats: Number(this.newSeats) };
-    if (this.classes && this.classes.length) payload.classes = this.classes.map(c => ({ name: c.name, nSeats: c.nSeats, price_multiplier: c.price_multiplier }));
+    const newAircraft : CreateAircraft = {
+      model: this.newModel,
+      nSeats: Number(this.newSeats),
+      classes: this.classes
+    };
 
-  this.aircraftsService.addAircraft(payload).subscribe({
-      next: (res: any) => {
-        this.addSuccess = 'Aereo aggiunto con successo.';
-        setTimeout(() => this.addSuccess = null, 4000);
-        this.addLoading = false;
-        this.closeAddModal();
-        this.fetchAircrafts();
+  this.aircraftsService.addAircraft(newAircraft).subscribe({
+      next: (res: Response<AircraftWithClasses>) => {
+        if(res.success){
+          this.addSuccess = 'Aereo aggiunto con successo.';
+          setTimeout(() => this.addSuccess = null, 4000);
+          this.addLoading = false;
+          this.closeAddModal();
+          this.aircrafts.push(res.data);
+        }
       },
       error: () => {
         this.addError = 'Errore durante l\'aggiunta.';
@@ -108,7 +114,7 @@ export class AircraftsComponent implements OnInit {
 
   addClass() {
     if (this.classes.length >= 4) return;
-    this.classes.push({ name: '', nSeats: null, price_multiplier: null });
+    this.classes.push({ name: '', nSeats: 0, priceMultiplier: 0 });
   }
 
   removeClass(index: number) {
@@ -133,9 +139,11 @@ export class AircraftsComponent implements OnInit {
     if (!confirmed) return;
 
   this.aircraftsService.deleteAircraft(aircraft.id).subscribe({
-      next: () => {
-        this.aircrafts = this.aircrafts.filter(a => a.id !== aircraft.id);
-        this.applyFilter((this.searchControl.value || '').trim().toLowerCase());
+      next: (res : Response<void>) => {
+        if(res.success){
+          this.aircrafts = this.aircrafts.filter(a => a.id !== aircraft.id);
+          this.applyFilter((this.searchControl.value || '').trim().toLowerCase());
+        }
       },
       error: () => {
         this.error = "Errore durante l'eliminazione dell'aereo.";

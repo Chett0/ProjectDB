@@ -55,7 +55,6 @@ export class AirlinesHomeComponent implements OnInit{
   ngOnInit(): void {
 
     this.route.data.subscribe(({ airlineData }) => {
-      console.log('Resolved Airline Data:', airlineData);
       if(airlineData){
         this.dashboardStats = airlineData.dashboardStatsResponse.data;
       }

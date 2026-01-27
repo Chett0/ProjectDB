@@ -17,14 +17,14 @@ export interface Class {
     priceMultiplier: Decimal
 }
 
-export interface Aircraft {
+export interface CreateAircraft {
     model: string,
     nSeats: number,
     classes: Class[]
 }
 
 
-export type AircraftInfo = Prisma.aircraftsGetPayload<{
+export type AircraftWithAirlines = Prisma.aircraftsGetPayload<{
     include: {
         airlines: true
     }
@@ -36,7 +36,7 @@ export interface RoutesMostInDemand {
 }
 
 
-export type AirlineRoutes = Prisma.airlineRouteGetPayload<{
+export type AirlineRoute = Prisma.airlineRouteGetPayload<{
     include : {
         routes : {
             include : {
@@ -44,5 +44,11 @@ export type AirlineRoutes = Prisma.airlineRouteGetPayload<{
                 arrival_airport : true
             }
         }
+    }
+}>;
+
+export type AircraftWithClasses = Prisma.aircraftsGetPayload<{
+    include : {
+        aircraft_classes : true
     }
 }>;

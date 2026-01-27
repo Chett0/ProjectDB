@@ -1,4 +1,7 @@
+import { Airport } from '../airports/airports';
 import { Response } from '../responses/responses';
+
+// User
 
 export interface Airline {
     id: number,
@@ -12,25 +15,46 @@ export interface AirlineAsUser {
     name: string
 }
 
+// Aircrafts
+
 export interface AircraftInfo {
     model : string,
     nSeats : number
+}
+
+export interface CreateAircraft extends AircraftInfo {  
+    classes : ClassInfo[];
 }
 
 export interface Aircraft {
     id: number,
     model: string,
     nSeats: number,
-    airline : Airline,
 }
 
-export interface Airport {
-    id: number,
-    name : string, 
-    code : string,
-    city : string,
-    country : string
+export interface AircraftWithAirline extends Aircraft {
+    airline : Airline
 }
+
+export interface AircraftWithClasses extends AircraftWithAirline {
+    classes: Class[];
+}
+
+export interface Class {
+    id: number;
+    name: string;
+    nSeats: number;
+    priceMultiplier: number;
+}
+
+export interface ClassInfo {
+    name: string;
+    nSeats: number;
+    priceMultiplier: number;
+}
+
+// Routes
+
 
 export interface AirlineRoute {
     id : number,
@@ -42,6 +66,21 @@ export interface Route {
     departureAirportCode : string,
     arrivalAirportCode : string
 }
+
+// Extra 
+
+export interface Extra {
+    id: number;
+    name: string;
+    price: number;
+}
+
+export interface CreateExtra {
+    name: string;
+    price: number;
+}
+
+//Dashboard
 
 export interface RoutesMostInDemand {
     departureAirport: Airport;
@@ -66,15 +105,4 @@ export interface AirlineDashBoard {
 
 export interface AirlineResolverResponse {
     dashboardStatsResponse: Response<AirlineDashBoard>;
-}
-
-export interface Extra {
-    id: number;
-    name: string;
-    price: number;
-}
-
-export interface CreateExtra {
-    name: string;
-    price: number;
 }

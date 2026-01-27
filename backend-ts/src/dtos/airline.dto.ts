@@ -1,8 +1,8 @@
 import { Decimal } from "@prisma/client/runtime/library";
 import { AirportDTO, toAirportDTO } from "./airport.dto";
-import { extras } from '@prisma/client';    
+import { aircraft_classes, aircrafts, extras } from '@prisma/client';    
 import { AirlineDTO, toAirlineDTO } from "./user.dto";
-import { AircraftInfo, AirlineRoutes } from "../types/airline.types";
+import { AircraftWithClasses, AirlineRoute, AircraftWithAirlines } from "../types/airline.types";
 
 export interface AirlineRouteDTO {
     id: number;
@@ -10,7 +10,7 @@ export interface AirlineRouteDTO {
     arrivalAirport: AirportDTO;
 }
 
-export const toAirlineRouteDTO = (airlineRoute: AirlineRoutes): AirlineRouteDTO => ({
+export const toAirlineRouteDTO = (airlineRoute: AirlineRoute): AirlineRouteDTO => ({
     id: airlineRoute.route_id,
     departureAirport: toAirportDTO(airlineRoute.routes.departure_airport),
     arrivalAirport: toAirportDTO(airlineRoute.routes.arrival_airport)
@@ -44,6 +44,13 @@ export interface ClassDTO {
     priceMultiplier: number;
 }
 
+export const toClassDTO = (aircraftClass: aircraft_classes): ClassDTO => ({
+    id: aircraftClass.id,
+    name: aircraftClass.name,
+    nSeats: aircraftClass.nSeats,
+    priceMultiplier: aircraftClass.price_multiplier.toNumber()
+});
+
 
 export interface AircraftDTO {
     id: number;
@@ -52,6 +59,13 @@ export interface AircraftDTO {
     classes: ClassDTO[];
 }
 
+export const toAircraftDTO = (aircraft: AircraftWithClasses): AircraftDTO => ({
+    id: aircraft.id,
+    model: aircraft.model,
+    nSeats: aircraft.nSeats,
+    classes: aircraft.aircraft_classes.map(toClassDTO)
+});
+
 export interface AircraftInfoDTO {
     id: number;
     model: string;
@@ -59,13 +73,13 @@ export interface AircraftInfoDTO {
     airline: AirlineDTO;
 }
 
-export const toAircraftInfoDTO = (aircraft: AircraftInfo): AircraftInfoDTO => ({
+export const toAircraftInfoDTO = (aircraft: AircraftWithAirlines): AircraftInfoDTO => ({
     id: aircraft.id,
     model: aircraft.model,
     nSeats: aircraft.nSeats,
     airline: toAirlineDTO(aircraft.airlines)
 });
-
+ 
 export interface RoutesMostInDemandDTO {
     routeId : number;
     departureAirportName: string;

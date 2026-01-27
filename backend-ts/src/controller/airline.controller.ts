@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AuthenticatedRequest } from "../types/auth.types";
-import { airlineRoute, routes } from '@prisma/client';
+import { aircrafts, airlineRoute, routes } from '@prisma/client';
 import * as airlineService from "../services/airline.service";
 import * as airportService from "../services/airport.service";
 import { errorResponse, missingFieldsResponse, notFoundResponse, successResponse } from "../utils/helpers/response.helper";
@@ -303,11 +303,11 @@ const createAircraft = async(req : AuthenticatedRequest, res : Response): Promis
 };
 
 
-const getAirlinesAircrafts = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+const getAirlinesAircrafts = async(req : AuthenticatedRequest, res : Response): Promise<Response<AircraftDTO[]>> => {
     try{
         const airlineId : number = req.user!.id; 
 
-        const aircrafts : AircraftInfoDTO[] = await airlineService.getAirlinesAircrafts(airlineId);
+        const aircrafts : AircraftDTO[] = await airlineService.getAirlinesAircrafts(airlineId);
 
         return successResponse(res, "Airline's aircraft retrieved successfully", aircrafts);
     }
@@ -328,13 +328,13 @@ const deleteAircraft = async(req : AuthenticatedRequest, res : Response): Promis
 
         const aircraftId : number = parseInt(paramsAircraftId);
 
-        const aircraft : AircraftInfoDTO | null = await airlineService.deleteAircraft(airlineId, aircraftId);
+        const aircraft : aircrafts | null = await airlineService.deleteAircraft(airlineId, aircraftId);
 
         if(!aircraft)
             return notFoundResponse(res, "Aircraft not found");
 
 
-        return successResponse(res, "Airline's aircraft deleted successfully", aircraft);
+        return successResponse(res, "Airline's aircraft deleted successfully");
     }
     catch (error) {
         console.error("Error while deleting aircraft: ", error);

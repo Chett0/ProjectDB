@@ -1,4 +1,5 @@
-import { Aircraft, Airport } from "../users/airlines"
+import { Airport } from "../airports/airports"
+import { Aircraft } from "../users/airlines"
 
 export interface FlightSeat {
     id: number, 

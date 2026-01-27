@@ -17,8 +17,8 @@ router.get('/extras', airlinesController.getAirlineExtras);
 router.delete('/extras/:extraId', airlinesController.deleteExtraById);
 
 router.post('/aircrafts', airlinesController.createAircraft);
-router.get('/aircrats', airlinesController.getAirlinesAircrafts)
-router.delete('/aircrats/:aircraftId', airlinesController.deleteAircraft)
+router.get('/aircrafts', airlinesController.getAirlinesAircrafts)
+router.delete('/aircrafts/:aircraftId', airlinesController.deleteAircraft)
 
 router.get('/aircrafts/:aircraftId/classes', airlinesController.getAircraftClasses);
 
