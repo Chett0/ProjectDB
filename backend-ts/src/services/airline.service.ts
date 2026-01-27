@@ -1,8 +1,8 @@
 import { aircraft_classes, aircrafts, airlineRoute, airlines, airports, extras, Prisma, routes } from '@prisma/client';
 import prisma from "../config/db";
-import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RoutesMostInDemandDTO, toAircraftInfoDTO, toExtraDTO } from "../dtos/airline.dto";
+import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RoutesMostInDemandDTO, toAircraftInfoDTO, toAirlineRouteDTO, toExtraDTO } from "../dtos/airline.dto";
 import { AirlineDTO, toAirlineDTO } from "../dtos/user.dto";
-import { Aircraft, Class, Extra, Route, RoutesMostInDemand } from "../types/airline.types";
+import { Aircraft, AirlineRoutes, Class, Extra, Route, RoutesMostInDemand } from "../types/airline.types";
 import { toAirportDTO } from '../dtos/airport.dto';
 
 export const getAirlineById = async (
@@ -27,32 +27,23 @@ export const getAirlineRoutes = async (
     airlineId : number
 ) : Promise<AirlineRouteDTO[]> => {
     try{
-        const routes : AirlineRouteDTO[] | null = await prisma.$queryRaw`
-            SELECT 
-                R.id, 
-                json_build_object(
-                    'id', AD.id,
-                    'name', AD.name,
-                    'code', AD.code,
-                    'city', AD.city,
-                    'country', AD.country
-                ) AS "departureAirport",
-                json_build_object(
-                    'id', AA.id,
-                    'name', AA.name,
-                    'code', AA.code,
-                    'city', AA.city,
-                    'country', AA.country
-                ) AS "arrivalAirport"
-            FROM public."airlineRoute" A 
-            JOIN Routes R ON A.route_id = R.id 
-            JOIN Airports AD ON R.departure_airport_id = AD.id 
-            JOIN Airports AA ON R.arrival_airport_id = AA.id
-            WHERE A.airline_id = ${airlineId} 
-                AND A.active = true 
-        `;
 
-        return routes ? routes : [];
+        const routes : AirlineRoutes[] = await prisma.airlineRoute.findMany({
+            where: {
+                airline_id: airlineId,
+                active: true
+            },
+            include: {
+                routes: {
+                    include: {
+                        departure_airport: true,
+                        arrival_airport: true
+                    }
+                }
+            }
+        });
+
+        return routes.map(toAirlineRouteDTO);
     } catch(err){
         throw new Error(
             `Failed to retrieving airline route: ${err instanceof Error ? err.message : "Unknown error"}`
@@ -64,22 +55,22 @@ export const getAirlineRoutes = async (
 export const createAirlineRoute = async (
     airlineId : number,
     route : Route
-) : Promise<routes | null> => {
+) : Promise<routes> => {
     try{
 
         let existingRoute : routes | null = await getRouteByAirports(route.departureAirportId, route.arrivalAirportId);
 
-        const newRoute : routes | null = await prisma.$transaction(async(tx) => {
+        const newRoute : routes  = await prisma.$transaction(async(tx) => {
 
             if(!existingRoute){
-                const newRoute : routes = await tx.routes.create({
+                const newRouteResult : routes = await tx.routes.create({
                     data: {
                         departure_airport_id: route.departureAirportId,
                         arrival_airport_id: route.arrivalAirportId
                     }
                 });
 
-                existingRoute = newRoute;
+                existingRoute = newRouteResult;
             }
 
             let existingAirlineRoute : airlineRoute | null = await getAirlineRoute(airlineId, existingRoute.id);
@@ -98,11 +89,9 @@ export const createAirlineRoute = async (
                         }
                     })
                 }
-                else
-                    return null;
             }
             else{
-                const newAirlineRoute : airlineRoute | null = await tx.airlineRoute.create({
+                const newAirlineRoute : airlineRoute = await tx.airlineRoute.create({
                     data: {
                         airline_id: airlineId,
                         route_id: existingRoute.id
@@ -110,10 +99,7 @@ export const createAirlineRoute = async (
                 });
 
                 existingAirlineRoute = newAirlineRoute;
-            }
-
-            if(!existingRoute || !existingAirlineRoute)
-                throw new Error("Airline route not created");
+            };
 
             return existingRoute;
         });
@@ -250,7 +236,7 @@ export const deleteAirlineRouteById = async (
                 }
             },
             data : {
-                active: true,
+                active: false,
                 deletion_time: new Date()
             }
         })
@@ -450,7 +436,7 @@ export const getAirlinesAircrafts = async (
             }
         });
 
-        return AircraftInfoDTO.fromPrismaList(aircrafts);
+        return aircrafts.map(toAircraftInfoDTO);
 
     } catch(err){
         throw new Error(

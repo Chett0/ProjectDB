@@ -35,13 +35,13 @@
                             <div class="route-label-inner">
                                 <div class="route-airports">
                                     <span class="route-airport">
-                                        <span class="route-airport-code">{{ route.departure_airport.code || route.departure_airport }}</span>
-                                        <span class="route-airport-name">{{ route.departure_airport.name ? ' - ' + route.departure_airport.name : '' }}</span>
+                                        <span class="route-airport-code">{{ route.departureAirport.code }}</span>
+                                        <span class="route-airport-name">{{ route.departureAirport.name ? ' - ' + route.departureAirport.name : '' }}</span>
                                     </span>
                                     <span class="route-arrow">→</span>
                                     <span class="route-airport">
-                                        <span class="route-airport-code">{{ route.arrival_airport.code || route.arrival_airport }}</span>
-                                        <span class="route-airport-name">{{ route.arrival_airport.name ? ' - ' + route.arrival_airport.name : '' }}</span>
+                                        <span class="route-airport-code">{{ route.arrivalAirport.code }}</span>
+                                        <span class="route-airport-name">{{ route.arrivalAirport.name ? ' - ' + route.arrivalAirport.name : '' }}</span>
                                     </span>
                                 </div>
                                 <button type="button" class="btn danger route-delete-btn" (click)="deleteRoute(route)">Elimina</button>

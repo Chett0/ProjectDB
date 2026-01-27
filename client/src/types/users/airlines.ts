@@ -32,15 +32,15 @@ export interface Airport {
     country : string
 }
 
-export interface RouteAirport {
+export interface AirlineRoute {
     id : number,
-    departure_airport : Airport,
-    arrival_airport : Airport
+    departureAirport : Airport,
+    arrivalAirport : Airport
 }
 
 export interface Route {
-    departure_airport_code : string,
-    arrival_airport_code : string
+    departureAirportCode : string,
+    arrivalAirportCode : string
 }
 
 export interface RoutesMostInDemand {

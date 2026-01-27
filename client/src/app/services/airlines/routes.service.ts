@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Route } from '../../../types/users/airlines';
+import { AirlineRoute, Route } from '../../../types/users/airlines';
+import { Response } from '../../../types/responses/responses';
 import { enviroment } from '../../enviroments/enviroments';
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
@@ -9,19 +10,22 @@ import { tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class RoutesService {
-  private routesCache: any[] | null = null;
-
+  private routesCache: AirlineRoute[] | null = null;
 
   constructor(private http : HttpClient) { }
 
-  getRoutes() {
+  getRoutes() : Observable<Response<AirlineRoute[]>> {
     if (this.routesCache) {
-      return of({ routes: this.routesCache });
+      return of({ 
+        success: true,
+        message: 'Cached routes',
+        data: this.routesCache 
+      });
     }
-    return this.http.get<any>(`${enviroment.apiUrl}/routes`).pipe(
-      tap(data => {
-        const list = Array.isArray(data) ? data : (data as any)?.routes ?? [];
-        this.routesCache = list;
+    return this.http.get<Response<AirlineRoute[]>>(`${enviroment.apiUrl}/airlines/routes`).pipe(
+      tap(res => {
+        if(res && res.success)
+          this.routesCache = res.data || [];
       })
     );
   }
@@ -31,13 +35,20 @@ export class RoutesService {
   }
 
   addRoute(route : Route){
-    this.routesCache = null;
-    return this.http.post<any>(`${enviroment.apiUrl}/routes`, route);
+    return this.http.post<Response<AirlineRoute>>(`${enviroment.apiUrl}/airlines/routes`, route).pipe(
+      tap(res => {
+        if(res && res.success && res.data){
+          if(!this.routesCache){
+            this.routesCache = [];
+          this.routesCache.push(res.data);
+          }
+        }
+      })
+    );
   }
 
   deleteRoute(routeId : number){
-    this.routesCache = null;
-    return this.http.delete<any>(`${enviroment.apiUrl}/routes/${routeId}`)
+    return this.http.delete<Response<void>>(`${enviroment.apiUrl}/airlines/routes/${routeId}`)
   }
 
   getRoutesCount() {

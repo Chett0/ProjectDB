@@ -71,7 +71,7 @@ const createAirlineRoute = async(req : AuthenticatedRequest, res : Response): Pr
             arrivalAirportId: arrivalAirport.id
         }
 
-        const newRoute : routes | null = await airlineService.createAirlineRoute(
+        const newRoute : routes  = await airlineService.createAirlineRoute(
             airlineId,
             route
         )

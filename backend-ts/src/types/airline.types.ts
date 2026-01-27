@@ -34,3 +34,15 @@ export interface RoutesMostInDemand {
     id: number, 
     passengersCount : number
 }
+
+
+export type AirlineRoutes = Prisma.airlineRouteGetPayload<{
+    include : {
+        routes : {
+            include : {
+                departure_airport : true,
+                arrival_airport : true
+            }
+        }
+    }
+}>;

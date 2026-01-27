@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RoutesService } from '../../../services/airlines/routes.service';
-import { Route, RouteAirport } from '../../../../types/users/airlines';
+import { AirlineRoute, Route } from '../../../../types/users/airlines';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
@@ -15,8 +15,8 @@ export class RoutesComponent implements OnInit{
 
   constructor(private routesService : RoutesService, private router : Router) {}
 
-  routes : RouteAirport[] = [];
-  filteredRoutes : RouteAirport[] = [];
+  routes : AirlineRoute[] = [];
+  filteredRoutes : AirlineRoute[] = [];
   loading = false;
   submitting = false;
   deletingId: number | null = null;
@@ -30,6 +30,7 @@ export class RoutesComponent implements OnInit{
   });
 
   ngOnInit(): void {
+
     this.loadRoutes();
 
     this.searchControl.valueChanges.subscribe(value => {
@@ -41,14 +42,15 @@ export class RoutesComponent implements OnInit{
     
     this.loading = true;
     this.errorMessage = null;
-  this.routesService.getRoutes().subscribe({
-      next: response => {
-        this.routes = response.routes || [];
-        this.filteredRoutes = this.routes.slice();
+    this.routesService.getRoutes().subscribe({
+      next: res => {
+        if(res.success){
+          this.routes = res.data || [];
+          this.filteredRoutes = this.routes.slice();
+        }
         this.loading = false;
       },
       error: (err) => {
-        console.error(err);
         this.errorMessage = 'Impossibile caricare le tratte.';
         this.loading = false;
       }
@@ -61,13 +63,13 @@ export class RoutesComponent implements OnInit{
       return;
     }
     this.filteredRoutes = this.routes.filter(r => {
-      const dep = (r.departure_airport?.name || r.departure_airport?.code || '').toLowerCase();
-      const arr = (r.arrival_airport?.name || r.arrival_airport?.code || '').toLowerCase();
+      const dep = (r.departureAirport?.name || r.departureAirport?.code || '').toLowerCase();
+      const arr = (r.arrivalAirport?.name || r.arrivalAirport?.code || '').toLowerCase();
       return dep.includes(filter) || arr.includes(filter) || String(r.id).includes(filter);
     });
   }
 
-  trackByRoute(_index: number, r: RouteAirport) {
+  trackByRoute(_index: number, r: AirlineRoute) {
     return r.id;
   }
 
@@ -78,8 +80,8 @@ export class RoutesComponent implements OnInit{
     }
 
     const newRoute : Route = {
-      departure_airport_code : this.addRouteForm.value.departure_airport!.toUpperCase(),
-      arrival_airport_code : this.addRouteForm.value.arrival_airport!.toUpperCase()
+      departureAirportCode : this.addRouteForm.value.departure_airport!.toUpperCase(),
+      arrivalAirportCode : this.addRouteForm.value.arrival_airport!.toUpperCase()
     };
 
     this.submitting = true;
@@ -87,8 +89,11 @@ export class RoutesComponent implements OnInit{
 
   this.routesService.addRoute(newRoute).subscribe({
       next: response => {
-        this.loadRoutes();
         this.addRouteForm.reset();
+        if(response.success && response.data){
+          this.routes.push(response.data);
+          this.applyFilter((this.searchControl.value || '').trim().toLowerCase());
+        }
         this.submitting = false;
       },
       error: (err) => {
@@ -99,18 +104,21 @@ export class RoutesComponent implements OnInit{
     });
   }
 
-  deleteRoute(route: RouteAirport){
-    const confirmed = window.confirm(`Sei sicuro di voler eliminare la tratta: ${route.departure_airport?.code} → ${route.arrival_airport?.code}?`);
+  deleteRoute(route: AirlineRoute){
+    const confirmed = window.confirm(`Sei sicuro di voler eliminare la tratta: ${route.departureAirport.code} → ${route.arrivalAirport.code}?`);
     if (!confirmed) return;
 
     this.deletingId = route.id;
     this.errorMessage = null;
 
   this.routesService.deleteRoute(route.id).subscribe({
-      next: response => {
-        this.routes = this.routes.filter(r => r.id !== route.id);
-        this.applyFilter((this.searchControl.value || '').trim().toLowerCase());
-        this.deletingId = null;
+      next: res => {
+        if(res.success){
+          this.routes = this.routes.filter(r => r.id !== route.id);
+          this.applyFilter((this.searchControl.value || '').trim().toLowerCase());
+          this.routesService.clearCache();
+          this.deletingId = null;
+        }
       },
       error: (err) => {
         this.errorMessage = 'Errore durante l\'eliminazione della tratta.';

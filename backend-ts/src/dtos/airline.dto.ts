@@ -1,14 +1,20 @@
 import { Decimal } from "@prisma/client/runtime/library";
-import { AirportDTO } from "./airport.dto";
+import { AirportDTO, toAirportDTO } from "./airport.dto";
 import { extras } from '@prisma/client';    
 import { AirlineDTO, toAirlineDTO } from "./user.dto";
-import { AircraftInfo } from "../types/airline.types";
+import { AircraftInfo, AirlineRoutes } from "../types/airline.types";
 
 export interface AirlineRouteDTO {
     id: number;
     departureAirport: AirportDTO;
     arrivalAirport: AirportDTO;
 }
+
+export const toAirlineRouteDTO = (airlineRoute: AirlineRoutes): AirlineRouteDTO => ({
+    id: airlineRoute.route_id,
+    departureAirport: toAirportDTO(airlineRoute.routes.departure_airport),
+    arrivalAirport: toAirportDTO(airlineRoute.routes.arrival_airport)
+});
 
 export interface ExtraDTO {
     id: number;
