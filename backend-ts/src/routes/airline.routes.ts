@@ -23,6 +23,7 @@ router.delete('/aircrafts/:aircraftId', airlinesController.deleteAircraft)
 router.get('/aircrafts/:aircraftId/classes', airlinesController.getAircraftClasses);
 
 router.get('/flights', airlinesController.getAirlineFlights);
+router.post('/flights', airlinesController.createAirlineFlight);
 
 
 export default router;

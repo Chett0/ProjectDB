@@ -385,3 +385,32 @@ export const getAirlineFlights = async(req : AuthenticatedRequest, res : Respons
         return errorResponse(res, "Internal server error while retrieving flights");
     }
 };
+
+export const createAirlineFlight = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+    try{
+        const airlineId : number = req.user!.id;
+        const {routeId, aircraftId, departureTime, arrivalTime, basePrice} = req.body;
+        
+        if(!airlineId || !routeId || !aircraftId || !departureTime || !arrivalTime || !basePrice){
+            return missingFieldsResponse(res);
+        }
+
+        const flight : Flight = {
+            routeId : routeId,
+            aircraftId : aircraftId,
+            departureTime: departureTime,
+            arrivalTime: arrivalTime,
+            basePrice: basePrice,
+            durationSeconds: (arrivalTime - departureTime)
+        }
+
+        const newFlight : FlightInfoDTO = await airlineService.createAirlineFlight(airlineId, flight);
+
+        return successResponse(res, "Airline's flight created successfully", newFlight);
+    }
+    catch (error) {
+        console.error("Error while creating flight: ", error);
+        return errorResponse(res, "Internal server error while creating flight");
+    }
+};
+

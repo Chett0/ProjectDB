@@ -4,7 +4,7 @@ import { AircraftDTO, AircraftInfoDTO, AirlineRouteDTO, ClassDTO, ExtraDTO, Mont
 import { AirlineDTO, toAirlineDTO } from "../dtos/user.dto";
 import { AircraftWithClasses, AirlineRoute, Class, CreateAircraft, Extra, Route, RoutesMostInDemand } from "../types/airline.types";
 import { FlightInfoDTO, toFlightInfoDTO } from '../dtos/flight.dto';
-import { FlightInfo } from '../types/flight.types';
+import { Flight, FlightInfo } from '../types/flight.types';
 
 export const getAirlineById = async (
     airlineId : number
@@ -695,6 +695,9 @@ export const getAirlineMonthlyIncomesByYear = async (
     }
 }
 
+
+// Flights
+
 export const getAirlineFlights = async (
     airlineId : number
 ) : Promise<FlightInfoDTO[]> => {
@@ -723,6 +726,55 @@ export const getAirlineFlights = async (
 
         return flights.map(toFlightInfoDTO);
 
+    } catch(err){
+        throw new Error(
+            `Failed to retrieving airline flights: ${err instanceof Error ? err.message : "Unknown error"}`
+        ); 
+    }
+}
+
+
+export const createAirlineFlight = async (
+    airlineId : number,
+    flight : Flight
+) : Promise<FlightInfoDTO> => {
+     try{
+
+        const aircraft : aircrafts | null = await getAirlineAircraftById(airlineId, flight.aircraftId);
+        if(!aircraft)
+            throw new Error("Aircraft not found or does not belong to the airline");
+
+        const airlineRoute : airlineRoute | null = await getAirlineRoute(airlineId, flight.routeId);
+        if(!airlineRoute)
+            throw new Error("Route not found or does not belong to the airline");
+        
+        const newFlight : FlightInfo = await prisma.flights.create({
+            data: {
+                route_id: flight.routeId,
+                aircraft_id: flight.aircraftId,
+                departure_time: flight.departureTime,
+                arrival_time: flight.arrivalTime,
+                base_price: flight.basePrice,
+                duration_seconds: flight.durationSeconds,
+                nSeats_available: aircraft.nSeats,
+                nSeats_total: aircraft.nSeats
+            },
+            include: {
+                aircrafts: {
+                    include: {
+                        airlines: true
+                    }
+                },
+                routes: {
+                    include: {
+                        departure_airport: true,
+                        arrival_airport: true
+                    }
+                }
+            }
+        });
+
+        return toFlightInfoDTO(newFlight);
     } catch(err){
         throw new Error(
             `Failed to retrieving airline flights: ${err instanceof Error ? err.message : "Unknown error"}`
