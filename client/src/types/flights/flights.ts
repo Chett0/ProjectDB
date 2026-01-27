@@ -1,26 +1,23 @@
 import { Expansion } from "@angular/compiler"
 import { Airport } from "../airports/airports"
-import { Aircraft } from "../users/airlines"
+import { AircraftWithAirline, Class, Extra } from "../users/airlines"
 
 export interface FlightSeat {
     id: number, 
-    departure_time: string,
-    arrival_time: string
+    departureTime: string,
+    arrivalTime: string
 }
 
-export interface AircraftClassSeat {
-    id: number,
-    name: string,
-    price_multiplier: number
+export interface Seat extends SeatInfo {
+    flight: FlightSeat
 }
 
-export interface Seat {
+export interface SeatInfo {
     id: number,
     number: string,
     state: string,
     price: number,
-    flight: FlightSeat,
-    aircraft_class: AircraftClassSeat
+    aircraftClass : Class
 }
 
 export interface Flight {
@@ -28,7 +25,7 @@ export interface Flight {
     departureTime: Date,
     arrivalTime: Date,
     basePrice: number,
-    aircraft : Aircraft,
+    aircraft : AircraftWithAirline,
     departureAirport: Airport,
     arrivalAirport: Airport
 }
@@ -48,9 +45,28 @@ export interface Journeys {
     totalPrice: number
 }
 
+export interface TicketFlightData {
+    flight: Flight,
+    seats: SeatInfo[],
+    classes: Class[];
+    extras: Extra[];
+    selectedSeat: SeatInfo | null;
+    selectedClass: string;
+    selectedExtras: number[];
+    final_cost: number;
+}
+
 export interface Filters {
   maxPrice: number,
   nStop: number;
   sortBy: 'total_price' | 'total_duration' | 'departure_time' | 'arrival_time';
   order: 'asc' | 'desc';
+}
+
+
+export interface CreateTicket {
+    flightId: number,
+    finalCost: number,
+    extrasIds: number[],
+    seatNumber: string,
 }

@@ -4,5 +4,16 @@ import { tickets } from '@prisma/client';
 export interface TicketInfoDTO {
     id: number;
     seatNumber: string;
-    final_cost: Decimal;
+    finalCost: Decimal;
 }
+
+export const toTicketInfoDTO = (ticket: tickets, seatNumber: string): TicketInfoDTO => ({
+    id: ticket.id,
+    seatNumber: seatNumber,
+    finalCost: ticket.final_cost,
+})
+
+// export interface FullTicketInfoDTO {
+//     id: number;
+
+// }

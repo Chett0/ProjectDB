@@ -29,7 +29,7 @@ const getPassengerDetails = async(req : AuthenticatedRequest, res : Response): P
 const createTicket = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
     try{
         const passengerId : number | null = req.user!.id;
-        const {flightId, finalCost, extras, seatNumber} = req.body; 
+        const {flightId, finalCost, extrasIds, seatNumber} = req.body; 
         
         if(!passengerId || !flightId || !finalCost || !seatNumber){
             return missingFieldsResponse(res);
@@ -44,10 +44,7 @@ const createTicket = async(req : AuthenticatedRequest, res : Response): Promise<
             purchaseDate : new Date()
         }
 
-        const newTicket : TicketInfoDTO | null = await passengerService.createTicket(ticket, extras);
-        if(!newTicket){
-            return errorResponse(res, "Ticket not created", null, 409);
-        }
+        const newTicket : TicketInfoDTO  = await passengerService.createTicket(ticket, extrasIds);
 
         return successResponse(res, "Ticket created successfully", newTicket, 201);
     }
@@ -64,10 +61,9 @@ const getPassengerTickets = async (req: AuthenticatedRequest, res: Response): Pr
         if (!passengerId) {
             return missingFieldsResponse(res);
         }
-        const page = req.query.page ? parseInt(req.query.page as string) : 1;
-        const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
-        const { tickets, totalPages } = await passengerService.getPassengerTickets(passengerId, page, limit);
-        return successResponse(res, "Tickets retrieved successfully", { tickets, totalPages });
+
+        await passengerService.getPassengerTickets(passengerId);
+        return successResponse(res, "Tickets retrieved successfully");
     } catch (error) {
         console.error("Error while retrieving tickets: ", error);
         return errorResponse(res, "Internal error retrieving tickets");

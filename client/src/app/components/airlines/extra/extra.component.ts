@@ -25,8 +25,8 @@ export class ExtraComponent implements OnInit {
   error: string | null = null;
 
   constructor(private airlinesService: AirlinesService) {
-    this.searchControl.valueChanges.subscribe((search) => {
-      this.applySearch(search ?? '');
+    this.searchControl.valueChanges.subscribe(() => {
+      this.applySearch();
     });
   }
 
@@ -40,7 +40,7 @@ export class ExtraComponent implements OnInit {
     this.airlinesService.getExtras().subscribe({
       next: (res : Response<Extra[]>) => {
         this.extras = res.data || [];
-        this.applySearch(this.searchControl.value ?? '');
+        this.applySearch();
         this.loading = false;
       },
       error: () => {
@@ -50,8 +50,8 @@ export class ExtraComponent implements OnInit {
     });
   }
 
-  applySearch(query: string) {
-    const q = query.trim().toLowerCase();
+  applySearch() {
+    const q = this.searchControl.value ? this.searchControl.value.trim().toLowerCase() : null;
     if (!q) {
       this.filteredExtras = [...this.extras];
       return;
@@ -79,7 +79,7 @@ export class ExtraComponent implements OnInit {
         this.showAddModal = false;
         this.addExtraForm.reset();
         this.extras.push(res.data);
-        this.applySearch(this.searchControl.value ?? '');
+        this.applySearch();
       },
       error: () => {
         this.submitting = false;
@@ -96,7 +96,7 @@ export class ExtraComponent implements OnInit {
           return;
         }
         this.extras = this.extras.filter(e => e.id !== extra.id);
-        this.applySearch(this.searchControl.value ?? '');
+        this.applySearch();
       },
       error: () => { 
         this.error = 'Errore eliminazione extra'; 

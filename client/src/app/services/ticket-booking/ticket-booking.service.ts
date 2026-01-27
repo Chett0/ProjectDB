@@ -4,6 +4,9 @@ import { enviroment } from '../../enviroments/enviroments';
 import { Observable } from 'rxjs/internal/Observable';
 import { of } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { CreateTicket } from '../../../types/flights/flights';
+import { tick } from '@angular/core/testing';
+import { Response } from '../../../types/responses/responses';
 
 @Injectable({
   providedIn: 'root'
@@ -12,17 +15,16 @@ export class TicketBookingService {
   private ticketsCache: { [key: string]: any } | null = null; 
   constructor(private http: HttpClient) { }
 
-  buyTicket(flightId: number, finalCost: number, seatNumber: string, extras: number[]): Observable<any> {
-    const url = `${enviroment.apiUrl}/tickets`;
+  buyTicket(ticket : CreateTicket): Observable<Response<any>> {
 
     const body = {
-      flight_id: flightId,
-      final_cost: finalCost,
-      seat_number: seatNumber,
-      extras: extras
+      flightId: ticket.flightId,
+      finalCost: ticket.finalCost,
+      seatNumber: ticket.seatNumber,
+      extrasIds: ticket.extrasIds
     };
 
-    return this.http.post(url, body).pipe(
+    return this.http.post<Response<any>>(`${enviroment.apiUrl}/tickets`, body).pipe(
       tap(() => this.clearTicketsCache())
     );
   }

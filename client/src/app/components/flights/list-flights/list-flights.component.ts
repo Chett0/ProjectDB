@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { LoadingComponent } from "../../utils/loading/loading.component";
 import { Response } from '../../../../types/responses/responses';
 import { Filters, Journeys } from '../../../../types/flights/flights';
+import { JourneyService } from '../../../services/journey/journey.service';
 
 @Component({
   selector: 'app-list-flights',
@@ -22,6 +23,7 @@ export class ListFlightsComponent implements OnInit{
 
   constructor(
     private searchFlightsService: SearchFlightsService,
+    private journeyService: JourneyService,
     private route : ActivatedRoute,
     private router : Router,
     private cdr: ChangeDetectorRef
@@ -66,10 +68,14 @@ export class ListFlightsComponent implements OnInit{
 
 
   onBuyTicket(journey: Journeys) : void {
+
+    this.journeyService.setJourney(journey);
+
     const flightsId : number[] = [journey.firstFlight.id];
     if(journey.secondFlight) {
       flightsId.push(journey.secondFlight.id);
     } 
+    
     this.router.navigate(
       ['flights', 'buy-ticket'],
       { queryParams: {ids: flightsId}}

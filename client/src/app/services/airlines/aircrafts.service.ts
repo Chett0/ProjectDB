@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Aircraft, AircraftWithClasses, CreateAircraft } from '../../../types/users/airlines';
+import { AircraftWithClasses, CreateAircraft } from '../../../types/users/airlines';
 import { Response } from '../../../types/responses/responses';
 import { enviroment } from '../../enviroments/enviroments';
 import { Observable, of } from 'rxjs';

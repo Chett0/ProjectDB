@@ -15,6 +15,32 @@ export interface Ticket {
     purchaseDate: Date
 }
 
+export type FullTicketInfo = Prisma.ticketsGetPayload<{
+    include: {
+        seats: true,
+        ticket_extra: {
+            include: {
+                extras: true
+            }
+        },
+        flights: {
+            include: {
+                aircrafts : {
+                    include: {
+                        airlines: true
+                    }
+                },
+                routes : {
+                    include : {
+                        departure_airport: true,
+                        arrival_airport: true
+                    }
+                }
+            }
+        }
+    }
+}>;
+
 export type PassengerUser = Prisma.passengersGetPayload<{
     include: {
         users: true

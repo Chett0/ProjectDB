@@ -6,16 +6,16 @@
 
       <!-- serve per iterare su tutti i voli presenti in base agli scali-->
       <div *ngFor="let flightId of flightIds">
-        <div class="ticket-card" *ngIf="flights[flightId]?.flight; else loading">
+        <div class="ticket-card" *ngIf="flightTickets[flightId]?.flight; else loading">
 
           <!-- Parte header -->
           <div class="ticket-header">
             <h3>Dettagli Volo</h3>
             <p>
-              {{ flights[flightId].flight.route.departure_airport.city }} ({{
-              flights[flightId].flight.route.departure_airport.code }}) →
-              {{ flights[flightId].flight.route.arrival_airport.city }} ({{
-              flights[flightId].flight.route.arrival_airport.code }})
+              {{ flightTickets[flightId].flight.departureAirport.city }} ({{
+              flightTickets[flightId].flight.departureAirport.code }}) →
+              {{ flightTickets[flightId].flight.arrivalAirport.city }} ({{
+              flightTickets[flightId].flight.arrivalAirport.code }})
             </p>
           </div>
 
@@ -23,11 +23,11 @@
           <div class="flight-info">
             <div>
               <strong>Partenza:</strong>
-              <span>{{ flights[flightId].flight.departure_time }}</span>
+              <span>{{ flightTickets[flightId].flight.departureTime }}</span>
             </div>
             <div>
               <strong>Arrivo:</strong>
-              <span>{{ flights[flightId].flight.arrival_time }}</span>
+              <span>{{ flightTickets[flightId].flight.arrivalTime }}</span>
             </div>
           </div>
 
@@ -45,25 +45,25 @@
             <!-- Seat map -->
             <div class="seat-map">
               <div *ngFor="let seat of getFilteredSeats(flightId)" class="row">
-                <button class="seat" [class.selected]="flights[flightId].selectedSeat?.id === seat.id"
+                <button class="seat" [class.selected]="flightTickets[flightId].selectedSeat?.id === seat.id"
                   [class.unavailable]="seat.state !== 'AVAILABLE'"
-                  [style.background-color]="ticketColors[seat.aircraft_class.name]"
+                  [style.background-color]="ticketColors[seat.aircraftClass.name]"
                   (click)="selectSeat(flightId, seat)">
                 </button>
               </div>
             </div>
 
             <br>
-            <div *ngIf="flights[flightId].selectedSeat" class="selection-info">
-              Selected Seat: {{ flights[flightId].selectedSeat?.number }}
+            <div *ngIf="flightTickets[flightId].selectedSeat" class="selection-info">
+              Selected Seat: {{ flightTickets[flightId].selectedSeat?.number }}
             </div>
 
             <!-- Extras -->
             <div class="extras-options">
               <p>Extra:</p>
-              <label *ngFor="let extra of flights[flightId].extras" class="extra-item">
+              <label *ngFor="let extra of flightTickets[flightId].extras" class="extra-item">
                 <input type="checkbox" [value]="extra.id" (change)="onExtraChange(flightId, $event)"
-                  [checked]="flights[flightId].selectedExtras.includes(extra.id)" />
+                  [checked]="flightTickets[flightId].selectedExtras.includes(extra.id)" />
                 {{ extra.name }} (+{{ extra.price }}€)
               </label>
             </div>
