@@ -15,6 +15,7 @@ export interface SearchFlightsParams {
 }
 
 export interface Flight {
+    airlineId: number,
     routeId : number,
     aircraftId : number, 
     departureTime : Date,

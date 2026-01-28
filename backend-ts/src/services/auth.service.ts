@@ -1,164 +1,197 @@
 import prisma from "../config/db";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import {airlines, userrole, users} from '@prisma/client';
-import { CreatePassengerResult, User, UserAirline, UserPassenger } from "../types/auth.types";
-import { CreateAirlineDTO, toCreateAirlineDTO, toUserDTO } from "../dtos/user.dto";
+import { PayloadJWT, User, UserAirline, UserInfo, UserPassenger } from "../types/auth.types";
+import { AdminDTO, AirlineUserDTO, LoginResponseDTO, PassengerDTO, toAdminDTO, toAirlineUserDTO, toPassengerDTO } from "../dtos/user.dto";
+import { ConflictError, NotFoundError, UnauthorizedError } from "../utils/errors";
 
-const registerPassenger = async (
-    passenger : UserPassenger
-) : Promise<CreatePassengerResult> => {
-    try{
-        const result : CreatePassengerResult = await prisma.$transaction(async(tx) => {
-            const newUser = await tx.users.create({
-                data: {
-                    email: passenger.email,
-                    password: passenger.password,
-                    role: userrole.PASSENGER,
-                }
-            });
+const JWT_ACCESS_TOKEN_SECRET : string = process.env.JWT_ACCESS_TOKEN_SECRET! as string;
+const JWT_REFRESH_TOKEN_SECRET : string = process.env.JWT_REFRESH_TOKEN_SECRET! as string;
+const BCRYPT_SALT_ROUNDS = Number(process.env.BCRYPT_SALT_ROUNDS) || 10;
 
-            const newPassenger = await tx.passengers.create({
-                data: {
-                    name: passenger.name,
-                    surname: passenger.surname,
-                    id: newUser.id
-                }
-            });
-
-            if(!newUser || !newPassenger)
-                throw new Error;
-
-            return {
-                newUser: newUser,
-                newPassenger: newPassenger
-            };
-        });
-
-        return result;
-    } catch(err){
-        throw new Error(
-            `Failed to create passenger: ${err instanceof Error ? err.message : "Unknown error"}`
-        ); 
-    }
+export const hashPassword = async (
+    password : string
+) : Promise<string> => {
+    const hashedPassword : string = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
+    return hashedPassword;
 };
 
-const registerAirline = async (
-    airline: UserAirline
-) : Promise<CreateAirlineDTO> => {
-    try{
-        const result : CreateAirlineDTO = await prisma.$transaction(async(tx) => {
-            const newUser : users = await tx.users.create({
-                data: {
-                    email: airline.email,
-                    password: airline.password,
-                    role: userrole.AIRLINE,
-                    // must_change_password: true
-                }
-            });
+export const registerPassenger = async (
+    passenger : UserPassenger
+) : Promise<PassengerDTO> => {
+    
+    const existingUser : users | null = await getUserByEmail(passenger.email);
+    if(existingUser)
+        throw new ConflictError("Email already in use");
 
-            const newAirline : airlines = await tx.airlines.create({
-                data: {
-                    name: airline.name,
-                    code: airline.code,
-                    id: newUser.id
-                }
-            });
-
-            if(!newUser || !newAirline)
-                throw new Error;
-
-            return toCreateAirlineDTO(newUser, newAirline);
-        });
-
-        return result;
-    } catch(err){
-        throw new Error(
-            `Failed to create airline: ${err instanceof Error ? err.message : "Unknown error"}`
-        ); 
-    }
-}
-
-
-const registerAdmin = async (
-    admin: User
-) : Promise<users> => {
-    try{
-        const user : users = await prisma.users.create({
+    const result : PassengerDTO = await prisma.$transaction(async(tx) => {
+        const newUser = await tx.users.create({
             data: {
-                email: admin.email,
-                password: admin.password,
-                role: userrole.ADMIN
+                email: passenger.email,
+                password: passenger.password,
+                role: userrole.PASSENGER,
             }
         });
-        return user;
-    } catch(err){
-        throw new Error(
-            `Failed to create airline: ${err instanceof Error ? err.message : "Unknown error"}`
-        ); 
-    }
+
+        const newPassenger = await tx.passengers.create({
+            data: {
+                name: passenger.name,
+                surname: passenger.surname,
+                id: newUser.id
+            }
+        });
+
+        return toPassengerDTO(newPassenger);
+    });
+
+    return result;
+};
+
+export const registerAirline = async (
+    airline: UserAirline
+) : Promise<AirlineUserDTO> => {
+
+    const existingUser : users | null = await getUserByEmail(airline.email);
+        if(existingUser)
+            throw new ConflictError("Email already in use");
+
+    const result : AirlineUserDTO = await prisma.$transaction(async(tx) => {
+
+        const newUser : users = await tx.users.create({
+            data: {
+                email: airline.email,
+                password: airline.password,
+                role: userrole.AIRLINE,
+                must_change_password: true
+            }
+        });
+
+        const newAirline : airlines = await tx.airlines.create({
+            data: {
+                name: airline.name,
+                code: airline.code,
+                id: newUser.id
+            }
+        });
+
+        return toAirlineUserDTO(newUser, newAirline);
+    });
+
+    return result;
+}
+
+
+export const registerAdmin = async (
+    admin: User
+) : Promise<AdminDTO> => {
+            
+    const existingUser : users | null = await getUserByEmail(admin.email);
+    if(existingUser)
+        throw new ConflictError("Email already in use");
+
+    const user : users = await prisma.users.create({
+        data: {
+            email: admin.email,
+            password: admin.password,
+            role: userrole.ADMIN
+        }
+    });
+
+    return toAdminDTO(user);
 }
 
 
 
-const getUserByEmail = async(
+export const getUserByEmail = async(
     email: string
 ) : Promise<users | null> => {
-    try{
-        const user : users | null = await prisma.users.findFirst({
-            where: {
-                email,
-                active: true
-            }
-        });
-        return user;
-    } catch(err){
-        throw new Error(
-            `Failed to check email already in use: ${err instanceof Error ? err.message : "Unknown error"}`
-        ); 
-    }
-};
 
-const updatePassword = async(
-    user: users,
-    newPassword: string
-) : Promise<void> => {
-    try{
-        await prisma.users.update({
-            where: {id: user.id},
-            data: {
-                password: newPassword,
-                must_change_password: false
-            }
-        });
-    } catch(err){
-        throw new Error(
-            `Failed to update password: ${err instanceof Error ? err.message : "Unknown error"}`
-        ); 
-    }
+    const user : users | null = await prisma.users.findFirst({
+        where: {
+            email: email,
+            active: true
+        }
+    });
+
+    return user;
 };
 
 
-const deleteUser = async (userId: number): Promise<'deleted' | 'not_found' | 'not_active'> => {
-    try {
-        const user = await prisma.users.findUnique({ where: { id: userId } });
-        if (!user) return 'not_found';
-        if (!user.active) return 'not_active';
-        await prisma.users.update({
-            where: { id: userId },
-            data: { active: false }
-        });
-        return 'deleted';
-    } catch (err) {
-        throw new Error(
-            `Failed to delete user: ${err instanceof Error ? err.message : "Unknown error"}`
-        );
-    }
+export const login = async(
+    userInfo : UserInfo
+) : Promise<LoginResponseDTO> => {
+
+    const user : users | null = await getUserByEmail(userInfo.email);
+    if(!user)
+        throw new NotFoundError("User not found");
+
+    const isMatch : boolean = await bcrypt.compare(userInfo.password, user.password);
+    if(!isMatch)
+        throw new UnauthorizedError("Invalid credentials");
+
+    if(user.must_change_password)
+        return {
+            mustChangePassword: true
+        } as LoginResponseDTO;
+
+    const payloadJWT : PayloadJWT = {
+        id: user.id,
+        role: user.role,
+    };
+
+    const accessToken : string = jwt.sign(
+        payloadJWT, 
+        JWT_ACCESS_TOKEN_SECRET,
+        { expiresIn: "15m" }
+    );
+
+    const refreshToken : string = jwt.sign(
+        payloadJWT,
+        JWT_REFRESH_TOKEN_SECRET,
+        { expiresIn: "7d" } 
+    );
+
+    return {
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        role: user.role,
+        mustChangePassword: false
+    } 
 };
 
-export {
-    registerPassenger,
-    registerAirline,
-    registerAdmin,
-    getUserByEmail,
-    updatePassword,
-    deleteUser
-}
+// to do
+export const refreshToken = async(
+    refreshToken: string
+) : Promise<any> => {
+
+    let refreshResponse : any = null;
+
+    jwt.verify(refreshToken, JWT_REFRESH_TOKEN_SECRET, (err: any, payload: any) => {
+                if (err) 
+                    throw new UnauthorizedError("Invalid refresh token");
+                else {
+
+                    const payloadJWT : PayloadJWT = {
+                        id: payload.id,
+                        role: payload.role
+                    };
+
+                    const accessToken : string = jwt.sign(
+                        payloadJWT, 
+                        JWT_ACCESS_TOKEN_SECRET,
+                        { expiresIn: "15m" }
+                    );
+
+                    refreshResponse = {
+                        accessToken: accessToken,
+                        role: payload.role
+                    }
+                }
+            });
+
+    return refreshResponse;
+};
+
+    
+

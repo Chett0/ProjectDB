@@ -5,11 +5,10 @@ const router = Router();
 
 router.get('/me', airlinesController.getAirlineDetails);
 router.get('/dashboard-stats', airlinesController.getAirlineDashboardStats);
-router.get('/monthly-incomes', airlinesController.getMonthlyIncomesByYear);
 
 router.get('/routes', airlinesController.getAirlineRoutes);
 router.post('/routes', airlinesController.createAirlineRoute);
-router.get("/routes/:id", airlinesController.getAirlineRoute);
+router.get("/routes/:id", airlinesController.getAirlineRouteById);
 router.delete("/routes/:id", airlinesController.deleteAirlineRoute);
 
 router.post('/extras', airlinesController.createExtra);
@@ -19,7 +18,6 @@ router.delete('/extras/:extraId', airlinesController.deleteExtraById);
 router.post('/aircrafts', airlinesController.createAircraft);
 router.get('/aircrafts', airlinesController.getAirlinesAircrafts)
 router.delete('/aircrafts/:aircraftId', airlinesController.deleteAircraft)
-
 router.get('/aircrafts/:aircraftId/classes', airlinesController.getAircraftClasses);
 
 router.get('/flights', airlinesController.getAirlineFlights);

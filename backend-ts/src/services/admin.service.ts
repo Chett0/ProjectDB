@@ -81,15 +81,6 @@ export const getActiveRoutes = async () : Promise<number> => {
 
 
 export const getAllAirlines = async () : Promise<AirlineDTO[]> => {
-    try{
-
-        const airlines : airlines[] = await prisma.airlines.findMany({});
-
-        return airlines.map(toAirlineDTO);
-
-    } catch(err){
-        throw new Error(
-            `Failed to retrieving airlines count: ${err instanceof Error ? err.message : "Unknown error"}`
-        ); 
-    }
+    const airlines : airlines[] = await prisma.airlines.findMany();
+    return airlines.map(toAirlineDTO);
 };

@@ -4,15 +4,16 @@ import { errorResponse, missingFieldsResponse, successResponse } from "../utils/
 import * as adminService from "../services/admin.service"
 import { AdminDashboardDTO } from "../dtos/admin.dtos";
 import { AirlineDTO } from "../dtos/user.dto";
+import { asyncHandler } from "../utils/helpers/asyncHandler.helper";
+import { UnauthorizedError } from "../utils/errors";
 
 
-export const getAdminDashboardStats = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
-    try{
+export const getAdminDashboardStats = asyncHandler(
+    async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+
         const adminId : number | null = req.user!.id;
-        
-        if(!adminId){
-            return missingFieldsResponse(res);
-        }
+        if(!adminId)
+            throw new UnauthorizedError();
 
         const passengersCount : number = await adminService.getActivePassengersCount();
         const airlinesCount : number = await adminService.getActiveAirlinesCount();
@@ -27,29 +28,28 @@ export const getAdminDashboardStats = async(req : AuthenticatedRequest, res : Re
             activeRoutesCount: routesCount
         }
 
-        return successResponse(res, "DashBoard stats retrieved successfully", dashBoard);
+        return successResponse<AdminDashboardDTO>(
+            res, 
+            "DashBoard stats retrieved successfully", 
+            dashBoard
+        );
     }
-    catch (error) {
-        console.error("Error while retrieving admin dashboard stats: ", error);
-        return errorResponse(res, "Internal server error while retrieving admin dashboard stats");
-    }
-};
+);
 
 
-export const getAllAirlines = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
-    try{
+export const getAllAirlines = asyncHandler(
+    async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+
         const adminId : number | null = req.user!.id;
-        
-        if(!adminId){
-            return missingFieldsResponse(res);
-        }
+        if(!adminId)
+            throw new UnauthorizedError();
 
         const airlines : AirlineDTO[] = await adminService.getAllAirlines();
 
-        return successResponse(res, "Airlines retrieved successfully", airlines);
+        return successResponse<AirlineDTO[]>(
+            res, 
+            "Airlines retrieved successfully", 
+            airlines
+        );
     }
-    catch (error) {
-        console.error("Error while retrieving airlines: ", error);
-        return errorResponse(res, "Internal server error while retrieving airlines");
-    }
-};
+);

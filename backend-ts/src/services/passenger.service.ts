@@ -1,31 +1,25 @@
-import { bookingstate, extras, flights, passengers, seats, seatstate, tickets } from '@prisma/client';
+import { bookingstate, extras, flights, seats, seatstate, tickets } from '@prisma/client';
 import prisma from "../config/db";
 import { ExtraDTO } from "../dtos/airline.dto";
 import { FullTicketInfo, PassengerUser, Ticket } from "../types/passenger.types";
 import * as flightService from "../services/flight.service"
 import { TicketInfoDTO, toTicketInfoDTO } from "../dtos/passenger.dto";
 import { PassengerUserDTO, toPassengerUserDTO } from '../dtos/user.dto';
-import { connect } from 'http2';
+import { NotFoundError } from '../utils/errors';
 
 export const getPassengerById = async (
     passengerId : number
 ) : Promise<PassengerUserDTO> => {
-    try{
-        const passenger : PassengerUser = await prisma.passengers.findUniqueOrThrow({
-            where: {
-                id: passengerId
-            },
-            include : {
-                users: true
-            }
-        });
+    const passenger : PassengerUser = await prisma.passengers.findUniqueOrThrow({
+        where: {
+            id: passengerId
+        },
+        include : {
+            users: true
+        }
+    });
 
-        return toPassengerUserDTO(passenger);
-    } catch(err){
-        throw new Error(
-            `Failed to retrieving airline: ${err instanceof Error ? err.message : "Unknown error"}`
-        ); 
-    }
+    return toPassengerUserDTO(passenger);
 };
 
 
@@ -110,6 +104,7 @@ export const createTicket = async (
     }
 };
 
+//to do
 export const getPassengerTickets = async (
     passengerId: number
 ): Promise<void> => {
@@ -156,20 +151,21 @@ export const getPassengerTickets = async (
     }
 };
 
-export const getPassengerTicketById = async (
+//to do
+export const getPassengerTicketById =  async (
     passengerId: number,
     ticketId: number
-): Promise<tickets | null> => {
-    try {
-        return await prisma.tickets.findFirst({
-            where: {
-                id: ticketId,
-                passenger_id: passengerId
-            }
-        });
-    } catch (err) {
-        throw new Error(
-            `Failed to retrieve ticket: ${err instanceof Error ? err.message : "Unknown error"}`
-        );
-    }
+): Promise<tickets> => {
+        
+    const ticket : tickets | null = await prisma.tickets.findFirst({
+        where: {
+            id: ticketId,
+            passenger_id: passengerId
+        }
+    });
+
+    if(!ticket)
+        throw new NotFoundError("Ticket not found");
+
+    return ticket;
 };

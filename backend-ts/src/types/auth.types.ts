@@ -22,10 +22,12 @@ export interface AuthenticatedRequest extends Request{
     user? : AuthenticatedUser
 }
 
+export interface UserInfo {
+    email: string,
+    password: string   
+}
 
-export interface User {
-    email: string, 
-    password: string,
+export interface User extends UserInfo {
     role: UserRole
 }
 
@@ -37,11 +39,4 @@ export interface UserPassenger extends User {
 export interface UserAirline extends User {
     name: string,
     code: string
-}
-
-
-
-export interface CreatePassengerResult {
-  newUser: users;
-  newPassenger: passengers;
 }

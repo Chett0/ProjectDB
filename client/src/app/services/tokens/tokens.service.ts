@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
-import { AuthResp } from '../auth/auth.service';
 import { enviroment } from '../../enviroments/enviroments';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
@@ -76,16 +75,16 @@ export class TokensService {
   }
 
 
-  refreshToken(): Observable<AuthResp> {
+  refreshToken(): Observable<any> {
     const refresh_token = localStorage.getItem('refresh_token');
     if (!refresh_token) {
       throw new Error('No refresh token available');
     }
 
-    return this.http.post<AuthResp>(`${enviroment.apiUrl}/refresh`, null, {
+    return this.http.post<any>(`${enviroment.apiUrl}/refresh`, null, {
       headers: { Authorization: `Bearer ${refresh_token}` }
     }).pipe(
-      tap((response: AuthResp) => {
+      tap((response: any) => {
         this.setTokens(response.access_token);
       }),
       catchError(() => {

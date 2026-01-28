@@ -1,56 +1,45 @@
 import { Response, Request } from "express";
 import { AuthenticatedRequest } from "../types/auth.types";
 import * as flightService from "../services/flight.service";
-import * as airlineService from "../services/airline.service";
-import { Flight, SearchFlightsParams, Sort } from "../types/flight.types";
-import { errorResponse, missingFieldsResponse, successResponse } from "../utils/helpers/response.helper";
+import { Flight, SearchFlightsParams } from "../types/flight.types";
+import { successResponse } from "../utils/helpers/response.helper";
 import { JourneysInfoDTO, SeatsDTO } from "../dtos/flight.dto";
-import { aircraft_classes, aircrafts, airlineRoute } from '@prisma/client';
-import { AircraftDTO, AirlineRouteDTO, ClassDTO } from "../dtos/airline.dto";
+import { asyncHandler } from "../utils/helpers/asyncHandler.helper";
+import { BadRequestError } from "../utils/errors";
 
-export const createFlight = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
-    try{
-        
+export const createFlight = asyncHandler(
+    async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+
         const {routeId, aircraftId, departureTime, arrivalTime, basePrice} = req.body;
         const airlineId : number | null = req.user!.id;
         
-        if(!routeId || !aircraftId || !airlineId || !departureTime || !arrivalTime || !basePrice){
-            return missingFieldsResponse(res);
-        }
-
-        const aircraftClasses : ClassDTO[] | null = await airlineService.getAircraftClasses(airlineId, aircraftId);
-        if(!aircraftClasses){
-            return errorResponse(res, "Aircraft not found", null, 404);
-        }
-
-        const route : AirlineRouteDTO | null = await airlineService.getAirlineRouteById(airlineId, routeId);
-        if(!route){
-            return errorResponse(res, "Route not found", null, 404);
-        }
+        if(!routeId || !aircraftId || !airlineId || !departureTime || !arrivalTime || !basePrice)
+            throw new BadRequestError("Missing required fields");
 
         const flight : Flight = {
-            routeId : routeId,
-            aircraftId : aircraftId,
-            departureTime: departureTime,
-            arrivalTime: arrivalTime,
-            basePrice: basePrice,
-            durationSeconds: (arrivalTime - departureTime)
-        }
+            airlineId: airlineId,
+            routeId : Number(routeId),
+            aircraftId : Number(aircraftId),
+            departureTime: new Date(departureTime),
+            arrivalTime: new Date(arrivalTime),
+            basePrice: Number(basePrice),
+            durationSeconds: (new Date(arrivalTime).getTime() - new Date(departureTime).getTime()) / 1000
+        };
 
-        await flightService.createFlight(flight, aircraftClasses);
+        await flightService.createFlight(flight);
 
-        return successResponse(res, "Flight created successfully");
+        return successResponse<void>(
+            res, 
+            "Flight created successfully"
+        );
     }
-    catch (error) {
-        console.error("Error while creating flights: ", error);
-        return errorResponse(res, "Internal server error while creating flights");
-    }
-};
+);
 
 
 
-export const searchFlights = async(req : Request, res : Response): Promise<Response> => {
-    try{
+export const searchFlights = asyncHandler(
+     async(req : Request, res : Response): Promise<Response> => {
+
         const sortBy : string = (req.query.sort_by as string) || 'total_duration';
         const order : string = ((req.query.order as string) || 'asc').toLowerCase();
         const departureAirportCity : string | undefined = req.query.from as string;
@@ -59,9 +48,8 @@ export const searchFlights = async(req : Request, res : Response): Promise<Respo
         const departureDate : string | undefined = req.query.departure_date as string;
         const maxPrice : number = parseInt(req.query.max_price as string) || 2000; 
         
-        if(!departureAirportCity || !arrivalAirportCity || !departureDate){
-            return missingFieldsResponse(res);
-        }
+        if(!departureAirportCity || !arrivalAirportCity || !departureDate)
+            throw new BadRequestError("Missing required query parameters");
 
         const params : SearchFlightsParams = {
             sort: {
@@ -77,27 +65,28 @@ export const searchFlights = async(req : Request, res : Response): Promise<Respo
 
         const journeys : JourneysInfoDTO[] = await flightService.searchFlights(params);
 
-        return successResponse(res, "Flight retrieved successfully", journeys);
+        return successResponse<JourneysInfoDTO[]>(
+            res, 
+            "Flight retrieved successfully", 
+            journeys
+        );
     }
-    catch (error) {
-        console.error("Error while retrieving flights: ", error);
-        return errorResponse(res, "Internal server error while retrieving flights");
-    }
-};
+);
 
 
-export const getFlightSeats = async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
-    try{
+export const getFlightSeats = asyncHandler(
+     async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+
         const flightId : number | null = parseInt(req.params.flightId as string) || null; 
         if(!flightId)
-            return missingFieldsResponse(res);
+            throw new BadRequestError("Flight ID must be a valid number");
 
         const seats : SeatsDTO[] = await flightService.getFlightSeats(flightId);
 
-        return successResponse(res, "Seats retrieved successfully", seats);
+        return successResponse<SeatsDTO[]>(
+            res, 
+            "Seats retrieved successfully", 
+            seats
+        );
     }
-    catch (error) {
-        console.error("Error while retrieving seats: ", error);
-        return errorResponse(res, "Internal server error while retrieving seats");
-    }
-};
+);

@@ -12,6 +12,7 @@ import { UserRole } from '../types/auth.types';
 const router = Router();
 
 router.use('/auth', authRoutes);
+router.use('/users', authRoutes);
 router.use('/airlines', verifyToken, verifyRole(UserRole.AIRLINE), airlinesRoutes);
 router.use('/passengers', verifyToken, verifyRole(UserRole.PASSENGER), passengerRoutes);
 router.use('/airports', airportRoutes);

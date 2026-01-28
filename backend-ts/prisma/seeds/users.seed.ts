@@ -7,17 +7,27 @@ export async function seedUsers() {
 
   const ADMIN = [{ email: "admin@example.com", password: "admin" }];
 
-  for (const admin of ADMIN) {
-    await prisma.users.upsert({
-      where: { email: admin.email },
-      update: {},
-      create: {
-        email: admin.email,
-        password: await hashPassword(admin.password),
-        role: userrole.ADMIN,
-      },
-    });
-  }
+  ADMIN.forEach(async admin => {
+    admin.password =await hashPassword(admin.password);
+  });
+
+  await Promise.all(
+    ADMIN.map((admin) => {
+      prisma.users.upsert({
+        where: { email: admin.email },
+        update: {
+          email: admin.email,
+          password: admin.password,
+          role: userrole.ADMIN,
+        },
+        create: {
+          email: admin.email,
+          password: admin.password,
+          role: userrole.ADMIN,
+        },
+      });
+    })
+  );
 
   console.log("👨‍💼 Admin created");
 
