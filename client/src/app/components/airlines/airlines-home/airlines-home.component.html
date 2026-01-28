@@ -22,48 +22,40 @@
       <h2>Dashboard Compagnia Aerea</h2>
       <p class="subtitle">Gestisci i tuoi aerei, tratte e voli</p>
     </section>
-    <section class="stats">
-      <div class="stat-card">
-        <small>Flights in Progress</small>
-        <div class="big">{{ dashboardStats.flightsInProgress }}</div>
-      </div>
-      <div class="stat-card">
-        <small>Active Routes</small>
-        <div class="big">{{ dashboardStats.activeRoutes }}</div>
-      </div>
-      <div class="stat-card">
-        <small>Total Passenger</small>
-        <div class="big">{{ dashboardStats.passengerCount }}</div>
-      </div>
-      <div class="stat-card">
-        <small>Monthly Income</small>
-        <div class="big">{{ dashboardStats.monthlyIncome }}$</div>
-      </div>
+  </main>
+  <div class="dashboard-body">
+      <aside class="sidebar-tabs">
+        <div class="tabs-vertical">
+          <div class="tabs-indicator-vertical" [ngStyle]="{
+            top: (activeTab * 50) + 'px',
+            height: '50px'
+          }"></div>
+          <button *ngFor="let tab of tabs; let i = index"
+            class="tab-v"
+            [class.active]="activeTab===i"
+            (click)="setTab(i)">
+            {{tab.label}}
+          </button>
+        </div>
+      </aside>
+
+      <!-- Metterli in un for però occhio a passare i dati al figlio-->
+      <section *ngIf="activeTab===0">
+      <app-airline-dashboard [dashboardStats]="dashboardStats"></app-airline-dashboard>
     </section>
-    <section class="controls">
-      <div class="tabs" [style.position]="'relative'">
-        <div class="tabs-indicator" [ngStyle]="{
-          left: (activeTab * 25) + '%',
-          width: '25%'
-        }"></div>
-        <button class="tab" [class.active]="activeTab===0" (click)="activeTab=0">Aerei</button>
-        <button class="tab" [class.active]="activeTab===1" (click)="activeTab=1">Voli</button>
-        <button class="tab" [class.active]="activeTab===2" (click)="activeTab=2">Tratte</button>
-        <button class="tab" [class.active]="activeTab===3" (click)="activeTab=3">Extra</button>
-      </div>
-    </section>
-    <section *ngIf="activeTab===0">
+      <section *ngIf="activeTab===1">
       <app-aircrafts></app-aircrafts>
     </section>
-    <section *ngIf="activeTab===1">
+    <section *ngIf="activeTab===2">
       <app-flights></app-flights>
     </section>
-    <section *ngIf="activeTab===2">
+    <section *ngIf="activeTab===3">
       <app-routes></app-routes>
     </section>
-    <section *ngIf="activeTab===3">
+    <section *ngIf="activeTab===4">
       <app-extra></app-extra>
     </section>
-  </main>
+
+    </div>
   <app-footer></app-footer>
 </div>

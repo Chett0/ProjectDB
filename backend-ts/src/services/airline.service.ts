@@ -107,8 +107,8 @@ export const getRoutesMostInDemand = async (
     const routes : RoutesMostInDemandDTO[] = await prisma.$queryRaw`
         SELECT 
             AR.route_id AS "routeId",
-            Dep.name AS "departureAirportName",
-            Arr.name AS "arrivalAirportName",
+            Dep.iata AS "departureAirportCode",
+            Arr.iata AS "arrivalAirportCode",
             CAST(COUNT(*) AS INT) AS "passengersCount"
         FROM Tickets T 
         JOIN Flights F ON T.flight_id = F.id 
@@ -118,7 +118,7 @@ export const getRoutesMostInDemand = async (
         JOIN Airports Dep ON R.departure_airport_id = Dep.id
         JOIN Airports Arr ON R.arrival_airport_id = Arr.id
         WHERE A.id =  ${airlineId}
-        GROUP BY AR.route_id, Dep.name, Arr.name
+        GROUP BY AR.route_id, Dep.iata, Arr.iata
         ORDER BY "passengersCount" DESC
         LIMIT ${nRoutes}
     `;
@@ -134,7 +134,7 @@ export const getAirlineMonthlyIncomesByYear = async (
     const monthlyIncomes : MonthlyIncomeDTO[] = await prisma.$queryRaw`
         SELECT 
             TO_CHAR(DATE_TRUNC('month', T.purchase_date), 'YYYY-MM') AS "month",
-            SUM(T.final_cost) AS "monthlyIncome"
+            SUM(T.final_cost) AS "income"
         FROM Tickets T 
         JOIN Flights F ON T.flight_id = F.id 
         JOIN Aircrafts A ON F.aircraft_id = A.id

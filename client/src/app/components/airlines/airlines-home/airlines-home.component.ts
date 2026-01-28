@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, NumberSymbol } from '@angular/common';
-import { enviroment } from '../../../enviroments/enviroments';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../services/auth/auth.service';
 import { AirlinesService } from '../../../services/airlines/airlines.service';
@@ -11,11 +10,12 @@ import { RoutesComponent } from '../routes/routes.component';
 import { FlightsComponent } from '../flights/flights.component';
 import { ExtraComponent } from '../extra/extra.component';
 import { FooterComponent } from '../../footer/footer.component';
-import { AirlineDashBoard, AirlineResolverResponse } from '../../../../types/users/airlines';
+import { AirlineDashBoard } from '../../../../types/users/airlines';
+import { AirlineDashboardComponent } from '../airline-dashboard/airline-dashboard.component';
 
 @Component({
   selector: 'app-airlines-home',
-  imports: [CommonModule, AircraftsComponent, RoutesComponent, FlightsComponent, ExtraComponent, FooterComponent],
+  imports: [CommonModule, AircraftsComponent, RoutesComponent, FlightsComponent, ExtraComponent, FooterComponent, AirlineDashboardComponent],
   templateUrl: './airlines-home.component.html',
   styleUrl: './airlines-home.component.css'
 })
@@ -50,6 +50,20 @@ export class AirlinesHomeComponent implements OnInit{
     monthlyIncomes: []
   }
 
+  tabs: { label: string; component: any }[] = [
+    { label: 'Dashboard', component: AirlineDashboardComponent },
+    { label: 'Aerei', component: AircraftsComponent },
+    { label: 'Voli', component: FlightsComponent },
+    { label: 'Tratte', component: RoutesComponent },
+    { label: 'Extra', component: ExtraComponent },
+    { label: 'Settings', component: null }
+  ];
+
+  get activeComponent(): any {
+    return this.tabs[this.activeTab].component;
+  }
+
+
 
 
   ngOnInit(): void {
@@ -61,7 +75,7 @@ export class AirlinesHomeComponent implements OnInit{
     });
 
     this.airlinesService.getAirlinesInfo().subscribe((info: any) => {
-      this.airlineName = info?.name || 'Compagnia Aerea';
+      this.airlineName = info?.data.name || 'Compagnia Aerea';
     });
 
   }
@@ -79,6 +93,10 @@ export class AirlinesHomeComponent implements OnInit{
     this.airlinesService.clearFlightsCache();
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  setTab(index: number) {
+    this.activeTab = index;
   }
 
 }

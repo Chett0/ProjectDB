@@ -83,9 +83,9 @@ export interface CreateExtra {
 //Dashboard
 
 export interface RoutesMostInDemand {
-    departureAirport: Airport;
-    arrivalAirport: Airport;
-    passengerCount: number;
+    departureAirportCode: string;
+    arrivalAirportCode: string;
+    passengersCount: number;
 }
 
 export interface MonthlyIncome {

@@ -1,0 +1,36 @@
+<section class="stats">
+    <div class="stat-card">
+    <small>Flights in Progress</small>
+    <div class="big">{{ dashboardStats.flightsInProgress }}</div>
+    </div>
+    <div class="stat-card">
+    <small>Active Routes</small>
+    <div class="big">{{ dashboardStats.activeRoutes }}</div>
+    </div>
+    <div class="stat-card">
+    <small>Total Passenger</small>
+    <div class="big">{{ dashboardStats.passengerCount }}</div>
+    </div>
+    <div class="stat-card">
+    <small>Monthly Income</small>
+    <div class="big">{{ dashboardStats.monthlyIncome | number:'1.0-0' }} €</div> 
+    </div>
+
+    <div style="width: 80%; margin: auto;">
+  <canvas baseChart
+          [data]="barChartData"
+          [options]="barChartOptions"
+          [type]="barChartType">
+  </canvas>
+</div>
+
+<div style="display: block;">
+  <canvas
+    baseChart
+    [data]="lineChartData"
+    [options]="lineChartOptions"
+    chartType="line">
+  </canvas>
+</div>
+
+</section>
