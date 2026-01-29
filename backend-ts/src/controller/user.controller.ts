@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { asyncHandler } from "../utils/helpers/asyncHandler.helper";
 import { BadRequestError, NotFoundError, UnauthorizedError } from "../utils/errors";
 import * as authService from '../services/auth.service';
+import * as userService from '../services/user.service';
 import { users } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { successResponse } from "../utils/helpers/response.helper";
@@ -27,7 +28,7 @@ export const updatePassword = asyncHandler(
 
         const hashedPassword : string = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
 
-        const updatedUser : UserDTO = await authService.updatePassword(user, hashedPassword);
+        const updatedUser : UserDTO = await userService.updatePassword(user, hashedPassword);
 
         return successResponse<UserDTO>(
             res, 
@@ -48,7 +49,7 @@ export const deleteUser = asyncHandler(
         if (isNaN(userId)) 
             throw new BadRequestError("Invalid userId parameter");
 
-        const user : UserDTO | null = await authService.deleteUser(userId);
+        const user : UserDTO | null = await userService.deleteUser(userId);
         if(!user)
             throw new NotFoundError("User not found");
 
