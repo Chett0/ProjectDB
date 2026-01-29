@@ -1,0 +1,18 @@
+# Usa un'immagine ufficiale di Node
+FROM node:20-alpine
+
+# Crea la directory di lavoro nel container
+WORKDIR /usr/src/app
+
+# Copia i file dei pacchetti e installa le dipendenze
+COPY package*.json ./
+RUN npm install
+
+# Copia il resto del codice
+COPY . .
+
+# Esponi la porta usata dal tuo backend (es. 3000)
+EXPOSE 3000
+
+# Avvia l'app
+CMD ["node", "index.js"]

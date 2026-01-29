@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  # Servizio Redis
+  redis-db:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  # Servizio Node.js
+  backend:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis-db
+    environment:
+      - REDIS_URL=redis://redis-db:6379
