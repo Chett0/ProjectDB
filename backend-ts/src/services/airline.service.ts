@@ -6,6 +6,7 @@ import { AircraftWithClasses, AirlineRoute, Class, CreateAircraft, Extra, Route 
 import { FlightInfoDTO, toFlightInfoDTO } from '../dtos/flight.dto';
 import { Flight, FlightInfo } from '../types/flight.types';
 import { NotFoundError } from '../utils/errors';
+import redisClient from '../config/redis';
 
 //#region Airline Info
 
@@ -28,6 +29,12 @@ export const getAirlinePassengerCount = async (
     airlineId : number
 ) : Promise<number> => {
 
+    const redisKey : string = `airline:${airlineId}:passengerCount`;
+    const redisTTL : number = 600; 
+    const cachedPassengerCount = await redisClient.get(redisKey);
+    if(cachedPassengerCount)
+        return Number(cachedPassengerCount);
+
     const result = await prisma.$queryRaw<[{ passengerCount: bigint | number }]>`
         SELECT COUNT(DISTINCT T.passenger_id) as "passengerCount"
         FROM Tickets T 
@@ -37,6 +44,7 @@ export const getAirlinePassengerCount = async (
     `;
     
     const passengerCount : number = result.length > 0 ? Number(result[0].passengerCount) : 0;
+    await redisClient.setEx(redisKey, redisTTL, passengerCount.toString());
     return passengerCount;
 };
 
@@ -44,6 +52,12 @@ export const getAirlinePassengerCount = async (
 export const getAirlineMonthlyIncome = async (
     airlineId : number
 ) : Promise<number> => {
+
+    const redisKey : string = `airline:${airlineId}:monthlyIncome`;
+    const redisTTL : number = 600;
+    const cachedMonthlyIncome = await redisClient.get(redisKey);
+    if(cachedMonthlyIncome)
+        return Number(cachedMonthlyIncome);
 
     const now = new Date();
     const startOfMonth : Date = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -62,6 +76,7 @@ export const getAirlineMonthlyIncome = async (
     `;
 
     const monthlyIncome : number = result.length > 0 ? Number(result[0].monthlyIncome) : 0;
+    await redisClient.setEx(redisKey, redisTTL, monthlyIncome.toString());
     return monthlyIncome as number;
 };
 
@@ -70,6 +85,12 @@ export const getAirlineRouteCount = async (
     airlineId : number
 ) : Promise<number> => {
 
+    const redisKey : string = `airline:${airlineId}:activeRoutesCount`;
+    const redisTTL : number = 600;
+    const cachedActiveRoutesCount = await redisClient.get(redisKey);
+    if(cachedActiveRoutesCount)
+        return Number(cachedActiveRoutesCount);
+
     const result = await prisma.$queryRaw<[{ activeRoutes: bigint | number }]>`
         SELECT COUNT(DISTINCT AR.route_id) as "activeRoutes"
         FROM public."airlineRoute" AR
@@ -77,12 +98,19 @@ export const getAirlineRouteCount = async (
     `;
 
     const airlineRouteCount : number = result.length > 0 ? Number(result[0].activeRoutes) : 0;
+    await redisClient.setEx(redisKey, redisTTL, airlineRouteCount.toString());
     return airlineRouteCount;
 };
 
 export const getAirlineFlightsInProgressCount = async (
     airlineId : number
 ) : Promise<number> => {
+
+    const redisKey : string = `airline:${airlineId}:flightsInProgressCount`;
+    const redisTTL : number = 600;
+    const cachedFlightsInProgressCount = await redisClient.get(redisKey);
+    if(cachedFlightsInProgressCount)
+        return Number(cachedFlightsInProgressCount);
 
     const now : Date = new Date();
     const result = await prisma.$queryRaw<[{ flightsInProgress: bigint | number }]>`
@@ -96,6 +124,7 @@ export const getAirlineFlightsInProgressCount = async (
     `;
 
     const filghtsInProgressCount : number = result.length > 0 ? Number(result[0].flightsInProgress) : 0;
+    await redisClient.setEx(redisKey, redisTTL, filghtsInProgressCount.toString());
     return filghtsInProgressCount;
 };
 
@@ -103,6 +132,12 @@ export const getRoutesMostInDemand = async (
     airlineId : number,
     nRoutes : number
 ) : Promise<RoutesMostInDemandDTO[]> => {
+
+    const redisKey : string = `airline:${airlineId}:routesMostInDemand${nRoutes}`;
+    const redisTTL : number = 600;
+    const cachedRoutesMostInDemand = await redisClient.get(redisKey);
+    if(cachedRoutesMostInDemand)
+        return JSON.parse(cachedRoutesMostInDemand) as RoutesMostInDemandDTO[];
 
     const routes : RoutesMostInDemandDTO[] = await prisma.$queryRaw`
         SELECT 
@@ -123,6 +158,7 @@ export const getRoutesMostInDemand = async (
         LIMIT ${nRoutes}
     `;
     
+    await redisClient.setEx(redisKey, redisTTL, JSON.stringify(routes));
     return routes;
 }
 
@@ -130,6 +166,12 @@ export const getAirlineMonthlyIncomesByYear = async (
     airlineId : number,
     year : number
 ) : Promise<MonthlyIncomeDTO[]> => {
+
+    const redisKey : string = `airline:${airlineId}:monthlyIncomes`;
+    const redisTTL : number = 600;
+    const cachedMonthlyIncomes = await redisClient.get(redisKey);
+    if(cachedMonthlyIncomes)
+        return JSON.parse(cachedMonthlyIncomes) as MonthlyIncomeDTO[];
 
     const monthlyIncomes : MonthlyIncomeDTO[] = await prisma.$queryRaw`
         SELECT 
@@ -144,6 +186,7 @@ export const getAirlineMonthlyIncomesByYear = async (
         ORDER BY "month" ASC;
     `;
 
+    await redisClient.setEx(redisKey, redisTTL, JSON.stringify(monthlyIncomes));
     return monthlyIncomes;
 }
 
