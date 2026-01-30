@@ -6,12 +6,28 @@ import csv from "csv-parser";
 export async function seedAirports() {
   console.log("🛫 Starting seeding airports...");
 
-  fs.createReadStream("prisma/seeds/data/airports.csv")
-    .pipe(csv())
-    .on("data", async (airport) => {
+  const airports: any[] = [];
 
-      if (airport && airport.iata != "" && airport.city != "") {
-        await prisma.airports.upsert({
+  await new Promise((resolve, reject) => {
+    fs.createReadStream("prisma/seeds/data/airports.csv")
+      .pipe(csv())
+      .on("data", (airport) => {
+        if (airport && airport.iata !== "" && airport.city !== "") {
+          airports.push(airport);
+        }
+      })
+      .on("error", reject)
+      .on("end", resolve);
+  });
+
+  console.log(`📊 Airports loaded from csv...`);
+
+  const batchSize = 100;
+  for (let i = 0; i < airports.length; i += batchSize) {
+    const batch = airports.slice(i, i + batchSize);
+    await Promise.all(
+      batch.map((airport) =>
+        prisma.airports.upsert({
           where: { iata: airport.iata },
           update: {},
           create: {
@@ -21,14 +37,14 @@ export async function seedAirports() {
             country: airport.country,
             iata: airport.iata,
             icao: airport.icao,
-            lat: airport.lat,
-            lon: airport.lon,
+            lat: parseFloat(airport.lat),
+            lon: parseFloat(airport.lon),
             tz: airport.tz,
           },
-        });
-      }
-    })
-    .on("end", () => {
-        console.log("✅ Airports seeded");
-    });
+        })
+      )
+    );
+  }
+  
+  console.log("✅ All airports seeded successfully!");
 }

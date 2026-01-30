@@ -7,13 +7,13 @@ export async function seedUsers() {
 
   const ADMIN = [{ email: "admin@example.com", password: "admin" }];
 
-  ADMIN.forEach(async admin => {
-    admin.password =await hashPassword(admin.password);
-  });
+  for (const admin of ADMIN) {
+    admin.password = await hashPassword(admin.password);
+  }
 
   await Promise.all(
-    ADMIN.map((admin) => {
-      prisma.users.upsert({
+    ADMIN.map(async (admin) => {
+      return await prisma.users.upsert({
         where: { email: admin.email },
         update: {
           email: admin.email,
@@ -27,11 +27,12 @@ export async function seedUsers() {
         },
       });
     })
-  );
+  ).then(() => {
+    console.log("👨‍💼 Admin created");
+  });
+  
 
-  console.log("👨‍💼 Admin created");
-
-  const AIRLINES = [
+  const AIRLINES : any[] = [
     { name: "Lufthansa", code: "LH" },
     { name: "Ryanair", code: "FR" },
     // { name: "Air France", code: "AF" },
@@ -40,15 +41,21 @@ export async function seedUsers() {
   ];
 
   for (const airline of AIRLINES) {
-    let email: string = `${airline.name
+    airline["email"] = `${airline.name
       .toLowerCase()
       .replace(/\s+/g, "")}@example.com`;
-    await prisma.users.upsert({
-      where: { email: email },
+
+    airline["password"] = await hashPassword(airline.name);
+  }
+
+  await Promise.all(
+    AIRLINES.map(async (airline) => {
+      return await prisma.users.upsert({
+      where: { email: airline.email },
       update: {},
       create: {
-        email: email,
-        password: await hashPassword(airline.name),
+        email: airline.email,
+        password: airline.password,
         role: userrole.AIRLINE,
         airlines: {
           create: {
@@ -57,35 +64,41 @@ export async function seedUsers() {
           },
         },
       },
-    });
-  }
+    })
+  })).then(() => {
+    console.log("✈️ Airlines created");
+  });
 
-  console.log(`✈️ Airlines created`);
-
-  const PASSENGERS = [
-    "test"
+  const PASSENGERS : any[] = [
+    { "name": "test" }
   ];
 
   for (const passenger of PASSENGERS) {
-    let email: string = `${passenger.toLowerCase()}@example.com`;
-    await prisma.users.upsert({
-      where: { email: email },
+    passenger["email"] = `${passenger.name.toLowerCase()}@example.com`;
+    passenger["password"] = await hashPassword(passenger.name);
+  }
+
+  await Promise.all(
+    PASSENGERS.map(async (passenger) => {
+      return await prisma.users.upsert({
+      where: { email: passenger.email },
       update: {},
       create: {
-        email: email,
-        password: await hashPassword("test"),
+        email: passenger.email,
+        password: passenger.password,
         role: userrole.PASSENGER,
         passengers: {
           create: {
-            name: passenger,
-            surname: passenger,
+            name: passenger.name,
+            surname: passenger.name,
           },
         },
       },
     });
-  }
+  })).then(() => {
+    console.log(`🧳 Passenger created`);
+  });
 
-  console.log(`🧳 Passenger created`);
 
   console.log("✅ Users, airlines, and passengers seeded!");
 }

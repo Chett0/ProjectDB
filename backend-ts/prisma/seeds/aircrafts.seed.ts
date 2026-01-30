@@ -59,45 +59,44 @@ export async function seedAircrafts() {
 
   const airlines : airlines[] = await prisma.airlines.findMany();
 
-  for(const airline of airlines){
-    for(const aircraft of aircraftsData){
-        const newAircraft : aircrafts = await prisma.aircrafts.upsert({
-            where : {
-                airline_id_model : {
-                    model : aircraft.model,
-                    airline_id: airline.id
-                }
+  await prisma.$transaction(async tx => {
+    for (const airline of airlines) {
+      for (const aircraft of aircraftsData) {
+        const ac = await tx.aircrafts.upsert({
+          where: {
+            airline_id_model: {
+              model: aircraft.model,
+              airline_id: airline.id,
             },
-            update : {},
-            create : {
-                model : aircraft.model,
-                nSeats: aircraft.nSeats,
-                airline_id : airline.id
-            }
+          },
+          update: {},
+          create: {
+            model: aircraft.model,
+            nSeats: aircraft.nSeats,
+            airline_id: airline.id,
+          },
         });
 
-       for(const cls of aircraftClassesData){
-        let nSeats : number = aircraft.nSeats * cls.percNSeats / 100; 
-
-        await prisma.aircraft_classes.upsert({
-            where : {
-                aircraft_id_name : {
-                  aircraft_id : newAircraft.id,
-                  name : cls.name
-                }
+        for (const cls of aircraftClassesData) {
+          await tx.aircraft_classes.upsert({
+            where: {
+              aircraft_id_name: {
+                aircraft_id: ac.id,
+                name: cls.name,
+              },
             },
-            update : {},
-            create : {
-                name : cls.name,
-                nSeats: nSeats,
-                aircraft_id : newAircraft.id,
-                price_multiplier : cls.priceMultiplier
-            }
-        });
-
-       }
+            update: {},
+            create: {
+              name: cls.name,
+              nSeats: Math.floor(aircraft.nSeats * cls.percNSeats / 100),
+              price_multiplier: cls.priceMultiplier,
+              aircraft_id: ac.id,
+            },
+          });
+        }
+      }
     }
-  }
+  });
 
   console.log(`✅ Aircrafts seeded!`);
 

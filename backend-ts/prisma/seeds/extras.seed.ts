@@ -9,8 +9,6 @@ interface ExtrasData {
 export async function seedExtras() {
 
     console.log('🎁 Seeding extras...');
-
-
   
     const extrasData : ExtrasData[] = [
     { name: 'Extra baggage (20kg)', price: 35.00},
@@ -22,24 +20,18 @@ export async function seedExtras() {
 
   const airlines : airlines[] = await prisma.airlines.findMany();
 
-  for(const airline of airlines){
-    for(const extra of extrasData){
-        await prisma.extras.upsert({
-            where : {
-                airline_id_name : {
-                    name : extra.name,
-                    airline_id: airline.id
-                }
-            },
-            update : {},
-            create : {
-                name : extra.name,
-                price: extra.price,
-                airline_id : airline.id
-            }
-        });
-    }
-  }
+  const extras = airlines.flatMap((airline) =>
+    extrasData.map((extra) => ({
+      name: extra.name,
+      price: extra.price,
+      airline_id: airline.id,
+    }))
+  );
+
+  await prisma.extras.createMany({
+    data: extras,
+    skipDuplicates: true,
+  });
 
   console.log(`✅ Extras seeded!`);
 

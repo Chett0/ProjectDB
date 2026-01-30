@@ -7,8 +7,6 @@ export async function seedRoutes() {
   
     const airports : airports[] = await prisma.airports.findMany();
 
-    const routes : routes[] = [];
-
     const routesList = [
         ["VCE", "AMS"], ["AMS", "VCE"],
         ["VCE", "JFK"], ["JFK", "VCE"],
@@ -25,57 +23,39 @@ export async function seedRoutes() {
         // ["CDG", "LHR"], ["LHR", "CDG"]
     ];
 
-    for(const route of routesList) {
-        
-        let depAirport : airports | null = await prisma.airports.findFirst({
-            where : {
-                iata : route[0]!
-            }
-        })
+    const airportMap = new Map(airports.map(a => [a.iata, a.id]));
 
-        let arrAirport : airports | null = await prisma.airports.findFirst({
-            where : {
-                iata : route[1]!
-            }
-        })
+    const routeRows = routesList
+    .map(([dep, arr]) => {
+      const depId = airportMap.get(dep!);
+      const arrId = airportMap.get(arr!);
+      if (!depId || !arrId) return null;
 
-        if(depAirport && arrAirport){
-            routes.push(await prisma.routes.upsert({
-                where : {
-                        departure_airport_id_arrival_airport_id : {
-                            departure_airport_id : depAirport.id,
-                            arrival_airport_id :  arrAirport.id
-                        }
-                    },
-                    update : {},
-                    create : {
-                        departure_airport_id : depAirport.id,
-                        arrival_airport_id : arrAirport.id
-                    }
-            }))
-        }
-        
-    }
+      return {
+        departure_airport_id: depId,
+        arrival_airport_id: arrId,
+      };
+    }) as { departure_airport_id: number; arrival_airport_id: number }[];
 
+    await prisma.routes.createMany({
+        data: routeRows,
+        skipDuplicates: true,
+    });
+
+    const routes : routes[] = await prisma.routes.findMany();
     const airlines : airlines[] = await prisma.airlines.findMany();
 
-    for(const airline of airlines){
-        for(const route of routes){
-            await prisma.airlineRoute.upsert({
-                where : {
-                    airline_id_route_id : {
-                        airline_id : airline.id,
-                        route_id : route.id
-                    }
-                },
-                update : {},
-                create : {
-                    airline_id : airline.id,
-                    route_id : route.id
-                }
-            })
-        }
-    }
+    const airlineRouteRows = airlines.flatMap(airline =>
+        routes.map(route => ({
+            airline_id: airline.id,
+            route_id: route.id,
+        }))
+    );
+
+    await prisma.airlineRoute.createMany({
+        data: airlineRouteRows,
+        skipDuplicates: true,
+    });
 
   console.log(`✅ Routes seeded!`);
 
