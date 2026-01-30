@@ -3,6 +3,7 @@ import * as passengerController from '../controller/passenger.controller';
 
 const router = Router();
 
+router.put('/', passengerController.updatePassenger);
 router.get('/me', passengerController.getPassengerDetails);
 
 router.post('/tickets', passengerController.createTicket);

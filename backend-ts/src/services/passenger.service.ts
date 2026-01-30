@@ -1,11 +1,41 @@
 import { bookingstate, extras, flights, seats, seatstate, tickets } from '@prisma/client';
 import prisma from "../config/db";
 import { ExtraDTO } from "../dtos/airline.dto";
-import { FullTicketInfo, PassengerUser, Ticket } from "../types/passenger.types";
+import { FullTicketInfo, PassengerUser, Ticket, UserPassengerInfo } from "../types/passenger.types";
 import * as flightService from "../services/flight.service"
 import { TicketInfoDTO, toTicketInfoDTO } from "../dtos/passenger.dto";
 import { PassengerUserDTO, toPassengerUserDTO } from '../dtos/user.dto';
 import { NotFoundError } from '../utils/errors';
+
+export const updatePassenger = async (
+    passengerId : number,
+    passengerData : Partial<UserPassengerInfo>
+) : Promise<PassengerUserDTO> => {
+
+    const passenger : PassengerUser = await prisma.passengers.update({
+        where: {
+            id: passengerId,
+            users: {
+                active: true
+            }
+        },
+        include : {
+            users: true
+        },
+        data : {
+            ...(passengerData.name !== undefined && { name: passengerData.name }),
+            ...(passengerData.surname !== undefined && { surname: passengerData.surname }),
+            users: {
+                update: {
+                    ...(passengerData.email !== undefined && { email: passengerData.email })
+                }
+            }
+
+        },
+    });
+
+    return toPassengerUserDTO(passenger);
+}
 
 export const getPassengerById = async (
     passengerId : number

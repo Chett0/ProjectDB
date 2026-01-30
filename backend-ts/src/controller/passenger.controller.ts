@@ -3,11 +3,39 @@ import { AuthenticatedRequest } from "../types/auth.types";
 import { successResponse } from "../utils/helpers/response.helper";
 import { PassengerUserDTO } from "../dtos/user.dto";
 import * as passengerService from "./../services/passenger.service";
-import { BookingState, Ticket } from "../types/passenger.types";
+import { BookingState, Ticket, UserPassengerInfo } from "../types/passenger.types";
 import { TicketInfoDTO } from "../dtos/passenger.dto";
 import { asyncHandler } from "../utils/helpers/asyncHandler.helper";
 import { BadRequestError, UnauthorizedError } from "../utils/errors";
 
+export const updatePassenger = asyncHandler (
+    async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+        const passengerId : number | null = req.user!.id;
+        if(!passengerId)
+            throw new UnauthorizedError();
+
+        const {email, name, surname} = req.body;
+        if(!email && !name && !surname)
+            throw new BadRequestError("At least one field (email, name, surname) must be provided for update");
+
+        const passengerUpdateInfo : Partial<UserPassengerInfo> = {
+            email : email,
+            name : name,
+            surname : surname
+        }
+
+        const updatedPassenger : PassengerUserDTO = await passengerService.updatePassenger(
+            passengerId, 
+            passengerUpdateInfo
+        );
+
+        return successResponse<PassengerUserDTO>(
+            res,
+            "Passenger updated successfully",
+            updatedPassenger
+        );
+    }
+);
 
 export const getPassengerDetails = asyncHandler (
     async(req : AuthenticatedRequest, res : Response): Promise<Response> => {

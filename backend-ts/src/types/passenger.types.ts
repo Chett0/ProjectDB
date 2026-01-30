@@ -41,6 +41,12 @@ export type FullTicketInfo = Prisma.ticketsGetPayload<{
     }
 }>;
 
+export interface UserPassengerInfo {
+    email: string,
+    name: string,
+    surname: string
+}
+
 export type PassengerUser = Prisma.passengersGetPayload<{
     include: {
         users: true
