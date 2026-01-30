@@ -6,6 +6,8 @@ import * as flightService from "../services/flight.service"
 import { TicketInfoDTO, toTicketInfoDTO } from "../dtos/passenger.dto";
 import { PassengerUserDTO, toPassengerUserDTO } from '../dtos/user.dto';
 import { NotFoundError } from '../utils/errors';
+import { BaseFlightInfo } from '../types/flight.types';
+import redisClient from '../config/redis';
 
 export const getPassengerById = async (
     passengerId : number
@@ -28,9 +30,18 @@ export const createTicket = async (
     extras : ExtraDTO[]  
 ) : Promise<TicketInfoDTO> => {
     try{ 
-        const flight : flights | null = await flightService.getFlightbyId(ticket.flightId);
+
+        const flight : BaseFlightInfo | null = await flightService.getFlightbyId(ticket.flightId);
         if(!flight)
             throw new Error("Flight not found");
+
+        const redisKeys : string[] = [
+            `airline:${flight.aircrafts.airline_id}:passengerCount`,
+            `airline:${flight.aircrafts.airline_id}:monthlyIncome`,
+            `airline:${flight.aircrafts.airline_id}:flightsInProgressCount`,
+            `airline:${flight.aircrafts.airline_id}:monthlyIncomes`,
+            //`airline:${flight.aircrafts.airline_id}:routesMostInDemand${nRoutes}`
+        ]
 
         const ticketResult : tickets = await prisma.$transaction(async(tx) => {
 
@@ -94,6 +105,10 @@ export const createTicket = async (
 
             return newTicket;
         });
+
+        for(const key of redisKeys){
+            redisClient.del(key);
+        }
 
         return toTicketInfoDTO(ticketResult, ticket.seatNumber);
 

@@ -24,6 +24,12 @@ export interface Flight {
     durationSeconds : number
 }
 
+export type BaseFlightInfo = Prisma.flightsGetPayload<{
+    include: {
+        aircrafts: true,
+    }
+}>;
+
 export type FlightInfo = Prisma.flightsGetPayload<{
     include: { 
         aircrafts: {

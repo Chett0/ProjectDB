@@ -1,6 +1,6 @@
 import { airports, flights, seatstate } from '@prisma/client';
 import prisma from "../config/db";
-import { Flight, FlightInfo, SearchFlightsParams } from "../types/flight.types";
+import { BaseFlightInfo, Flight, FlightInfo, SearchFlightsParams } from "../types/flight.types";
 import * as airportService from "../services/airport.service";
 import * as airlineService from "../services/airline.service";
 import { JourneysInfoDTO, SeatsDTO, toFlightInfoDTO } from "../dtos/flight.dto";
@@ -76,24 +76,19 @@ export const createFlight = async (
 
 export const getFlightbyId = async (
     flightId: number
-) : Promise<flights | null> => {
-    try{
-        
-        const flight : flights | null = await prisma.flights.findUnique({
-            where : {
-                id: flightId,
-                active: true
-            }
-        });
+) : Promise<BaseFlightInfo | null> => {
 
-        return flight;
+    const flight : BaseFlightInfo | null = await prisma.flights.findUnique({
+        where : {
+            id: flightId,
+            active: true
+        },
+        include : {
+            aircrafts : true
+        }
+    });
 
-
-    } catch(err){
-        throw new Error(
-            `Failed to creating aircraft classes: ${err instanceof Error ? err.message : "Unknown error"}`
-        ); 
-    }
+    return flight;
 };
 
 

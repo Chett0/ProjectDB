@@ -224,6 +224,7 @@ export const createAirlineRoute = async (
     arrivalAirportCode : string
 ) : Promise<RouteDTO> => {
 
+    const redisKey : string = `airline:${airlineId}:activeRoutesCount`;
     let existingRoute : Route | null = await getRouteByAirportsCode(departureAirportCode, arrivalAirportCode);
 
     const newAirlineRoute : RouteDTO  = await prisma.$transaction(async(tx) => {
@@ -270,6 +271,7 @@ export const createAirlineRoute = async (
         return toRouteDTO(existingRoute);
     });
 
+    redisClient.del(redisKey);
     return newAirlineRoute;
 };
 
@@ -353,6 +355,7 @@ export const deleteAirlineRouteById = async (
     routeId : number
 ) : Promise<airlineRoute | null> => {
 
+    const redisKey : string = `airline:${airlineId}:activeRoutesCount`;
     const airlineRoute : airlineRoute | null = await prisma.airlineRoute.update({
         where: {
             airline_id_route_id : {
@@ -366,6 +369,7 @@ export const deleteAirlineRouteById = async (
         }
     });
 
+    redisClient.del(redisKey);
     return airlineRoute;
 
 };
