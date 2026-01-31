@@ -8,7 +8,6 @@ import bcrypt from "bcrypt";
 import { successResponse } from "../utils/helpers/response.helper";
 import { UserDTO } from "../dtos/user.dto";
 
-const BCRYPT_SALT_ROUNDS = Number(process.env.BCRYPT_SALT_ROUNDS) || 10;
 
 export const updatePassword = asyncHandler(
     async(req : Request, res : Response) : Promise<Response> => {
@@ -26,7 +25,7 @@ export const updatePassword = asyncHandler(
         if(!isMatch)
             throw new UnauthorizedError("Old password is incorrect");
 
-        const hashedPassword : string = await bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS);
+        const hashedPassword : string = await authService.hashPassword(newPassword);
 
         const updatedUser : UserDTO = await userService.updatePassword(user, hashedPassword);
 
