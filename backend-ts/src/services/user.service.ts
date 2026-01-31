@@ -21,18 +21,33 @@ export const updatePassword = async(
 };
 
 
-export const deleteUser = async (
-    userId: number
-): Promise<UserDTO | null> => {
 
-        const user : users | null = await prisma.users.update({ 
-            where: { 
-                id: userId 
-            },
-            data: {
-                active: false
-            }
+export const deleteUserByEmail = async (
+    email: string
+): Promise<UserDTO | null> => {
+    try {
+        const user: users | null = await prisma.users.update({
+            where: { email },
+            data: { active: false }
         });
-        
+
         return user ? toUserDTO(user) : null;
+    } catch (err) {
+        return null;
+    }
+};
+
+export const reactivateUserByEmail = async (
+    email: string
+): Promise<UserDTO | null> => {
+    try {
+        const user: users | null = await prisma.users.update({
+            where: { email },
+            data: { active: true }
+        });
+
+        return user ? toUserDTO(user) : null;
+    } catch (err) {
+        return null;
+    }
 };

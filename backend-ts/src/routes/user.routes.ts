@@ -6,6 +6,7 @@ import { UserRole } from "../types/auth.types";
 const router = Router();
 
 router.put('/password', userController.updatePassword);
-router.delete('/:userId', verifyToken, verifyRole(UserRole.ADMIN), userController.deleteUser);
+router.delete('/:email', verifyToken, verifyRole(UserRole.ADMIN), userController.deleteUser);
+router.patch('/:email/activate', verifyToken, verifyRole(UserRole.ADMIN), userController.reactivateUser);
 
 export default router;

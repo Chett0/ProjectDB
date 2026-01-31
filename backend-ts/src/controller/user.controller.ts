@@ -40,23 +40,27 @@ export const updatePassword = asyncHandler(
 
 export const deleteUser = asyncHandler(
     async (req: Request, res: Response): Promise<Response> => {
+        const email = req.params.email;
+        
+        if (!email) throw new BadRequestError("Missing email parameter");
 
-        const userIdParam = req.params.userId;
-        if (!userIdParam) 
-            throw new BadRequestError("Missing userId parameter");
+        const user: UserDTO | null = await userService.deleteUserByEmail(email);
+        if (!user) throw new NotFoundError("User not found");
 
-        const userId = parseInt(userIdParam);
-        if (isNaN(userId)) 
-            throw new BadRequestError("Invalid userId parameter");
+        return successResponse<UserDTO>(res, "User deleted successfully", user);
+    }
+);
 
-        const user : UserDTO | null = await userService.deleteUser(userId);
-        if(!user)
-            throw new NotFoundError("User not found");
+export const reactivateUser = asyncHandler(
+    async (req: Request, res: Response): Promise<Response> => {
+        
+     const email = req.params.email;
 
-        return successResponse<UserDTO>(
-            res, 
-            "User deleted successfully",
-            user
-        );
+        if (!email) throw new BadRequestError("Missing email parameter");
+
+        const user: UserDTO | null = await userService.reactivateUserByEmail(email);
+        if (!user) throw new NotFoundError("User not found");
+
+        return successResponse<UserDTO>(res, "User reactivated successfully", user);
     }
 );

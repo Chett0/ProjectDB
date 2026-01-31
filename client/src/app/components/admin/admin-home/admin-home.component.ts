@@ -25,8 +25,9 @@ export class AdminHomeComponent implements OnInit {
   airlineConfirmPassword = '';
   feedbackMsg = '';
   feedbackType: 'success' | 'error' | '' = '';
-  activeTab = 0;
+  activeTab: any = 0;
   airlines: Airline[] = [];
+  deleteEmail: string = '';
 
   dashboardStats : AdminDashboard = {
     passengersCount: 0,
@@ -92,6 +93,64 @@ export class AdminHomeComponent implements OnInit {
           this.feedbackMsg = 'Email già in uso.';
         } else {
           this.feedbackMsg = 'Errore durante la registrazione.';
+        }
+        this.feedbackType = 'error';
+      }
+    });
+  }
+
+  deleteUserByEmail() {
+    this.feedbackMsg = '';
+    this.feedbackType = '';
+    if (!this.deleteEmail) {
+      this.feedbackMsg = 'Inserisci un email.';
+      this.feedbackType = 'error';
+      return;
+    }
+
+    const confirmed = confirm(`Eliminare l'utente con email ${this.deleteEmail}?`);
+    if (!confirmed) return;
+
+    this.authService.deleteUserByEmail(this.deleteEmail).subscribe({
+      next: (res: Response<any>) => {
+        this.feedbackMsg = 'Utente eliminato con successo.';
+        this.feedbackType = 'success';
+        this.deleteEmail = '';
+      },
+      error: (err) => {
+        if (err && err.status === 404) {
+          this.feedbackMsg = 'Utente non trovato.';
+        } else {
+          this.feedbackMsg = 'Errore durante l\'eliminazione.';
+        }
+        this.feedbackType = 'error';
+      }
+    });
+  }
+
+  reactivateUserByEmail() {
+    this.feedbackMsg = '';
+    this.feedbackType = '';
+    if (!this.deleteEmail) {
+      this.feedbackMsg = 'Inserisci un email.';
+      this.feedbackType = 'error';
+      return;
+    }
+
+    const confirmed = confirm(`Riattivare l'utente con email ${this.deleteEmail}?`);
+    if (!confirmed) return;
+
+    this.authService.reactivateUserByEmail(this.deleteEmail).subscribe({
+      next: (res: Response<any>) => {
+        this.feedbackMsg = 'Utente riattivato con successo.';
+        this.feedbackType = 'success';
+        this.deleteEmail = '';
+      },
+      error: (err) => {
+        if (err && err.status === 404) {
+          this.feedbackMsg = 'Utente non trovato.';
+        } else {
+          this.feedbackMsg = 'Errore durante la riattivazione.';
         }
         this.feedbackType = 'error';
       }
