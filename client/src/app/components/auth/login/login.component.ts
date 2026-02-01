@@ -3,7 +3,7 @@ import { FormGroup, FormControl, ReactiveFormsModule, FormsModule} from '@angula
 import { UserLogin } from '../../../../types/users/auth';
 import { AuthService } from '../../../services/auth/auth.service';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { AuthResp, Response } from '../../../../types/responses/responses';
 
 
@@ -25,7 +25,7 @@ export class LoginComponent {
   confirmNewPassword: string = '';
   tempEmail: string = '';
 
-  constructor(private authService : AuthService, private router : Router) {}
+  constructor(private authService : AuthService, private router : Router, private location: Location) {}
 
   login() : void {
   this.loginError = '';
@@ -114,6 +114,10 @@ export class LoginComponent {
 
   navigateToRegister() : void {
     this.router.navigate(['/register'])
+  }
+
+  goHome() {
+    this.router.navigate(['/']);
   }
 
 }
