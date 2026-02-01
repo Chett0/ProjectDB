@@ -76,11 +76,11 @@ export class ListFlightsComponent implements OnInit{
     if(journey.secondFlight) {
       flightsId.push(journey.secondFlight.id);
     } 
+
+    this.router.navigate(['booking'], {  
+      queryParams: {ids: flightsId} 
+    });
     
-    this.router.navigate(
-      ['flights', 'buy-ticket'],
-      { queryParams: {ids: flightsId}}
-    )
   }
 
 }

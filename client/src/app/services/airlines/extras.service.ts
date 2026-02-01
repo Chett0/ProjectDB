@@ -12,7 +12,7 @@ export class ExtrasService {
 
   constructor(private http: HttpClient) {}
 
-  getExtras(): Observable<Response<Extra[]>> {
-    return this.http.get<Response<Extra[]>>(`${enviroment.apiUrl}/airlines/extra`);
+  getExtras(airlineId : number): Observable<Response<Extra[]>> {
+    return this.http.get<Response<Extra[]>>(`${enviroment.apiUrl}/airlines/${airlineId}/extras`);
   }
 }

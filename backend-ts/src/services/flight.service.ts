@@ -108,8 +108,6 @@ export const searchFlights = async (
     if(arrival_airports.length == 0)
         throw new NotFoundError("Arrival airports not found");
 
-    console.log(params)
-
     const journeys : JourneysInfoDTO[] = await getJourneys(
         departure_airports,
         arrival_airports,

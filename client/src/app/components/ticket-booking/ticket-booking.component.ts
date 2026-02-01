@@ -71,12 +71,15 @@ export class TicketBookingComponent {
       let classes : Class[] = [];
       let seats : SeatInfo[] = [];
 
-      this.extrasService.getExtras().subscribe(
+      this.extrasService.getExtras(flight.aircraft.airline.id).subscribe(
         (res : Response<Extra[]>) => {
+          console.log(res);
           if(res.success)
             extra = res.data || [];
         }
       );
+
+      console.log(extra);
 
       this.classesService.getClasses(flight.aircraft.id).subscribe(
         (res : Response<Class[]>) => {

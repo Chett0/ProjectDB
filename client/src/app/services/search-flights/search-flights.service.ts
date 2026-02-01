@@ -42,8 +42,6 @@ export class SearchFlightsService {
       params = params.set('order', filters.order);
     }
 
-    console.log(params.toString());
-
     return this.http.get<Response<Journeys[]>>(`${this.apiUrl}/flights`, { params });
   }
 

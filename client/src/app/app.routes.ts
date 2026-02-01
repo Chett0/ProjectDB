@@ -47,7 +47,7 @@ export const routes: Routes = [
         resolve: { passengerData: PassengersResolver}
     },
     {
-        path: 'flights/buy-ticket',
+        path: 'booking',
         component: TicketBookingComponent,
         canActivate: [passengerGuard]
     },
@@ -57,7 +57,7 @@ export const routes: Routes = [
         children: [
             {
                 path: 'flights',
-                component: ListFlightsPageComponent
+                component: ListFlightsPageComponent,
             }
         ]
     },
