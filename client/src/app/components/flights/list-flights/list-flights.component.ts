@@ -6,6 +6,7 @@ import { LoadingComponent } from "../../utils/loading/loading.component";
 import { Response } from '../../../../types/responses/responses';
 import { Filters, Journeys } from '../../../../types/flights/flights';
 import { JourneyService } from '../../../services/journey/journey.service';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-list-flights',
@@ -41,7 +42,7 @@ export class ListFlightsComponent implements OnInit{
 
       const filters : Filters = {
         maxPrice : params['maxPrice'],
-        nStop : params['nStop'],
+        nStops : params['nStops'],
         sortBy : params['sortBy'],
         order: params['order']
       };
@@ -51,7 +52,7 @@ export class ListFlightsComponent implements OnInit{
     
   }
 
-  searchFlights(departureDate: string, departureCity: string, destinationCity: string, filters: any) : void {
+  searchFlights(departureDate: string, departureCity: string, destinationCity: string, filters: Filters) : void {
     this.searchFlightsService.searchFlights(departureCity, destinationCity, departureDate, filters).subscribe({
       next: (res: Response<Journeys[]>) => {
         this.journeys =  res.data || [];

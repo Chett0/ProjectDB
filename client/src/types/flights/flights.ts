@@ -58,7 +58,7 @@ export interface TicketFlightData {
 
 export interface Filters {
   maxPrice: number,
-  nStop: number;
+  nStops: number;
   sortBy: 'total_price' | 'total_duration' | 'departure_time' | 'arrival_time';
   order: 'asc' | 'desc';
 }

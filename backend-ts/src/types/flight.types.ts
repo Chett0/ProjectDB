@@ -9,7 +9,7 @@ export interface SearchFlightsParams {
     sort: Sort,
     departureAirportCity : string,
     arrivalAirportCity : string,
-    layovers: number,
+    nStops: number,
     departureDate: string,
     maxPrice: number
 }

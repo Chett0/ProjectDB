@@ -108,6 +108,8 @@ export const searchFlights = async (
     if(arrival_airports.length == 0)
         throw new NotFoundError("Arrival airports not found");
 
+    console.log(params)
+
     const journeys : JourneysInfoDTO[] = await getJourneys(
         departure_airports,
         arrival_airports,
@@ -169,7 +171,7 @@ const getJourneys = async (
         });
     };
 
-    if(params.layovers){
+    if(params.nStops >= 1){
 
         const [firstFlights, secondFlights] : [FlightInfo[], FlightInfo[]] = await Promise.all([
             prisma.flights.findMany({
@@ -250,6 +252,18 @@ const getJourneys = async (
             }
         }
     }
+
+    journeys.sort((a, b) => {
+        if(params.sort.sortBy === 'total_duration')
+            return params.sort.order === 'asc' ? a.totalDuration - b.totalDuration : b.totalDuration - a.totalDuration;
+        else if(params.sort.sortBy === 'total_price')
+            return params.sort.order === 'asc' ? a.totalPrice.sub(b.totalPrice).toNumber() : b.totalPrice.sub(a.totalPrice).toNumber();
+        else if(params.sort.sortBy === 'departure_time')
+            return params.sort.order === 'asc' ? a.firstFlight.departureTime.getTime() - b.firstFlight.departureTime.getTime() : b.firstFlight.departureTime.getTime() - a.firstFlight.departureTime.getTime();
+        else if(params.sort.sortBy === 'arrival_time')
+            return params.sort.order === 'asc' ? a.firstFlight.arrivalTime.getTime() - b.firstFlight.arrivalTime.getTime() : b.firstFlight.arrivalTime.getTime() - a.firstFlight.arrivalTime.getTime();
+        return 0;
+    })
 
     return journeys;
 };

@@ -34,14 +34,15 @@ export class SearchFlightsService {
       .set('to', to)
       .set('departure_date', departure_date);
 
-    
     params = params.set('max_price', filters.maxPrice);
-    params = params.set('max_layovers', filters.nStop);
+    params = params.set('n_stops', filters.nStops);
     
     if(filters.sortBy && filters.order){
       params = params.set('sort_by', filters.sortBy);
       params = params.set('order', filters.order);
     }
+
+    console.log(params.toString());
 
     return this.http.get<Response<Journeys[]>>(`${this.apiUrl}/flights`, { params });
   }

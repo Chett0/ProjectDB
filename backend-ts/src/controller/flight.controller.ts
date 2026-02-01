@@ -44,7 +44,7 @@ export const searchFlights = asyncHandler(
         const order : string = ((req.query.order as string) || 'asc').toLowerCase();
         const departureAirportCity : string | undefined = req.query.from as string;
         const arrivalAirportCity : string | undefined = req.query.to as string;
-        const layovers : number = parseInt(req.query.max_layovers as string) || 1;
+        const nStops : number = parseInt(req.query.n_stops as string);
         const departureDate : string | undefined = req.query.departure_date as string;
         const maxPrice : number = parseInt(req.query.max_price as string) || 2000; 
         
@@ -58,7 +58,7 @@ export const searchFlights = asyncHandler(
             },
             departureAirportCity: departureAirportCity,
             arrivalAirportCity: arrivalAirportCity,
-            layovers: layovers,
+            nStops: nStops,
             departureDate: departureDate,
             maxPrice: maxPrice
         }
