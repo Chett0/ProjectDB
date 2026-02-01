@@ -504,7 +504,7 @@ export const deleteAircraft = async (
 };
 
 
-export const getAircraftClasses = async (
+export const getAirlineAircraftClasses = async (
     airlineId : number,
     aircraftId : number
 ) : Promise<ClassDTO[]> => {
@@ -522,6 +522,25 @@ export const getAircraftClasses = async (
         },
         include : {
             aircrafts: true
+        }
+    })
+
+    return classes.map(toClassDTO);
+};
+
+export const getAircraftClassesByAircraftId = async (
+    aircraftId : number
+) : Promise<ClassDTO[]> => {
+    const classes : aircraft_classes[] = await prisma.aircraft_classes.findMany({
+        where: {
+            aircrafts : {
+                id: aircraftId,
+                active: true
+            },
+            active: true
+        },
+        orderBy: {
+            price_multiplier: 'desc'
         }
     })
 

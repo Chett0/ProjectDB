@@ -1,10 +1,10 @@
 import { Response, Request } from "express";
 import { AuthenticatedRequest } from "../types/auth.types";
-import { BadRequestError, UnauthorizedError } from "../utils/errors";
+import { BadRequestError } from "../utils/errors";
 import { asyncHandler } from "../utils/helpers/asyncHandler.helper";
 import * as airlineService from "../services/airline.service";
 import { successResponse } from "../utils/helpers/response.helper";
-import { ExtraDTO } from "../dtos/airline.dto";
+import { ClassDTO, ExtraDTO } from "../dtos/airline.dto";
 
 
 export const getExtraByAirlineId = asyncHandler(
@@ -20,6 +20,23 @@ export const getExtraByAirlineId = asyncHandler(
             res, 
             "Airline extras retrieved successfully", 
             extras
+        );
+    }
+);
+
+export const getClassesByAircraftId = asyncHandler(
+    async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
+
+        const aircraftId : number | undefined = Number(req.params.aircraftId);
+        if(!aircraftId)
+            throw new BadRequestError("Missing aircraft ID parameter");
+
+        const classes : ClassDTO[] = await airlineService.getAircraftClassesByAircraftId(aircraftId);
+
+        return successResponse<ClassDTO[]>(
+            res, 
+            "Airline classes retrieved successfully", 
+            classes
         );
     }
 );

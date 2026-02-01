@@ -351,7 +351,7 @@ export const getAircraftClasses = asyncHandler(
         if(isNaN(aircraftId))
             throw new BadRequestError("Aircraft ID must be a valid number");
 
-        const classes : ClassDTO[] = await airlineService.getAircraftClasses(airlineId, aircraftId);
+        const classes : ClassDTO[] = await airlineService.getAirlineAircraftClasses(airlineId, aircraftId);
 
         return successResponse<ClassDTO[]>(
             res, 
