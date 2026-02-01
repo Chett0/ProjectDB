@@ -1,6 +1,6 @@
 import { airports } from '@prisma/client';
 import prisma from '../config/db';
-import { AirportDTO, CitiesDTO, toAirportDTO, toCitiesDTO } from '../dtos/airport.dto';
+import { AirportDTO, CityDTO, toAirportDTO, toCityDTO } from '../dtos/airport.dto';
 
 export const getAirportByCode = async (
     code : string
@@ -45,7 +45,7 @@ export const getAirportsByCity = async (
     }
 };
 
-export const getAirportsCities = async () : Promise<CitiesDTO[]> => {
+export const getAirportsCities = async () : Promise<CityDTO[]> => {
 
     const cities : { city: string }[] = await prisma.airports.findMany({
         select: {
@@ -57,6 +57,6 @@ export const getAirportsCities = async () : Promise<CitiesDTO[]> => {
         },
     });
 
-    return cities.map(toCitiesDTO);
+    return cities.map(toCityDTO);
 }
 

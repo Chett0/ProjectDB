@@ -16,10 +16,10 @@ export const toAirportDTO = (airport: airports): AirportDTO => ({
     country: airport.country
 })
 
-export interface CitiesDTO {
+export interface CityDTO {
     name: string;
 }
 
-export const toCitiesDTO = (city: { city: string }): CitiesDTO => ({
+export const toCityDTO = (city: { city: string }): CityDTO => ({
     name: city.city
 });

@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { filter, Observable } from 'rxjs';
 import { Filters, Journeys } from '../../../types/flights/flights';
 import { Response } from '../../../types/responses/responses';
+import { City } from '../../../types/airports/airports';
 
 @Injectable({
   providedIn: 'root',
@@ -18,8 +19,8 @@ export class SearchFlightsService {
     return this.http.get<any[]>(`${this.apiUrl}/cities?query=${query}`);
   }
 
-  getCities() : Observable<any> {
-    return this.http.get<any[]>(`${this.apiUrl}/airports/cities`);
+  getCities() : Observable<Response<City[]>> {
+    return this.http.get<Response<City[]>>(`${this.apiUrl}/airports/cities`);
   }
 
   searchFlights(

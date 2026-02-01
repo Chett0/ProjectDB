@@ -13,7 +13,7 @@ import {provideNativeDateAdapter} from '@angular/material/core';
 
 import { FooterComponent } from '../../footer/footer.component';
 import { Response } from '../../../../types/responses/responses';
-import { Cities } from '../../../../types/airports/airports';
+import { City } from '../../../../types/airports/airports';
 
 @Component({
   selector: 'app-search-flights',
@@ -68,8 +68,8 @@ export class SearchFlightsComponent implements OnInit{
 
   getCities(): void {
     this.searchFlightsService.getCities().subscribe({
-        next: (res : Response<Cities>) => {
-          this.cities = res.data ? res.data.cities : [];
+        next: (res : Response<City[]>) => {
+          this.cities = res.data ? res.data.map(city => city.name) : [];
           this.filteredDepartureCities = this.cities;
           this.filteredDestinationCities = this.cities;
         },
