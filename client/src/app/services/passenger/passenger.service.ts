@@ -36,6 +36,17 @@ export class PassengerService {
     );
   }
 
+  updatePassenger(data: Partial<PassengerInfo>): Observable<Response<PassengerInfo>> {
+    return this.http.put<Response<PassengerInfo>>(`${enviroment.apiUrl}/passengers/update`, data).pipe(
+      tap(res => {
+        if (res.success && res.data) {
+          this.passengerCache = res.data;
+          this.passengerCacheTimestamp = Date.now();
+        }
+      })
+    );
+  }
+
   clearPassengerCache() {
     console.log('clearing cache...')
     this.passengerCache = null;
