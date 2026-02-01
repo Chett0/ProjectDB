@@ -69,7 +69,8 @@ export class SearchFlightsComponent implements OnInit{
   getCities(): void {
     this.searchFlightsService.getCities().subscribe({
         next: (res : Response<Cities>) => {
-          this.cities = res.data ? res.data.cities : [];
+          const rawData = (res.data as unknown as any[]) || []; //better way to do that?
+          this.cities = rawData.map((item: any) => item.name);
           this.filteredDepartureCities = this.cities;
           this.filteredDestinationCities = this.cities;
         },
@@ -102,9 +103,9 @@ export class SearchFlightsComponent implements OnInit{
 
 
   filterDepartureCities(): void {
-    const filterValue = this.departureCity.nativeElement.value.toLowerCase();
+    const filterValue = this.departureCity.nativeElement.value.toLowerCase(); //to change ? using ReactiveForms
     if(!filterValue || filterValue.length === 0){
-      this.filteredDepartureCities = this.cities.slice(0, 100);
+      this.filteredDepartureCities = this.cities.slice(0, 25);
       return;
     }
     this.filteredDepartureCities =  this.cities.filter(o => o.toLowerCase().includes(filterValue));
@@ -113,7 +114,7 @@ export class SearchFlightsComponent implements OnInit{
   filterDestinationCities(): void {
     const filterValue = this.destinationCity.nativeElement.value.toLowerCase();
     if(!filterValue || filterValue.length === 0){
-      this.filteredDestinationCities = this.cities.slice(0, 100);
+      this.filteredDestinationCities = this.cities.slice(0, 25);
       return;
     }
     this.filteredDestinationCities = this.cities.filter(o => o.toLowerCase().includes(filterValue));
