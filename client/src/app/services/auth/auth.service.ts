@@ -77,6 +77,14 @@ export class AuthService {
     return this.http.put<void>(`${enviroment.apiUrl}/password`, data);
   }
 
+  deleteUserByEmail(email: string) {
+    return this.http.delete<Response<any>>(`${enviroment.apiUrl}/users/${encodeURIComponent(email)}`);
+  }
+
+  reactivateUserByEmail(email: string) {
+    return this.http.patch<Response<any>>(`${enviroment.apiUrl}/users/${encodeURIComponent(email)}/activate`, {});
+  }
+
   static clearRedirectPath() {
     AuthService.redirectPath = null;
     AuthService.redirectQuery = null;

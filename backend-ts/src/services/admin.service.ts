@@ -81,6 +81,12 @@ export const getActiveRoutes = async () : Promise<number> => {
 
 
 export const getAllAirlines = async () : Promise<AirlineDTO[]> => {
-    const airlines : airlines[] = await prisma.airlines.findMany();
+    const airlines : airlines[] = await prisma.airlines.findMany({
+        where: {
+            users: {
+                active: true
+            }
+        }
+    });
     return airlines.map(toAirlineDTO);
 };

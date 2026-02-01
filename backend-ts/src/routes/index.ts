@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import airportRoutes from './airport.routes';
 import authRoutes from './auth.routes';
+import userRoutes from './user.routes';
 import airlinesRoutes from './airline.routes';
 import adminRoutes from './admin.routes';
 import passengerRoutes from './passenger.routes';
 import flightRoutes from './flight.routes';
-import userRoutes from './user.routes';
 import extraRoutes from './extra.routes';
 import { verifyRole, verifyToken } from '../utils/middlewares/auth.middleware';
 import { UserRole } from '../types/auth.types';

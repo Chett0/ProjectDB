@@ -7,6 +7,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { PassengerService } from '../../services/passenger/passenger.service';
 import { TicketBookingService } from '../../services/ticket-booking/ticket-booking.service';
 import { PassengerInfo } from '../../../types/users/passenger';
+import { Response } from '../../../types/responses/responses';
 
 @Component({
   selector: 'app-passengers',
@@ -24,6 +25,10 @@ export class PassengersComponent {
     email: ''
   }
   message : string = '';
+
+  editing: boolean = false;
+  editName: string = '';
+  editSurname: string = '';
 
   tickets: any[] = [];
 
@@ -56,7 +61,58 @@ export class PassengersComponent {
           this.passenger = passengerData.passengerResponse.data;
       }
     })
+
+
+    const saved = JSON.parse(localStorage.getItem('userProfile') || 'null');
+    if (saved && saved.name && saved.surname) {
+      this.passenger.name = saved.name;
+      this.passenger.surname = saved.surname;
+    }
+    this.editName = this.passenger.name;
+    this.editSurname = this.passenger.surname;
     
+  }
+
+  startEdit() {
+    this.editing = true;
+    this.editName = this.passenger.name;
+    this.editSurname = this.passenger.surname;
+    this.message = '';
+  }
+
+  cancelEdit() {
+    this.editing = false;
+    this.editName = this.passenger.name;
+    this.editSurname = this.passenger.surname;
+    this.message = '';
+  }
+
+  saveEdit() {
+    if (!this.editName || !this.editSurname) {
+      this.message = 'Nome e cognome non possono essere vuoti.';
+      return;
+    }
+    if (this.editName.length > 50 || this.editSurname.length > 50) {
+      this.message = 'Limite 50 caratteri per nome e cognome.';
+      return;
+    }
+
+    this.passengerService.updatePassenger({ name: this.editName, surname: this.editSurname }).subscribe({
+      next: (res: Response<PassengerInfo>) => {
+        if (res && res.success && res.data) {
+          this.passenger = res.data;
+          localStorage.setItem('userProfile', JSON.stringify({ name: this.passenger.name, surname: this.passenger.surname }));
+          this.message = 'Modifiche salvate.';
+          this.editing = false;
+        } else {
+          this.message = 'Aggiornamento non riuscito.';
+        }
+      },
+      error: (err: any) => {
+        console.error(err);
+        this.message = err?.error?.message || 'Errore nel salvataggio.';
+      }
+    });
   }
 
   formatDate(dateStr: string): string {

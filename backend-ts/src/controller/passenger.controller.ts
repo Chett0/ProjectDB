@@ -14,14 +14,13 @@ export const updatePassenger = asyncHandler (
         if(!passengerId)
             throw new UnauthorizedError();
 
-        const {email, name, surname} = req.body;
-        if(!email && !name && !surname)
-            throw new BadRequestError("At least one field (email, name, surname) must be provided for update");
+        const { name, surname } = req.body;
+        if(!name && !surname)
+            throw new BadRequestError("At least one field (name, surname) must be provided for update");
 
         const passengerUpdateInfo : Partial<UserPassengerInfo> = {
-            email : email,
-            name : name,
-            surname : surname
+            name: name,
+            surname: surname
         }
 
         const updatedPassenger : PassengerUserDTO = await passengerService.updatePassenger(
