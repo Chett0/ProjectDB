@@ -11,30 +11,26 @@ export const updatePassenger = async (
     passengerId : number,
     passengerData : Partial<UserPassengerInfo>
 ) : Promise<PassengerUserDTO> => {
-
-    const passenger : PassengerUser = await prisma.passengers.update({
-        where: {
-            id: passengerId,
-            users: {
-                active: true
-            }
-        },
-        include : {
-            users: true
-        },
-        data : {
-            ...(passengerData.name !== undefined && { name: passengerData.name }),
-            ...(passengerData.surname !== undefined && { surname: passengerData.surname }),
-            users: {
-                update: {
-                    ...(passengerData.email !== undefined && { email: passengerData.email })
-                }
-            }
-
-        },
+    
+    const existing = await prisma.passengers.findUnique({
+        where: { id: passengerId },
+        include: { users: true }
     });
 
-    return toPassengerUserDTO(passenger);
+    if(!existing || !existing.users || !existing.users.active)
+        throw new Error("Passenger or associated user not found/active");
+
+    const dataToUpdate: any = {};
+    if (passengerData.name !== undefined) dataToUpdate.name = passengerData.name;
+    if (passengerData.surname !== undefined) dataToUpdate.surname = passengerData.surname;
+
+    const updatedPassenger = await prisma.passengers.update({
+        where: { id: passengerId },
+        include: { users: true },
+        data: dataToUpdate
+    });
+
+    return toPassengerUserDTO(updatedPassenger as PassengerUser);
 }
 
 export const getPassengerById = async (
