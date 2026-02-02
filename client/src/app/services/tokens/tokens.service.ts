@@ -34,7 +34,6 @@ export class TokensService {
 
   clearTokens() : void {
     localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
     this.accessToken.next(null);
     this.clearRefresh();
   }
@@ -43,12 +42,9 @@ export class TokensService {
     if (this.refreshTimeout) clearTimeout(this.refreshTimeout);
   }
 
-  setTokens(access_token: string, refresh_token?: string | null) {
+  setTokens(access_token: string) {
     this.accessToken.next(access_token);
     localStorage.setItem('access_token', access_token);
-    if(refresh_token)
-      localStorage.setItem('refresh_token', refresh_token);
-
     this.scheduleRefresh();
   }
 
@@ -76,16 +72,11 @@ export class TokensService {
 
 
   refreshToken(): Observable<any> {
-    const refresh_token = localStorage.getItem('refresh_token');
-    if (!refresh_token) {
-      throw new Error('No refresh token available');
-    }
-
-    return this.http.post<any>(`${enviroment.apiUrl}/refresh`, null, {
-      headers: { Authorization: `Bearer ${refresh_token}` }
-    }).pipe(
+    
+    return this.http.post<any>(`${enviroment.apiUrl}/auth/refresh`, {}, { withCredentials: true }).pipe(
       tap((response: any) => {
-        this.setTokens(response.access_token);
+        const newAccess = response?.data?.accessToken || response?.accessToken;
+        if (newAccess) this.setTokens(newAccess);
       }),
       catchError(() => {
         this.clearTokens();
