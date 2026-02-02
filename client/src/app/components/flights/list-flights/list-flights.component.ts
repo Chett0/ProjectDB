@@ -72,9 +72,9 @@ export class ListFlightsComponent implements OnInit{
 
     this.journeyService.setJourney(journey);
 
-    const flightsId : number[] = [journey.firstFlight.id];
-    if(journey.secondFlight) {
-      flightsId.push(journey.secondFlight.id);
+    const flightsId : number[] = [journey.flights[0].id];
+    if(journey.flights.length > 1) {
+      flightsId.push(journey.flights[1].id);
     } 
 
     this.router.navigate(['booking'], {  

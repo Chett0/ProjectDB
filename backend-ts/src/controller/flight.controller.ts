@@ -44,10 +44,10 @@ export const searchFlights = asyncHandler(
         const order : string = ((req.query.order as string) || 'asc').toLowerCase();
         const departureAirportCity : string | undefined = req.query.from as string;
         const arrivalAirportCity : string | undefined = req.query.to as string;
-        const nStops : number = parseInt(req.query.n_stops as string);
+        const nStops = Number.isNaN(Number(req.query.n_stops)) ? 1 : Number(req.query.n_stops);
         const departureDate : string | undefined = req.query.departure_date as string;
         const maxPrice : number = parseInt(req.query.max_price as string) || 2000; 
-        
+
         if(!departureAirportCity || !arrivalAirportCity || !departureDate)
             throw new BadRequestError("Missing required query parameters");
 

@@ -39,8 +39,7 @@ export interface CreateFlight {
 }
 
 export interface Journeys {
-    firstFlight: Flight,
-    secondFlight: Flight | null,
+    flights: Flight[],
     totalDuration: number,
     totalPrice: number
 }

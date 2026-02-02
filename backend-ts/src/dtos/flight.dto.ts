@@ -33,8 +33,7 @@ export interface SeatsDTO {
 }
 
 export interface JourneysInfoDTO {
-    firstFlight : FlightInfoDTO;
-    secondFlight? : FlightInfoDTO | null;
+    flights : FlightInfoDTO[];
     totalDuration : number;
     totalPrice : Decimal;
 } 

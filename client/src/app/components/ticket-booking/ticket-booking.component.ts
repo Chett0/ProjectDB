@@ -60,9 +60,9 @@ export class TicketBookingComponent {
       if(!this.currentJourney)
         this.router.navigate(['/']);
       else{
-        this.flights.push(this.currentJourney.firstFlight);
-        if(this.currentJourney.secondFlight)
-          this.flights.push(this.currentJourney.secondFlight);
+        this.flights.push(this.currentJourney.flights[0]);
+        if(this.currentJourney.flights.length > 1)
+          this.flights.push(this.currentJourney.flights[1]);
       }
     });
 
@@ -73,13 +73,10 @@ export class TicketBookingComponent {
 
       this.extrasService.getExtras(flight.aircraft.airline.id).subscribe(
         (res : Response<Extra[]>) => {
-          console.log(res);
           if(res.success)
             extra = res.data || [];
         }
       );
-
-      console.log(extra);
 
       this.classesService.getClasses(flight.aircraft.id).subscribe(
         (res : Response<Class[]>) => {
@@ -109,7 +106,7 @@ export class TicketBookingComponent {
       this.flightIds.push(flight.id);
 
     });
-
+    
     this.passengerService.getPassengerInfo().subscribe({
       next: (res : Response<PassengerInfo>) => {
         if(res.success)

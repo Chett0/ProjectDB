@@ -162,8 +162,7 @@ const getJourneys = async (
 
     for(const flight of directFlights){   
         journeys.push({
-            firstFlight: toFlightInfoDTO(flight),
-            secondFlight: null,
+            flights: [toFlightInfoDTO(flight)],
             totalDuration: flight.duration_seconds,
             totalPrice: flight.base_price
         });
@@ -238,8 +237,7 @@ const getJourneys = async (
                         if(totalPrice.lte(params.maxPrice)){
 
                             journeys.push({
-                                firstFlight: toFlightInfoDTO(firstFlight),
-                                secondFlight: toFlightInfoDTO(secondFlight),
+                                flights: [toFlightInfoDTO(firstFlight), toFlightInfoDTO(secondFlight)],
                                 totalDuration: totalJourneyDuration,
                                 totalPrice: totalPrice
                             });
@@ -257,9 +255,9 @@ const getJourneys = async (
         else if(params.sort.sortBy === 'total_price')
             return params.sort.order === 'asc' ? a.totalPrice.sub(b.totalPrice).toNumber() : b.totalPrice.sub(a.totalPrice).toNumber();
         else if(params.sort.sortBy === 'departure_time')
-            return params.sort.order === 'asc' ? a.firstFlight.departureTime.getTime() - b.firstFlight.departureTime.getTime() : b.firstFlight.departureTime.getTime() - a.firstFlight.departureTime.getTime();
+            return params.sort.order === 'asc' ? a.flights[0]!.departureTime.getTime() - b.flights[0]!.departureTime.getTime() : b.flights[0]!.departureTime.getTime() - a.flights[0]!.departureTime.getTime();
         else if(params.sort.sortBy === 'arrival_time')
-            return params.sort.order === 'asc' ? a.firstFlight.arrivalTime.getTime() - b.firstFlight.arrivalTime.getTime() : b.firstFlight.arrivalTime.getTime() - a.firstFlight.arrivalTime.getTime();
+            return params.sort.order === 'asc' ? a.flights[0]!.arrivalTime.getTime() - b.flights[0]!.arrivalTime.getTime() : b.flights[0]!.arrivalTime.getTime() - a.flights[0]!.arrivalTime.getTime();
         return 0;
     })
 

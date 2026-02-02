@@ -12,7 +12,7 @@
     <div class="card-body">
        
         <h5 class="card-title text-primary">
-            <ng-container *ngIf="journey.secondFlight; else diretto">
+            <ng-container *ngIf="journey.flights.length > 1; else diretto">
                 Stopovers
             </ng-container>
             <ng-template #diretto>One way</ng-template>
@@ -25,39 +25,39 @@
             <h6 class="text-muted">Primo volo</h6>
             <div class="d-flex justify-content-between">
                 <div>
-                    <p class="mb-1"><strong>{{ journey.firstFlight.aircraft.airline.name }}</strong></p>
+                    <p class="mb-1"><strong>{{ journey.flights[0].aircraft.airline.name }}</strong></p>
                     <p class="mb-1">
-                        {{ journey.firstFlight.departureAirport.city }} ({{
-                        journey.firstFlight.departureAirport.code }})
-                        → {{ journey.firstFlight.arrivalAirport.city }} ({{
-                        journey.firstFlight.arrivalAirport.code }})
+                        {{ journey.flights[0].departureAirport.city }} ({{
+                        journey.flights[0].departureAirport.code }})
+                        → {{ journey.flights[0].arrivalAirport.city }} ({{
+                        journey.flights[0].arrivalAirport.code }})
                     </p>
                 </div>
                 <div class="text-end">
-                    <p class="mb-1">{{ journey.firstFlight.departureTime | date: 'medium'}} → {{
-                        journey.firstFlight.arrivalTime | date: 'medium' }}</p>
-                    <p class="mb-1 text-success">€{{ journey.firstFlight.basePrice }}</p>
+                    <p class="mb-1">{{ journey.flights[0].departureTime | date: 'medium'}} → {{
+                        journey.flights[0].arrivalTime | date: 'medium' }}</p>
+                    <p class="mb-1 text-success">€{{ journey.flights[0].basePrice }}</p>
                 </div>
             </div>
         </div>
 
         <!-- Secondo volo (solo se presente) -->
-        <div *ngIf="journey.secondFlight" class="mb-3">
+        <div *ngIf="journey.flights.length > 1" class="mb-3">
             <h6 class="text-muted">Secondo volo</h6>
             <div class="d-flex justify-content-between">
                 <div>
-                    <p class="mb-1"><strong>{{ journey.secondFlight.aircraft.airline.name }}</strong></p>
+                    <p class="mb-1"><strong>{{ journey.flights[1].aircraft.airline.name }}</strong></p>
                     <p class="mb-1">
-                        {{ journey.secondFlight.departureAirport.city }} ({{
-                        journey.secondFlight.departureAirport.code }})
-                        → {{ journey.secondFlight.arrivalAirport.city }} ({{
-                        journey.secondFlight.arrivalAirport.code }})
+                        {{ journey.flights[1].departureAirport.city }} ({{
+                        journey.flights[1].departureAirport.code }})
+                        → {{ journey.flights[1].arrivalAirport.city }} ({{
+                        journey.flights[1].arrivalAirport.code }})
                     </p>
                 </div>
                 <div class="text-end">
-                    <p class="mb-1">{{ journey.secondFlight.departureTime | date: 'medium'}} → {{
-                        journey.secondFlight.arrivalTime | date:'medium' }}</p>
-                    <p class="mb-1 text-success">€{{ journey.secondFlight.basePrice }}</p>
+                    <p class="mb-1">{{ journey.flights[1].departureTime | date: 'medium'}} → {{
+                        journey.flights[1].arrivalTime | date:'medium' }}</p>
+                    <p class="mb-1 text-success">€{{ journey.flights[1].basePrice }}</p>
                 </div>
             </div>
         </div>
