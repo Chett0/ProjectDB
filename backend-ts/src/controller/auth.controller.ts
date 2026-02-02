@@ -121,12 +121,14 @@ export const login = asyncHandler(
             );
         }
 
-        res.cookie('jwt', refreshToken, {
+        const cookieOptions = {
             httpOnly: true,
-            sameSite: 'none', 
-            // secure: true,
-            maxAge: 24 * 60 * 60 * 1000 * 1
-        });
+            sameSite: 'lax',
+            secure: 'false',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        } as any;
+
+        res.cookie('jwt', loginResponse.refreshToken, cookieOptions);
 
         return successResponse<LoginResponseDTO>(
             res, 
@@ -137,11 +139,11 @@ export const login = asyncHandler(
     }
 );
 
-//to do
+
 export const refreshToken = asyncHandler( 
     async(req : Request, res : Response) : Promise<any> => {
 
-        if (!req.cookies?.jwt) 
+        if (!req.cookies?.jwt)
             throw new UnauthorizedError("Refresh token not found");
 
         const refreshToken : string = req.cookies.jwt;
@@ -149,8 +151,8 @@ export const refreshToken = asyncHandler(
         const refreshResponse = await authService.refreshToken(refreshToken);
 
         return successResponse<any>(
-            res, 
-            "Token refreshed successful", 
+            res,
+            "Token refreshed successful",
             refreshResponse
         );
     }

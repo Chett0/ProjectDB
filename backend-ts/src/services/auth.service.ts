@@ -160,37 +160,31 @@ export const login = async(
     } 
 };
 
-// to do
+
 export const refreshToken = async(
     refreshToken: string
 ) : Promise<any> => {
+    try {
+        const payload: any = jwt.verify(refreshToken, JWT_REFRESH_TOKEN_SECRET);
 
-    let refreshResponse : any = null;
+        const payloadJWT : PayloadJWT = {
+            id: payload.id,
+            role: payload.role
+        };
 
-    jwt.verify(refreshToken, JWT_REFRESH_TOKEN_SECRET, (err: any, payload: any) => {
-                if (err) 
-                    throw new UnauthorizedError("Invalid refresh token");
-                else {
+        const accessToken : string = jwt.sign(
+            payloadJWT, 
+            JWT_ACCESS_TOKEN_SECRET,
+            { expiresIn: "15m" }
+        );
 
-                    const payloadJWT : PayloadJWT = {
-                        id: payload.id,
-                        role: payload.role
-                    };
-
-                    const accessToken : string = jwt.sign(
-                        payloadJWT, 
-                        JWT_ACCESS_TOKEN_SECRET,
-                        { expiresIn: "15m" }
-                    );
-
-                    refreshResponse = {
-                        accessToken: accessToken,
-                        role: payload.role
-                    }
-                }
-            });
-
-    return refreshResponse;
+        return {
+            accessToken: accessToken,
+            role: payload.role
+        };
+    } catch (err) {
+        throw new UnauthorizedError("Invalid refresh token");
+    }
 };
 
     
