@@ -116,4 +116,8 @@ export class LoginComponent {
     this.router.navigate(['/register'])
   }
 
+  navigateToHome(): void {
+    this.router.navigate(['/search-flights']);
+  }
+
 }

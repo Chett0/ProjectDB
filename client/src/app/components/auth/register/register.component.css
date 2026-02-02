@@ -123,3 +123,16 @@
 .login-hint a:hover {
   color: #4f46e5;
 }
+
+.hint-buttons { margin-top: 0.5rem; display:flex; justify-content:center; gap:8px; }
+.hint-btn {
+  background: #6366f1;
+  color: #e2e8f0;
+  border: 1px solid #e2e8f0;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform .12s, box-shadow .12s, background .12s;
+}
+.hint-btn:hover { background: #4f46e5; transform: translateY(-1px); box-shadow: 0 6px 18px rgba(79,70,229,0.08); }

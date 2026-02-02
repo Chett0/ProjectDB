@@ -67,4 +67,8 @@ export class RegisterComponent implements OnInit {
   navigateToLogin(): void {
     this.router.navigate(['/login']);
   }
+  
+  navigateToHome(): void {
+    this.router.navigate(['/search-flights']);
+  }
 }
