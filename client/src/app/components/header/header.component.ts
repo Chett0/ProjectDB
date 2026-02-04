@@ -6,6 +6,8 @@ import { CommonModule } from '@angular/common';
 import { PassengerService } from '../../services/passenger/passenger.service';
 import { TicketBookingService } from '../../services/ticket-booking/ticket-booking.service';
 import { UserRole } from '../../../types/users/auth';
+import { Response } from '../../../types/responses/responses';
+import { PassengerInfo } from '../../../types/users/passenger';
 
 @Component({
   selector: 'app-header',
@@ -16,7 +18,7 @@ import { UserRole } from '../../../types/users/auth';
 export class HeaderComponent {
 
   isLogged: Observable<boolean> | null = null;
-  passengerName: string | null = null;
+  passengerName: string = '';
 
   constructor(
     private authService: AuthService,
@@ -29,8 +31,8 @@ export class HeaderComponent {
     this.isLogged = this.authService.isLoggedIn;
     if(this.isLogged && this.authService.hasRole(UserRole.PASSENGER)){
     this.passengerService.getPassengerInfo().subscribe({
-      next: (data: any) => {
-          this.passengerName = data.passenger.name
+      next: (res: Response<PassengerInfo>) => {
+          this.passengerName = res.data?.name || '';
       },
       error: (err) => console.error(err)
     })
