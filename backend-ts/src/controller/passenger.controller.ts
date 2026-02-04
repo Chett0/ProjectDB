@@ -63,7 +63,7 @@ export const createTicket = asyncHandler(
         if(!passengerId)
             throw new UnauthorizedError();
         
-        if(!flightId || !finalCost || !seatNumber)
+        if(!flightId || finalCost == null || !seatNumber)
             throw new BadRequestError();
 
 
@@ -74,7 +74,7 @@ export const createTicket = asyncHandler(
             finalCost: finalCost,
             state: BookingState.PENDING,
             purchaseDate : new Date()
-        }
+        };
 
         const newTicket : TicketInfoDTO  = await passengerService.createTicket(ticket, extrasIds);
 

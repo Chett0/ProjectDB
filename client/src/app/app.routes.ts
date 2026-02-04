@@ -13,6 +13,8 @@ import { AdminResolver } from './core/resolvers/admin.resolver';
 import { ListFlightsPageComponent } from './components/flights/list-flights-page/list-flights-page.component';
 import { NotFoundComponent } from './components/utils/not-found/not-found.component';
 import { SeatsMapComponent } from './components/booking/seats-map/seats-map.component';
+import { ExtraComponent } from './components/airlines/extra/extra.component';
+import { ExtraBookingComponent } from './components/booking/extra-booking/extra-booking.component';
 
 
 export const routes: Routes = [
@@ -55,6 +57,11 @@ export const routes: Routes = [
     {
         path: 'seats',
         component: SeatsMapComponent,
+        canActivate: [passengerGuard]
+    },
+    {
+        path: 'booking/extras',
+        component: ExtraBookingComponent,
         canActivate: [passengerGuard]
     },
     {

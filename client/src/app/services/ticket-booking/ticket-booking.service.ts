@@ -17,14 +17,7 @@ export class TicketBookingService {
 
   buyTicket(ticket : CreateTicket): Observable<Response<any>> {
 
-    const body = {
-      flightId: ticket.flightId,
-      finalCost: ticket.finalCost,
-      seatNumber: ticket.seatNumber,
-      extrasIds: ticket.extrasIds
-    };
-
-    return this.http.post<Response<any>>(`${enviroment.apiUrl}/tickets`, body).pipe(
+    return this.http.post<Response<any>>(`${enviroment.apiUrl}/passengers/tickets`, ticket).pipe(
       tap(() => this.clearTicketsCache())
     );
   }

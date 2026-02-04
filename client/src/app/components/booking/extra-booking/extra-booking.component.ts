@@ -12,10 +12,10 @@ import { TicketBookingService } from '../../../services/ticket-booking/ticket-bo
 @Component({
   selector: 'app-extra',
   imports: [HeaderComponent, CommonModule],
-  templateUrl: './extra.component.html',
-  styleUrl: './extra.component.css'
+  templateUrl: './extra-booking.component.html',
+  styleUrl: './extra-booking.component.css'
 })
-export class ExtraComponent implements OnInit{
+export class ExtraBookingComponent implements OnInit{
 
   journey! : Journeys;
   selectedSeats! : Map<number, SeatInfo>;

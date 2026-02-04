@@ -5,7 +5,7 @@ import { FullTicketInfo, PassengerUser, Ticket, UserPassengerInfo } from "../typ
 import * as flightService from "../services/flight.service"
 import { TicketInfoDTO, toTicketInfoDTO } from "../dtos/passenger.dto";
 import { PassengerUserDTO, toPassengerUserDTO } from '../dtos/user.dto';
-import { NotFoundError } from '../utils/errors';
+import { BadRequestError, NotFoundError } from '../utils/errors';
 
 export const updatePassenger = async (
     passengerId : number,
@@ -52,82 +52,70 @@ export const getPassengerById = async (
 export const createTicket = async (
     ticket : Ticket,
     extras : ExtraDTO[]  
-) : Promise<TicketInfoDTO> => {
-    try{ 
-        const flight : flights | null = await flightService.getFlightbyId(ticket.flightId);
-        if(!flight)
-            throw new Error("Flight not found");
+) : Promise<TicketInfoDTO> => { 
 
-        const ticketResult : tickets = await prisma.$transaction(async(tx) => {
+    const ticketResult : tickets = await prisma.$transaction(async(tx) => {
 
-            const seat : seats = await tx.seats.update({
-                where: {
-                    flight_id_number: {
-                        flight_id: ticket.flightId,
-                        number: ticket.seatNumber,
-                    },
-                    state : seatstate.AVAILABLE
+        const seat : seats = await tx.seats.update({
+            where: {
+                flight_id_number: {
+                    flight_id: ticket.flightId,
+                    number: ticket.seatNumber,
                 },
-                data : {
-                    state: seatstate.RESERVED
-                }
-            }).catch(() => {
-                throw new Error("Seat not available");
-            });
-
-            let ticketExtras : { extra_id: number }[] = [];
-            if(extras.length > 0){
-                const extraIds : number[] = extras.map(extra => extra.id);
-                const validExtras : extras[] = await tx.extras.findMany({
-                    where: {
-                        id: { in: extraIds },
-                        active: true
-                    }
-                });
-
-                if (validExtras.length !== extras.length) {
-                    throw new Error("One or more extras are unavailable");
-                }
-
-                ticketExtras = validExtras.map(extra => ({ extra_id: extra.id }))
+                state : seatstate.AVAILABLE
+            },
+            data : {
+                state: seatstate.BOOKED
             }
-
-            const newTicket : tickets = await prisma.tickets.create({
-                data: {
-                    flights : {
-                        connect : {
-                            id: ticket.flightId
-                        }
-                    },
-                    passengers : {
-                        connect : {
-                            id: ticket.passengerId
-                        }
-                    },
-                    seats : {
-                        connect : {
-                            id: seat.id
-                        }
-                    },
-                    final_cost: ticket.finalCost,
-                    state: bookingstate.PENDING,
-                    purchase_date: new Date(),
-                    ticket_extra: {
-                        create: ticketExtras
-                    }
-                }
-            });
-
-            return newTicket;
         });
 
-        return toTicketInfoDTO(ticketResult, ticket.seatNumber);
+        let ticketExtras : { extra_id: number }[] = [];
+        if(extras.length > 0){
+            const extraIds : number[] = extras.map(extra => extra.id);
+            const validExtras : extras[] = await tx.extras.findMany({
+                where: {
+                    id: { in: extraIds },
+                    active: true
+                }
+            });
 
-    } catch(err){
-        throw new Error(
-            `Failed to creating ticket: ${err instanceof Error ? err.message : "Unknown error"}`
-        ); 
-    }
+            if (validExtras.length !== extras.length) 
+                throw new NotFoundError("One or more extras are unavailable");
+
+            ticketExtras = validExtras.map(extra => ({ extra_id: extra.id }))
+        }
+
+        const newTicket : tickets = await prisma.tickets.create({
+            data: {
+                flights : {
+                    connect : {
+                        id: ticket.flightId
+                    }
+                },
+                passengers : {
+                    connect : {
+                        id: ticket.passengerId
+                    }
+                },
+                seats : {
+                    connect : {
+                        id: seat.id
+                    }
+                },
+                final_cost: ticket.finalCost,
+                state: bookingstate.CONFIRMED,
+                purchase_date: new Date(),
+                ticket_extra: {
+                    create: ticketExtras
+                }
+            }
+        });
+
+        return newTicket;
+    });
+
+    return toTicketInfoDTO(ticketResult, ticket.seatNumber);
+
 };
 
 //to do
