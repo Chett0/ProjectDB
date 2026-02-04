@@ -41,6 +41,9 @@
       </div>
       <div class="login-hint" *ngIf="!showChangePassword">
         <span>Non hai un account? <a (click)="navigateToRegister()">Registrati ora</a></span>
+        <div class="hint-buttons">
+          <button type="button" class="hint-btn" (click)="navigateToHome()">Torna alla home</button>
+        </div>
       </div>
     </form>
   </div>

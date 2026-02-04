@@ -26,11 +26,11 @@ export class AuthService {
   }
 
   login(user : UserLogin) {
-    return this.http.post<Response<AuthResp>>(`${enviroment.apiUrl}/auth/login`, user)
+    return this.http.post<Response<AuthResp>>(`${enviroment.apiUrl}/auth/login`, user, { withCredentials: true })
     .pipe(
       tap((response: Response<AuthResp>) => {
-        this.token.setTokens(response.data!.accessToken, response.data!.refreshToken);
-        localStorage.setItem('access_token', response.data!.accessToken);
+        //only access token
+        this.token.setTokens(response.data!.accessToken);
         this.isLoggedIn.next(true);
       })
     );
@@ -41,6 +41,7 @@ export class AuthService {
     this.isLoggedIn.next(false);
     this.token.clearTokens();
     AuthService.clearRedirectPath();
+    this.router.navigate(['/login']);
   }
 
   registerPassenger(passenger : PassengerAsUser) {
