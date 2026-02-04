@@ -51,7 +51,7 @@ export const getPassengerById = async (
 
 export const createTicket = async (
     ticket : Ticket,
-    extras : ExtraDTO[]  
+    extraIds : number[]  
 ) : Promise<TicketInfoDTO> => { 
 
     const ticketResult : tickets = await prisma.$transaction(async(tx) => {
@@ -69,44 +69,36 @@ export const createTicket = async (
             }
         });
 
-        let ticketExtras : { extra_id: number }[] = [];
-        if(extras.length > 0){
-            const extraIds : number[] = extras.map(extra => extra.id);
+        if(extraIds.length > 0){
+
             const validExtras : extras[] = await tx.extras.findMany({
                 where: {
-                    id: { in: extraIds },
+                    id: { 
+                        in: extraIds 
+                    },
                     active: true
                 }
             });
 
-            if (validExtras.length !== extras.length) 
+            if (validExtras.length !== extraIds.length) 
                 throw new NotFoundError("One or more extras are unavailable");
 
-            ticketExtras = validExtras.map(extra => ({ extra_id: extra.id }))
         }
 
         const newTicket : tickets = await prisma.tickets.create({
             data: {
-                flights : {
-                    connect : {
-                        id: ticket.flightId
-                    }
-                },
-                passengers : {
-                    connect : {
-                        id: ticket.passengerId
-                    }
-                },
-                seats : {
-                    connect : {
-                        id: seat.id
-                    }
-                },
+                flight_id: ticket.flightId,
+                passenger_id: ticket.passengerId,
+                seat_id: seat.id,
                 final_cost: ticket.finalCost,
                 state: bookingstate.CONFIRMED,
                 purchase_date: new Date(),
                 ticket_extra: {
-                    create: ticketExtras
+                    createMany: {
+                        data: extraIds.map(extraId => ({
+                            extra_id: extraId
+                        }))
+                    }
                 }
             }
         });

@@ -7,14 +7,22 @@
     <div *ngFor="let flight of journey.flights">
         <h2 class="title">Seleziona i posti per il volo {{ flight.aircraft.airline.name }} ({{ flight.aircraft.airline.code }})</h2>
 
-        <div class="extras-options">
-              <p>Extra:</p>
-              <label *ngFor="let extra of extras.get(flight.id)" class="extra-item">
-                <input type="checkbox" (change)="onExtraChange(flight, extra, $event)"
-                  [checked]="extras.get(flight.id)?.includes(extra)" />
-                {{ extra.name }} (+{{ extra.price }}€)
-              </label>
-            </div>
+        <div 
+    *ngFor="let extra of extras.get(flight.id)"
+    class="extra-card"
+    [class.selected]="isExtraSelected(flight, extra)"
+    (click)="toggleExtra(flight, extra)"
+  >
+    <div class="extra-info">
+      <span class="name">{{ extra.name }}</span>
+      <span class="price">+{{ extra.price }}€</span>
+    </div>
+
+    <!-- ✔ ICONA -->
+    <div class="checkmark" *ngIf="isExtraSelected(flight, extra)">
+      ✓
+    </div>
+  </div>
     </div>  
 
     <button class="confirm-btn" (click)="confirmBooking()">

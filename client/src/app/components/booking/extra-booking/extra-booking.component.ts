@@ -56,14 +56,18 @@ export class ExtraBookingComponent implements OnInit{
 
   }
 
-  getExtrasByFlight(flight : Flight) : Extra[] {
-    return this.extras.get(flight.id) || [];
+  isExtraSelected(flight : Flight, extra : Extra) : boolean {
+    return this.selectedExtras.get(flight.id)?.includes(extra) || false;
   }
 
-  onExtraChange(flight: Flight, extra : Extra, event: Event) {
-    const checkbox = event.target as HTMLInputElement;
-    this.selectedExtras.get(flight.id)?.push(extra);
-  }
+  toggleExtra(flight: Flight, extra: Extra) {
+  const list = this.selectedExtras.get(flight.id) ?? [];
+
+  if (list.includes(extra))
+    this.selectedExtras.set(flight.id, list.filter(e => e !== extra));
+  else 
+    this.selectedExtras.set(flight.id, [...list, extra]);
+}
 
 
   confirmBooking() {
