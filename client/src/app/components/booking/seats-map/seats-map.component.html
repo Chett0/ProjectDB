@@ -1,0 +1,41 @@
+<div class="page">
+  <app-header></app-header>
+
+  <main class="body">
+
+      <!-- serve per iterare su tutti i voli presenti in base agli scali-->
+      <div *ngFor="let flight of journey.flights">
+
+        <h2 class="title">Seleziona i posti per il volo {{ flight.aircraft.airline.name }} ({{ flight.aircraft.airline.code }})</h2>
+
+          <div class="flight-content">
+
+    <div class="classes-panel">
+      <div 
+        *ngFor="let c of classes.get(flight.id)" 
+        class="class-card"
+      >
+        <h3>{{ c.name }}</h3>
+        <p>Posti: {{ c.nSeats }}</p>
+        <p>Price: {{ c.priceMultiplier * flight.basePrice | currency }}</p>
+      </div>
+    </div>
+
+    <div class="seat-map">
+      <div *ngFor="let seat of getFilteredSeats(flight)" class="row">
+        <button class="seat"
+                (click)="selectSeat(flight, seat)">
+        </button>
+      </div>
+    </div>
+
+    </div>  
+
+    </div>  
+
+    <button class="confirm-btn" (click)="confirmSeats()">
+      Confirm
+    </button>
+
+    </main>
+</div>

@@ -17,10 +17,44 @@ html, body {
   background: linear-gradient(120deg, #e0e7ff 0%, #f8fafc 100%);
 }
 
+.flight-content {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+/* PANNELLO CLASSI */
+.classes-panel {
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.class-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+  background: #fafafa;
+}
+
+.class-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.class-card.active {
+  border: 2px solid #1976d2;
+  background: #e3f2fd;
+}
+
 .seat-map {
   display: grid;
-  grid-template-columns: repeat(2, 10px) 30px repeat(3, 10px);
-  gap: 12px;
+  grid-template-columns: repeat(2, 10px) 80px repeat(3, 10px);
+  row-gap: -5px;  
+  column-gap: 50px;
   justify-content: center;
 }
 

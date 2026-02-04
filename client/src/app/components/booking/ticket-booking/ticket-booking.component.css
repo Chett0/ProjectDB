@@ -1,0 +1,106 @@
+.summary-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.passenger-grid {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.flight-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.airline {
+  color: #1e88e5;
+}
+
+.price {
+  font-size: 18px;
+}
+
+.flight-body {
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.route {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.airport {
+  text-align: center;
+}
+
+.code {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.arrow {
+  font-size: 20px;
+  color: #888;
+}
+
+.details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #555;
+  flex-wrap: wrap;
+}
+
+.total-section {
+  margin-top: 30px;
+  text-align: right;
+}
+
+.total-row {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.total-price {
+  color: #2e7d32;
+  margin-left: 10px;
+}
+
+.confirm-btn {
+  background: linear-gradient(135deg, #1e88e5, #42a5f5);
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}

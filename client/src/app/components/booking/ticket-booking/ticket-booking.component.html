@@ -1,0 +1,59 @@
+<div class="page">
+  <app-header></app-header>
+<div class="summary-container">
+
+  <h2 class="title">Riepilogo Prenotazione</h2>
+
+  <div class="card" *ngIf="passenger">
+    <h3>Dati Passeggero</h3>
+    <div class="passenger-grid">
+      <div><strong>Nome:</strong> {{ passenger.name }} {{ passenger.surname }}</div>
+      <div><strong>Email:</strong> {{ passenger.email }}</div>
+    </div>
+  </div>
+
+  <div class="card" *ngFor="let flight of journey.flights">
+    <div class="flight-header">
+      <span class="airline">
+        {{ flight.aircraft.airline.name }} ({{ flight.aircraft.airline.code }})
+      </span>
+      <span class="price">€ {{ flight.basePrice | number:'1.2-2' }}</span>
+    </div>
+
+    <div class="flight-body">
+      <div class="route">
+        <div class="airport">
+          <div class="code">{{ flight.departureAirport.code }}</div>
+          <div>{{ flight.departureAirport.city }}</div>
+          <small>{{ flight.departureTime }}</small>
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="airport">
+          <div class="code">{{ flight.arrivalAirport.code }}</div>
+          <div>{{ flight.arrivalAirport.city }}</div>
+          <small>{{ flight.arrivalTime }}</small>
+        </div>
+      </div>
+
+      <div class="details">
+        <span>Aereo: {{ flight.aircraft.model }}</span>
+        <span>Aeroporti: {{ flight.departureAirport.name }} → {{ flight.arrivalAirport.name }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="total-section">
+    <div class="total-row">
+      <span>Totale</span>
+      <span class="total-price">€ {{ getTotal() | number:'1.2-2' }}</span>
+    </div>
+
+    <button class="confirm-btn" (click)="confirmPurchase()">
+      Conferma Acquisto
+    </button>
+  </div>
+
+</div>
+</div>

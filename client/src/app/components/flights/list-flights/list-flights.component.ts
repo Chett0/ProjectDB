@@ -5,8 +5,8 @@ import { CommonModule } from '@angular/common';
 import { LoadingComponent } from "../../utils/loading/loading.component";
 import { Response } from '../../../../types/responses/responses';
 import { Filters, Journeys } from '../../../../types/flights/flights';
-import { JourneyService } from '../../../services/journey/journey.service';
 import { filter } from 'rxjs';
+import { TicketService } from '../../../services/ticket/ticket.service';
 
 @Component({
   selector: 'app-list-flights',
@@ -24,7 +24,7 @@ export class ListFlightsComponent implements OnInit{
 
   constructor(
     private searchFlightsService: SearchFlightsService,
-    private journeyService: JourneyService,
+    private ticketService: TicketService,
     private route : ActivatedRoute,
     private router : Router,
     private cdr: ChangeDetectorRef
@@ -70,15 +70,18 @@ export class ListFlightsComponent implements OnInit{
 
   onBuyTicket(journey: Journeys) : void {
 
-    this.journeyService.setJourney(journey);
+    this.ticketService.setJourneys(journey);
 
-    const flightsId : number[] = [journey.flights[0].id];
-    if(journey.flights.length > 1) {
-      flightsId.push(journey.flights[1].id);
-    } 
+    const flightIds : number[] = [];
+
+    journey.flights.forEach(flight => {
+      flightIds.push(flight.id);
+    });
 
     this.router.navigate(['booking'], {  
-      queryParams: {ids: flightsId} 
+      queryParams: {
+        ids: flightIds
+      } 
     });
     
   }

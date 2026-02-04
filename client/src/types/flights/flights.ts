@@ -1,6 +1,7 @@
 import { Expansion } from "@angular/compiler"
 import { Airport } from "../airports/airports"
 import { AircraftWithAirline, Class, Extra } from "../users/airlines"
+import { PassengerInfo } from "../users/passenger"
 
 export interface FlightSeat {
     id: number, 
@@ -42,17 +43,6 @@ export interface Journeys {
     flights: Flight[],
     totalDuration: number,
     totalPrice: number
-}
-
-export interface TicketFlightData {
-    flight: Flight,
-    seats: SeatInfo[],
-    classes: Class[];
-    extras: Extra[];
-    selectedSeat: SeatInfo | null;
-    selectedClass: string;
-    selectedExtras: number[];
-    final_cost: number;
 }
 
 export interface Filters {
