@@ -1,0 +1,25 @@
+<div class="page">
+  <app-header></app-header>
+
+  <main class="body">
+
+      <!-- serve per iterare su tutti i voli presenti in base agli scali-->
+    <div *ngFor="let flight of journey.flights">
+        <h2 class="title">Seleziona i posti per il volo {{ flight.aircraft.airline.name }} ({{ flight.aircraft.airline.code }})</h2>
+
+        <div class="extras-options">
+              <p>Extra:</p>
+              <label *ngFor="let extra of extras.get(flight.id)" class="extra-item">
+                <input type="checkbox" (change)="onExtraChange(flight, extra, $event)"
+                  [checked]="extras.get(flight.id)?.includes(extra)" />
+                {{ extra.name }} (+{{ extra.price }}€)
+              </label>
+            </div>
+    </div>  
+
+    <button class="confirm-btn" (click)="confirmBooking()">
+      Confirm
+    </button>
+
+    </main>
+</div>

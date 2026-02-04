@@ -58,13 +58,9 @@ export class SeatsMapComponent implements OnInit {
             this.seatsMap = new Map(this.seatsMap).set(flight.id, seats.data);
           }
 
-          console.log(this.seatsMap)
-
           if (classes.success && classes.data) {
             this.classes = new Map(this.classes).set(flight.id, classes.data);
           }
-
-          console.log(this.classes)
 
         });
       });
