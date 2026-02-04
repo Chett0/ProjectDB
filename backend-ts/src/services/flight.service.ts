@@ -283,7 +283,7 @@ export const getFlightSeats = async (
             ) AS "class"
         FROM Seats S 
         JOIN Flights F ON F.id = S.flight_id
-        JOIN public.aircraft_classes AC ON F.aircraft_id = AC.aircraft_id 
+        JOIN public.aircraft_classes AC ON F.aircraft_id = AC.aircraft_id And S.class_id = AC.id
         WHERE S.flight_id = ${flightId}
         ORDER BY id ASC
     `;

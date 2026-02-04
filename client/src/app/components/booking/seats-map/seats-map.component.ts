@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TicketService } from '../../../services/ticket/ticket.service';
-import { FlightsComponent } from '../../airlines/flights/flights.component';
-import { Flight, Journeys, SeatInfo } from '../../../../types/flights/flights';
+import { Flight, Journeys, SeatInfo, SeatState } from '../../../../types/flights/flights';
 import { Response } from '../../../../types/responses/responses';
 import { SeatsService } from '../../../services/seats/seats.service';
 import { Class } from '../../../../types/users/airlines';
@@ -23,6 +22,8 @@ export class SeatsMapComponent implements OnInit {
   journey! : Journeys;
   seatsMap: Map<number, SeatInfo[]> = new Map();
   classes: Map<number, Class[]> = new Map();
+
+  SeatState = SeatState;
 
   ticketColors: Record<string, string> = {
     'Economy': 'lightblue',
@@ -50,16 +51,16 @@ export class SeatsMapComponent implements OnInit {
 
       journey.flights.forEach(flight => {
         forkJoin({
-          seats: this.seatService.getSeats(flight.id),
-          classes: this.classService.getClasses(flight.aircraft.id)
-        }).subscribe(({ seats, classes }) => {
+          responseSeats: this.seatService.getSeats(flight.id),
+          responseClasses: this.classService.getClasses(flight.aircraft.id)
+        }).subscribe(({ responseSeats, responseClasses }) => {
 
-          if (seats.success && seats.data) {
-            this.seatsMap = new Map(this.seatsMap).set(flight.id, seats.data);
+          if (responseSeats.success && responseSeats.data) {
+            this.seatsMap = new Map(this.seatsMap).set(flight.id, responseSeats.data);
           }
 
-          if (classes.success && classes.data) {
-            this.classes = new Map(this.classes).set(flight.id, classes.data);
+          if (responseClasses.success && responseClasses.data) {
+            this.classes = new Map(this.classes).set(flight.id, responseClasses.data);
           }
 
         });
@@ -74,7 +75,7 @@ export class SeatsMapComponent implements OnInit {
   }
 
   selectSeat(flight: Flight, seat: SeatInfo) {
-    if (seat.state !== "AVAILABLE") return;
+    if (seat.state !== SeatState.AVAILABLE) return;
     this.seatsSelected.set(flight.id, seat);
   }
 

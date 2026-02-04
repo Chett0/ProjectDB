@@ -19,11 +19,26 @@
         <p>Posti: {{ c.nSeats }}</p>
         <p>Price: {{ c.priceMultiplier * flight.basePrice | currency }}</p>
       </div>
+
+      <div 
+        *ngIf="seatsSelected.get(flight.id) as selectedSeat" 
+        class="class-card"
+      >
+        <h2>Selected Seat:</h2>
+        <h3>{{ selectedSeat.number }}</h3>
+        <p>Class: {{ selectedSeat.class.name }}</p>
+        <p>Price: {{ selectedSeat.price | currency }}</p>
+      </div>
+
     </div>
+
+    
 
     <div class="seat-map">
       <div *ngFor="let seat of getFilteredSeats(flight)" class="row">
         <button class="seat"
+                [class.disabled]="seat.state != SeatState.AVAILABLE"
+                [disabled]="seat.state != SeatState.AVAILABLE"
                 (click)="selectSeat(flight, seat)">
         </button>
       </div>

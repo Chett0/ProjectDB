@@ -3,6 +3,12 @@ import { Airport } from "../airports/airports"
 import { AircraftWithAirline, Class, Extra } from "../users/airlines"
 import { PassengerInfo } from "../users/passenger"
 
+export enum SeatState {
+  AVAILABLE = "AVAILABLE",
+  RESERVED = "RESERVED",
+  BOOKED = "BOOKED"
+}
+
 export interface FlightSeat {
     id: number, 
     departureTime: string,
@@ -18,7 +24,7 @@ export interface SeatInfo {
     number: string,
     state: string,
     price: number,
-    aircraftClass : Class
+    class : Class
 }
 
 export interface Flight {

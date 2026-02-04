@@ -7,6 +7,12 @@ export enum UserRole {
     ADMIN = 'Admin'
 }
 
+export enum BookingState {
+    PENDING = "PENDING",
+    CONFIRMED = "CONFIRMED",
+    CANCELLED = "CANCELLED"
+}
+
 export interface Passenger {
     name : string,
     surname : string,
