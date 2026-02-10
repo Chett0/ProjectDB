@@ -126,3 +126,27 @@ export const getPassengerTicketById = asyncHandler(
             "Ticket retrieved successfully"
         );
 });
+
+
+export const createSeatSession = asyncHandler(
+     async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
+
+        const passengerId: number | null = req.user!.id;
+        const paramsSeatId: string | undefined = req.params.seatId;
+
+        if(!passengerId)
+            throw new UnauthorizedError("Passenger ID is required");
+        if (!paramsSeatId)
+            throw new BadRequestError("Seat ID is required");
+
+        const seatId : number = parseInt(paramsSeatId);
+        if(isNaN(seatId))
+            throw new BadRequestError("Seat ID must be a valid number");
+
+        await passengerService.createSeatSession(passengerId, seatId);
+
+        return successResponse<void>(
+            res,
+            "Seat session created successfully"
+        );
+});

@@ -149,11 +149,32 @@ model seats {
   aircraft_classes aircraft_classes? @relation(fields: [class_id], references: [id], onUpdate: NoAction)
   flights          flights           @relation(fields: [flight_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   tickets          tickets[]
+  seat_holds       seat_holds[]
 
   @@index([class_id], map: "ix_seats_class_id")
   @@index([flight_id], map: "ix_seats_flight_id")
 
   @@unique([flight_id, number])
+}
+
+model seat_holds {
+  id        Int   @id @default(autoincrement())
+
+  user_id    Int
+  seat_id    Int
+
+  expires_at DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  users   users   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  seats   seats   @relation(fields: [seat_id], references: [id], onDelete: Cascade)
+
+  @@index([seat_id])
+  @@index([user_id])
+  @@index([expires_at])
+
+  @@unique([seat_id])
 }
 
 model ticket_extra {
@@ -194,6 +215,7 @@ model users {
   must_change_password Boolean     @default(false)
   airlines             airlines?
   passengers           passengers?
+  seat_holds           seat_holds[]
 }
 
 enum bookingstate {
@@ -204,7 +226,7 @@ enum bookingstate {
 
 enum seatstate {
   AVAILABLE
-  RESERVED
+  HELD
   BOOKED
 }
 

@@ -1,11 +1,11 @@
-import { bookingstate, extras, flights, seats, seatstate, tickets } from '@prisma/client';
+import { bookingstate, extras, flights, seat_holds, seats, seatstate, tickets } from '@prisma/client';
 import prisma from "../config/db";
 import { ExtraDTO } from "../dtos/airline.dto";
 import { FullTicketInfo, PassengerUser, Ticket, UserPassengerInfo } from "../types/passenger.types";
 import * as flightService from "../services/flight.service"
 import { TicketInfoDTO, toTicketInfoDTO } from "../dtos/passenger.dto";
 import { PassengerUserDTO, toPassengerUserDTO } from '../dtos/user.dto';
-import { BadRequestError, NotFoundError } from '../utils/errors';
+import { BadRequestError, ConflictError, NotFoundError } from '../utils/errors';
 
 export const updatePassenger = async (
     passengerId : number,
@@ -174,4 +174,33 @@ export const getPassengerTicketById =  async (
         throw new NotFoundError("Ticket not found");
 
     return ticket;
+};
+
+export const createSeatSession =  async (
+    passengerId: number,
+    seatId: number
+): Promise<void> => {
+
+    await prisma.$transaction(async (tx) => {
+
+        const seatSession : seat_holds | null = await tx.seat_holds.findFirst({
+            where: {
+                seat_id: seatId,
+                expires_at: {
+                    gt: new Date()
+                }
+            }
+        });
+
+        if(seatSession)
+            throw new ConflictError("Seat is currently held by another user");
+
+        await tx.seat_holds.create({
+            data : {
+                user_id: passengerId,
+                seat_id: seatId,
+                expires_at: new Date(Date.now() + 10 * 60 * 1000) //10 minutes hold
+            }
+        });
+    });
 };

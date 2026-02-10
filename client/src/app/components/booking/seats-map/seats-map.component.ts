@@ -8,7 +8,7 @@ import { Class } from '../../../../types/users/airlines';
 import { ClassesService } from '../../../services/classes/classes.service';
 import { HeaderComponent } from '../../header/header.component';
 import { CommonModule } from '@angular/common';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, map, of } from 'rxjs';
 
 @Component({
   selector: 'app-seats-map',
@@ -84,8 +84,42 @@ export class SeatsMapComponent implements OnInit {
     if(this.seatsSelected.size !== this.journey.flights.length) 
       return;
 
-    this.ticketService.setSelectedSeats(this.seatsSelected);
-    this.router.navigate(['/booking/extras']);
+    const seatRequests = Array.from(this.seatsSelected.entries()).map(
+        ([flightId, seat]) =>
+          this.seatService.createSeatSession(seat.id).pipe(
+            map(response => ({ seat, flightId, response })),
+            catchError(err => of({ seat, flightId, response: { success: false }, error: err }))
+          )
+      );
+
+      forkJoin(seatRequests).subscribe(results => {
+        const failed = results.filter(r => !r.response.success);
+
+        if (failed.length > 0) {
+          failed.forEach(f => {
+            alert(`Failed to create session for seat ${f.seat.number} on flight ${f.flightId}`);
+          });
+        } else {
+          this.ticketService.setSelectedSeats(this.seatsSelected);
+          this.router.navigate(['/booking/extras']);
+        }
+      });
+
+    // this.seatsSelected.forEach((seat, flightId) => {
+    //   this.seatService.createSeatSession(seat.id).subscribe({
+    //     next: (response) => {
+    //       if (!response.success) {
+    //         alert(`Failed to create session for seat ${seat.number} on flight ${flightId}`);
+    //       } else {
+    //         this.ticketService.setSelectedSeats(this.seatsSelected);
+    //         this.router.navigate(['/booking/extras']);
+    //       }
+    //     },
+    //     error: (err) => {
+    //       alert(`Failed to create session for seat ${seat.number} on flight ${flightId}`);
+    //     }
+    //   });
+    // });    
   }
 
 }
