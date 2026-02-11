@@ -1,5 +1,7 @@
 <div class="login-bg">
-  <div class="login-container">
+  <div class="card-wrapper">
+    <a class="back-home-link" (click)="navigateToHome()">← Torna alla home</a>
+    <div class="login-container">
   <form [formGroup]="registerForm" class="login-form" (ngSubmit)="register()">
       <div class="logo-circle">
         <img src="/assets/plane-logo.png" alt="logo" height="64"  />
@@ -10,27 +12,27 @@
       <div class="two-cols">
         <div class="form-group">
           <label for="name">Nome</label>
-          <input id="name" type="text" class="form-control" placeholder="Il tuo nome" formControlName="name" required>
+          <input id="name" type="text" class="form-control" placeholder="👤 Mario" formControlName="name" required>
         </div>
         <div class="form-group">
           <label for="surname">Cognome</label>
-          <input id="surname" type="text" class="form-control" placeholder="Il tuo cognome" formControlName="surname" required>
+          <input id="surname" type="text" class="form-control" placeholder="👤 Rossi" formControlName="surname" required>
         </div>
       </div>
 
       <div class="form-group">
         <label for="email">Email</label>
-        <input id="email" type="email" class="form-control" placeholder="La tua email" formControlName="email" required>
+        <input id="email" type="email" class="form-control" placeholder="📧  mario.rossi@example.com" formControlName="email" required>
       </div>
 
       <div class="two-cols">
         <div class="form-group">
           <label for="password">Password</label>
-          <input id="password" type="password" class="form-control" placeholder="La tua password" formControlName="password" required>
+          <input id="password" type="password" class="form-control" placeholder="🔒 ••••••••" formControlName="password" required>
         </div>
         <div class="form-group">
           <label for="confirmPassword">Conferma Password</label>
-          <input id="confirmPassword" type="password" class="form-control" placeholder="Conferma password" formControlName="confirmPassword" required>
+          <input id="confirmPassword" type="password" class="form-control" placeholder="🔒 ••••••••" formControlName="confirmPassword" required>
         </div>
       </div>
 
@@ -40,12 +42,9 @@
       </div>
       <div class="login-hint">
         <span>Hai già un account? <a (click)="navigateToLogin()">Accedi ora</a></span>
-        <div class="hint-buttons">
-          <button type="button" class="hint-btn" (click)="navigateToHome()">Torna alla home</button>
-        </div>
       </div>
     </form>
 
-
+    </div>
   </div>
 </div>
