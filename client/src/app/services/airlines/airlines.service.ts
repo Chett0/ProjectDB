@@ -61,23 +61,31 @@ export class AirlinesService {
   }
 
 
-  getAirlinesFlights() : Observable<Response<Flight[]>> {
-    const now = Date.now();
-    if (this.flightCache && this.flightCacheTimestamp && (now - this.flightCacheTimestamp < this.cacheTTL)) {
-      return of({ 
-        success: true,
-        message: 'Flights retrieved successfully (cache)', 
-        data: this.flightCache 
-      });
+  getAirlinesFlights(
+    page: number = 1,
+    limit: number = 10,
+    filters?: { q?: string; maxPrice?: number; sortBy?: string; order?: string }
+  ) : Observable<Response<any>> {
+
+    const paramsArr: string[] = [];
+    paramsArr.push(`page=${page}`);
+    paramsArr.push(`limit=${limit}`);
+    if (filters) {
+      if (filters.q !== undefined && filters.q !== null && String(filters.q).trim() !== '') {
+        paramsArr.push(`q=${encodeURIComponent(String(filters.q))}`);
+      }
+      if (filters.maxPrice !== undefined && filters.maxPrice !== null && !isNaN(Number(filters.maxPrice))) {
+        paramsArr.push(`maxPrice=${Number(filters.maxPrice)}`);
+      }
+      if (filters.sortBy) {
+        paramsArr.push(`sortBy=${encodeURIComponent(filters.sortBy)}`);
+      }
+      if (filters.order) {
+        paramsArr.push(`order=${encodeURIComponent(filters.order)}`);
+      }
     }
-    return this.http.get<Response<Flight[]>>(`${enviroment.apiUrl}/airlines/flights`).pipe(
-      tap((res : Response<Flight[]>) => {
-        if(res.success && res.data) {
-          this.flightCache = res.data;
-          this.flightCacheTimestamp = Date.now();
-        }
-      })
-    );
+    const params = paramsArr.length ? `?${paramsArr.join('&')}` : '';
+    return this.http.get<Response<any>>(`${enviroment.apiUrl}/airlines/flights${params}`);
   }
 
   createExtra(extra: CreateExtra) {

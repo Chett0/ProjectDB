@@ -1,15 +1,20 @@
 <div class="flights-tab">
 	<div class="flights-header-row">
 		<span class="flights-header-title">Gestione Voli</span>
+		<button class="filters-toggle-btn" (click)="toggleFilters()">⚙️ Filtri</button>
 		<div class="flights-search-box">
 			<input type="text" [formControl]="searchControl" placeholder="Cerca..." class="flights-search-input" />
 		</div>
-
-
 	<button class="add-flight-btn" (click)="openAddFlightModal()">+ Aggiungi Volo</button>
 	</div>
 
+
 	<!-- Lista voli -->
+		<!-- Filters panel (uses same filters component as main search) -->
+		<div *ngIf="showFilters" class="filters-panel">
+			<app-filters-flights></app-filters-flights>
+		</div>
+
 		<div class="flights-list" *ngIf="filteredFlights && filteredFlights.length">
 		<ul>
 			<li *ngFor="let f of filteredFlights" class="flight-row">
@@ -32,6 +37,24 @@
 			</li>
 		</ul>
 	</div>
+
+		<!-- Paginatore -->
+		<div class="flights-paginator mt-3" *ngIf="flightsTotal > flightsLimit" style="display:flex;justify-content:center;">
+			<div class="d-flex align-items-center">
+				<button class="btn btn-sm btn-outline-primary me-2" (click)="prevFlightsPage()" [disabled]="flightsPage <= 1">Prev</button>
+
+				<ng-container *ngFor="let p of getVisibleFlightPages(); let i = index">
+					<ng-container *ngIf="p === '...'; else tBtn">
+						<span class="mx-1">&hellip;</span>
+					</ng-container>
+					<ng-template #tBtn>
+						<button class="btn btn-sm me-1" [ngClass]="{'btn-primary': flightsPage === (+p), 'btn-outline-secondary': flightsPage !== (+p)}" (click)="setFlightsPage(+p)">{{ p }}</button>
+					</ng-template>
+				</ng-container>
+
+				<button class="btn btn-sm btn-outline-primary ms-2" (click)="nextFlightsPage()" [disabled]="flightsPage >= getFlightsTotalPages()">Next</button>
+			</div>
+		</div>
 
 		<!-- Modale per aggiunta volo -->
 		<div class="modal" *ngIf="showAddFlightModal">

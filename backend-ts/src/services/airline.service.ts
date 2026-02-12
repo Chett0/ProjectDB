@@ -595,6 +595,83 @@ export const getAirlineFlights = async (
 
 }
 
+export const getAirlineFlightsPaginated = async (
+    airlineId: number,
+    page: number = 1,
+    limit: number = 10,
+    filters?: { q?: string; maxPrice?: number; sortBy?: string; order?: string }
+) : Promise<{ flights: FlightInfoDTO[]; total: number }> => {
+
+    const where: any = {
+        aircrafts: {
+            airline_id: airlineId
+        }
+    };
+
+    if (filters?.maxPrice !== undefined && !isNaN(Number(filters.maxPrice))) {
+        where.base_price = { lte: Number(filters.maxPrice) };
+    }
+
+    if (filters?.q) {
+        const q = String(filters.q).trim();
+        if (q.length > 0) {
+            where.OR = [
+                { routes: { departure_airport: { name: { contains: q, mode: 'insensitive' } } } },
+                { routes: { departure_airport: { city: { contains: q, mode: 'insensitive' } } } },
+                { routes: { departure_airport: { iata: { contains: q, mode: 'insensitive' } } } },
+                { routes: { arrival_airport: { name: { contains: q, mode: 'insensitive' } } } },
+                { routes: { arrival_airport: { city: { contains: q, mode: 'insensitive' } } } },
+                { routes: { arrival_airport: { iata: { contains: q, mode: 'insensitive' } } } }
+            ];
+        }
+    }
+
+    let orderBy: any = { departure_time: 'desc' };
+    if (filters?.sortBy) {
+        const order = (filters.order || 'asc').toLowerCase() === 'desc' ? 'desc' : 'asc';
+        switch (filters.sortBy) {
+            case 'total_price':
+            case 'base_price':
+                orderBy = { base_price: order };
+                break;
+            case 'departure_time':
+                orderBy = { departure_time: order };
+                break;
+            case 'arrival_time':
+                orderBy = { arrival_time: order };
+                break;
+            case 'total_duration':
+            default:
+                orderBy = { duration_seconds: order };
+                break;
+        }
+    }
+
+    const total = await prisma.flights.count({ where });
+
+    const flights: FlightInfo[] = await prisma.flights.findMany({
+        where,
+        include: {
+            aircrafts: {
+                include: {
+                    airlines: true
+                }
+            },
+            routes: {
+                include: {
+                    departure_airport: true,
+                    arrival_airport: true
+                }
+            }
+        },
+        skip: (Math.max(1, page) - 1) * limit,
+        take: limit,
+        orderBy
+    });
+
+    return { flights: flights.map(toFlightInfoDTO), total };
+}
+
 
 export const createAirlineFlight = async (
     flight : Flight

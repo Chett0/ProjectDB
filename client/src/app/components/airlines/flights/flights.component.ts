@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormControl, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { FiltersFlightsComponent } from '../../flights/filters-flights/filters-flights.component';
 import { AircraftsService } from '../../../services/airlines/aircrafts.service';
 import { RoutesService } from '../../../services/airlines/routes.service';
 import { AirlinesService } from '../../../services/airlines/airlines.service';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CreateFlight, Flight } from '../../../../types/flights/flights';
 import { Response } from '../../../../types/responses/responses';
 import { AircraftWithClasses, AirlineRoute } from '../../../../types/users/airlines';
@@ -16,7 +18,7 @@ export interface NewFlightData {
 
 @Component({
   selector: 'app-flights',
-  imports: [ReactiveFormsModule, FormsModule, CommonModule],
+  imports: [ReactiveFormsModule, FormsModule, CommonModule, FiltersFlightsComponent],
   templateUrl: './flights.component.html',
   styleUrl: './flights.component.css'
 })
@@ -30,7 +32,13 @@ export class FlightsComponent implements OnInit {
   };
   flights: Flight[] = [];
   filteredFlights: Flight[] = [];
+
+  public flightsTotal: number = 0;
+  public flightsPage: number = 1;
+  public flightsLimit: number = 6;
   showAddFlightModal = false;
+  showFilters: boolean = false;
+  filters: { maxPrice: number; nStops: number; sortBy: string; order: string } = { maxPrice: 2000, nStops: 1, sortBy: 'total_duration', order: 'asc' };
 
   aircrafts: AircraftWithClasses[] = [];
   filteredAircrafts: AircraftWithClasses[] = [];
@@ -51,7 +59,7 @@ export class FlightsComponent implements OnInit {
 
   minDate : string = '';
 
-  constructor(private aircraftsService: AircraftsService, private routesService: RoutesService, private airlinesService: AirlinesService) {
+  constructor(private aircraftsService: AircraftsService, private routesService: RoutesService, private airlinesService: AirlinesService, private route: ActivatedRoute, private router: Router) {
     const now = new Date();
         // Formatta la data come YYYY-MM-DDTHH:MM (formato richiesto da datetime-local)
         const year = now.getFullYear();
@@ -139,29 +147,151 @@ export class FlightsComponent implements OnInit {
       }
     });
 
-    // load flights for this airline
-    this.loadFlights();
+    this.loadFlights(this.flightsPage);
 
-    // wire search control to filter in realtime
     this.searchControl.valueChanges.subscribe(val => {
-      this.applySearch(String(val || '').trim().toLowerCase());
+      const q = String(val || '').trim();
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: q ? { q } : { q: null },
+        queryParamsHandling: 'merge'
+      });
+      this.applyCombinedFilters(String(q).toLowerCase());
+    });
+
+    // react to filters applied via query params (from FiltersFlightsComponent)
+    // reload flights from server when filters change so filtering is applied across all pages
+    this.route.queryParams.subscribe(() => {
+      this.loadFlights(1);
     });
   }
 
-  loadFlights() {
+  loadFlights(page: number = 1) {
     this.loading = true;
-    this.airlinesService.getAirlinesFlights().subscribe({
-      next: (res: Response<Flight[]>) => {
-        this.flights = res.data || [];
-        this.applySearch(String(this.searchControl.value || '').trim().toLowerCase());
+    this.flightsPage = page;
+
+    const qp = this.route.snapshot.queryParams;
+    const filters: { q?: string; maxPrice?: number; sortBy?: string; order?: string } = {};
+    if (qp['q']) filters.q = String(qp['q']);
+    if (qp['maxPrice'] !== undefined) filters.maxPrice = Number(qp['maxPrice']);
+    if (qp['sortBy']) filters.sortBy = String(qp['sortBy']);
+    if (qp['order']) filters.order = String(qp['order']);
+
+    this.airlinesService.getAirlinesFlights(this.flightsPage, this.flightsLimit, filters).subscribe({
+      next: (res: any) => {
+        const payload = res?.data ? res.data : res;
+        this.flights = payload?.flights || [];
+        this.flightsTotal = payload?.total || 0;
+        this.flightsPage = payload?.page || this.flightsPage;
+        this.flightsLimit = payload?.limit || this.flightsLimit;
+        this.applyCombinedFilters(String(this.searchControl.value || '').trim().toLowerCase());
         this.loading = false;
       },
       error: (err) => {
         this.flights = [];
+        this.flightsTotal = 0;
         this.loading = false;
       }
     });
   }
+
+  toggleFilters() {
+    this.showFilters = !this.showFilters;
+  }
+
+  private applyCombinedFilters(textFilter: string) {
+    const f = String(textFilter || '').trim().toLowerCase();
+
+    let result = this.flights.slice();
+
+    if (f) {
+      result = result.filter((flt: any) => {
+        const depName = (flt.departureAirport?.name || flt.departureAirport?.city || '').toLowerCase();
+        const arrName = (flt.arrivalAirport?.name || flt.arrivalAirport?.city || '').toLowerCase();
+        const depCode = (flt.departureAirport?.code || '').toLowerCase();
+        const arrCode = (flt.arrivalAirport?.code || '').toLowerCase();
+        const aircraft = (flt.aircraft?.model || '').toLowerCase();
+        const price = String(flt.basePrice || flt.base_price || '').toLowerCase();
+        return depName.includes(f) || arrName.includes(f) || depCode.includes(f) || arrCode.includes(f) || aircraft.includes(f) || price.includes(f);
+      });
+    }
+
+    const qp = this.route.snapshot.queryParams;
+    this.filters.maxPrice = qp['maxPrice'] !== undefined ? Number(qp['maxPrice']) : this.filters.maxPrice;
+    this.filters.nStops = qp['nStops'] !== undefined ? Number(qp['nStops']) : this.filters.nStops;
+    this.filters.sortBy = qp['sortBy'] || this.filters.sortBy;
+    this.filters.order = qp['order'] || this.filters.order;
+
+    if (this.filters.maxPrice !== undefined && !isNaN(this.filters.maxPrice)) {
+      result = result.filter((flt: any) => {
+        const price = Number(flt.basePrice ?? flt.base_price ?? 0);
+        return price <= this.filters.maxPrice;
+      });
+    }
+
+
+    const order = this.filters.order === 'desc' ? -1 : 1;
+    const sortBy = this.filters.sortBy || 'departure_time';
+    result.sort((a: any, b: any) => {
+      if (sortBy === 'total_price' || sortBy === 'base_price') {
+        const pa = Number(a.basePrice ?? a.base_price ?? 0);
+        const pb = Number(b.basePrice ?? b.base_price ?? 0);
+        return (pa - pb) * order;
+      }
+      if (sortBy === 'departure_time' || sortBy === 'departureTime') {
+        const da = new Date(a.departureTime ?? a.departure_time).getTime();
+        const db = new Date(b.departureTime ?? b.departure_time).getTime();
+        return (da - db) * order;
+      }
+      if (sortBy === 'arrival_time' || sortBy === 'arrivalTime') {
+        const da = new Date(a.arrivalTime ?? a.arrival_time).getTime();
+        const db = new Date(b.arrivalTime ?? b.arrival_time).getTime();
+        return (da - db) * order;
+      }
+      // total_duration fallback: compute duration
+      const dura = (fl: any) => {
+        const d1 = new Date(fl.departureTime ?? fl.departure_time).getTime();
+        const d2 = new Date(fl.arrivalTime ?? fl.arrival_time).getTime();
+        return Math.max(0, d2 - d1);
+      };
+      return (dura(a) - dura(b)) * order;
+    });
+
+    this.filteredFlights = result;
+  }
+
+  getFlightsTotalPages(): number {
+    return Math.max(1, Math.ceil(this.flightsTotal / this.flightsLimit));
+  }
+
+
+  getVisibleFlightPages(): Array<number | '...'> {
+    const totalPages = this.getFlightsTotalPages();
+    const current = this.flightsPage;
+    const edge = 1;
+    const around = 1;
+
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+
+    const pages: Array<number | '...'> = [];
+    for (let i = 1; i <= edge; i++) pages.push(i);
+    if (current - around > edge + 1) pages.push('...');
+    const start = Math.max(edge + 1, current - around);
+    const end = Math.min(totalPages - edge, current + around);
+    for (let p = start; p <= end; p++) pages.push(p);
+    if (current + around < totalPages - edge) pages.push('...');
+    for (let i = totalPages - edge + 1; i <= totalPages; i++) pages.push(i);
+    return pages;
+  }
+
+  setFlightsPage(p: number) {
+    const totalPages = this.getFlightsTotalPages();
+    if (p < 1 || p > totalPages) return;
+    this.loadFlights(p);
+  }
+
+  prevFlightsPage() { this.setFlightsPage(this.flightsPage - 1); }
+  nextFlightsPage() { this.setFlightsPage(this.flightsPage + 1); }
 
   applySearch(filter: string) {
     if (!filter) {

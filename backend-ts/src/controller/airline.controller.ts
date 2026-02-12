@@ -372,12 +372,25 @@ export const getAirlineFlights = asyncHandler(
         if(!airlineId)
             throw new UnauthorizedError("Unauthorized access");
 
-        const flights : FlightInfoDTO[] = await airlineService.getAirlineFlights(airlineId);
+        const page = parseInt(String(req.query.page || '1')) || 1;
+        const limit = parseInt(String(req.query.limit || '10')) || 10;
+        const q = req.query.q as string | undefined;
+        const maxPrice = req.query.maxPrice !== undefined ? Number(req.query.maxPrice) : undefined;
+        const sortBy = req.query.sortBy as string | undefined;
+        const order = req.query.order as string | undefined;
 
-        return successResponse<FlightInfoDTO[]>(
-            res, 
-            "Airline's flights retrieved successfully", 
-            flights
+        const filters: { q?: string; maxPrice?: number; sortBy?: string; order?: string } = {};
+        if (q !== undefined && q !== null && String(q).trim() !== '') filters.q = String(q).trim();
+        if (req.query.maxPrice !== undefined) filters.maxPrice = Number(req.query.maxPrice);
+        if (sortBy !== undefined && sortBy !== null && String(sortBy).trim() !== '') filters.sortBy = String(sortBy).trim();
+        if (order !== undefined && order !== null && String(order).trim() !== '') filters.order = String(order).trim();
+
+        const { flights, total } = await airlineService.getAirlineFlightsPaginated(airlineId, page, limit, filters);
+
+        return successResponse<any>(
+            res,
+            "Airline's flights retrieved successfully",
+            { flights, total, page, limit }
         );
     }
 );
