@@ -7,7 +7,10 @@ import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from
 
 export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
-  return authService.isAuthenticated();
+  const auth = authService.isAuthenticated();
+  if (auth) return true;
+  AuthService.settingRedirect(state);
+  return false;
 };
 
 export const adminGuard: CanActivateFn = (route, state) => {

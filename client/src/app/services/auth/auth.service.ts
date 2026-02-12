@@ -22,7 +22,7 @@ export class AuthService {
   static redirectQuery : any = null;
 
   constructor(private http: HttpClient, private token : TokensService, private router : Router) {
-    this.isLoggedIn.next(!!localStorage.getItem('access_token'))
+    this.isLoggedIn.next(this.token.isAccessTokenValid())
   }
 
   login(user : UserLogin) {
@@ -57,11 +57,7 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    const token = this.token.getAccessToken();
-    if(token) return true;
-
-    // this.router.navigate(['/login'])
-    return false;
+    return this.token.isAccessTokenValid();
   }
 
   hasRole(role: UserRole) : boolean {

@@ -85,4 +85,10 @@ export class TokensService {
     );
   }
 
+  isAccessTokenValid(): boolean {
+    const token = this.getAccessToken();
+    if (!token) return false;
+    return !this.jwtHelper.isTokenExpired(token);
+  }
+
 }
