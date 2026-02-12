@@ -285,3 +285,43 @@
 	.col-stop { width: auto; }
 }
 
+.tickets-paginator { margin-top: 18px; }
+.tickets-paginator .btn {
+	min-width: 36px;
+	padding: 6px 10px;
+	border-radius: 6px;
+	background: #ffffff;
+	color: #333;
+	border: 1px solid #d6d6d6;
+}
+.tickets-paginator .btn:hover:not(:disabled) {
+	background: #2e9fff; 
+	color: #ffffff;
+	border-color: #2e9fff;
+}
+.tickets-paginator .btn.btn-primary {
+	background: #2e9fff;
+	color: #fff;
+	border-color: #2e9fff;
+	box-shadow: 0 8px 20px rgba(46,159,255,0.12);
+}
+.tickets-paginator .btn.btn-outline-primary {
+	background: transparent;
+	color: #2e9fff;
+	border-color: #2e9fff;
+}
+.tickets-paginator .btn.btn-outline-primary:hover:not(:disabled) {
+	background: #2e9fff;
+	color: #fff;
+}
+.tickets-paginator .btn.btn-outline-secondary {
+	background: transparent;
+	color: #6c6c6c;
+	border-color: #cfcfcf;
+}
+.tickets-paginator .btn.btn-outline-secondary:hover:not(:disabled) {
+	background: #2e9fff;
+	color: #fff;
+	border-color: #2e9fff;
+}
+

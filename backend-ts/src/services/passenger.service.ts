@@ -3,7 +3,7 @@ import prisma from "../config/db";
 import { ExtraDTO } from "../dtos/airline.dto";
 import { FullTicketInfo, PassengerUser, Ticket, UserPassengerInfo } from "../types/passenger.types";
 import * as flightService from "../services/flight.service"
-import { TicketInfoDTO, toTicketInfoDTO } from "../dtos/passenger.dto";
+import { TicketInfoDTO, toTicketInfoDTO, TicketDisplayDTO, toTicketDisplayDTO } from "../dtos/passenger.dto";
 import { PassengerUserDTO, toPassengerUserDTO } from '../dtos/user.dto';
 import { BadRequestError, ConflictError, NotFoundError } from '../utils/errors';
 
@@ -110,19 +110,27 @@ export const createTicket = async (
 
 };
 
-//to do
 export const getPassengerTickets = async (
-    passengerId: number
-): Promise<void> => {
+    passengerId: number,
+    page: number = 1,
+    limit: number = 10,
+    filters?: { state?: string; flightId?: number }
+): Promise<{ tickets: TicketDisplayDTO[]; total: number; page: number; limit: number }> => {
     try {
-        const ticketsList : FullTicketInfo[] = await prisma.tickets.findMany({
-            where: { 
-                passenger_id: passengerId 
-            },
-            include : {
+        const whereClause: any = { passenger_id: passengerId };
+        if (filters) {
+            if (filters.state) whereClause.state = filters.state;
+            if (filters.flightId) whereClause.flight_id = filters.flightId;
+        }
+
+        const total: number = await prisma.tickets.count({ where: whereClause });
+
+        const ticketsList: FullTicketInfo[] = await prisma.tickets.findMany({
+            where: whereClause,
+            include: {
                 seats: {
                     include: {
-                        aircraft_classes : true
+                        aircraft_classes: true
                     }
                 },
                 ticket_extra: {
@@ -137,19 +145,23 @@ export const getPassengerTickets = async (
                                 airlines: true
                             }
                         },
-                        routes : {
-                            include : {
+                        routes: {
+                            include: {
                                 departure_airport: true,
                                 arrival_airport: true
                             }
                         }
                     }
                 }
-            }
+            },
+            orderBy: { purchase_date: 'desc' },
+            skip: (page - 1) * limit,
+            take: limit
         });
-        
-        //toDo
-        //return ticketsList.map();
+
+        const ticketsDisplay: TicketDisplayDTO[] = ticketsList.map(t => toTicketDisplayDTO(t));
+
+        return { tickets: ticketsDisplay, total, page, limit };
     } catch (err) {
         throw new Error(
             `Failed to retrieve tickets: ${err instanceof Error ? err.message : "Unknown error"}`

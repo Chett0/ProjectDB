@@ -32,6 +32,10 @@ export class PassengersComponent {
 
   tickets: any[] = [];
 
+  public ticketsTotal: number = 0;
+  public ticketsPage: number = 1;
+  public ticketsLimit: number = 5;
+
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -59,6 +63,7 @@ export class PassengersComponent {
       if(passengerData){
         if(passengerData.passengerResponse && passengerData.passengerResponse.success && passengerData.passengerResponse.data)
           this.passenger = passengerData.passengerResponse.data;
+        this.loadTickets(this.ticketsPage);
       }
     })
 
@@ -72,6 +77,56 @@ export class PassengersComponent {
     this.editSurname = this.passenger.surname;
     
   }
+
+  loadTickets(page: number = 1) {
+    this.ticketsPage = page;
+    this.ticketService.getTickets(page, this.ticketsLimit).subscribe({
+      next: (res: any) => {
+        const payload = res?.data ? res.data : res;
+        this.tickets = payload?.tickets || [];
+        this.ticketsTotal = payload?.total || 0;
+        this.ticketsPage = payload?.page || page;
+        this.ticketsLimit = payload?.limit || this.ticketsLimit;
+      },
+      error: (err) => {
+        console.error('Error loading tickets', err);
+        this.tickets = [];
+        this.ticketsTotal = 0;
+      }
+    });
+  }
+
+  getTicketsTotalPages(): number {
+    return Math.max(1, Math.ceil(this.ticketsTotal / this.ticketsLimit));
+  }
+
+  getVisibleTicketPages(): Array<number | '...'> {
+    const totalPages = this.getTicketsTotalPages();
+    const current = this.ticketsPage;
+    const edge = 1;
+    const around = 1;
+
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+
+    const pages: Array<number | '...'> = [];
+    for (let i = 1; i <= edge; i++) pages.push(i);
+    if (current - around > edge + 1) pages.push('...');
+    const start = Math.max(edge + 1, current - around);
+    const end = Math.min(totalPages - edge, current + around);
+    for (let p = start; p <= end; p++) pages.push(p);
+    if (current + around < totalPages - edge) pages.push('...');
+    for (let i = totalPages - edge + 1; i <= totalPages; i++) pages.push(i);
+    return pages;
+  }
+
+  setTicketsPage(p: number) {
+    const totalPages = this.getTicketsTotalPages();
+    if (p < 1 || p > totalPages) return;
+    this.loadTickets(p);
+  }
+
+  prevTicketsPage() { this.setTicketsPage(this.ticketsPage - 1); }
+  nextTicketsPage() { this.setTicketsPage(this.ticketsPage + 1); }
 
   startEdit() {
     this.editing = true;

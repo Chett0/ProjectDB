@@ -51,7 +51,7 @@ export class TicketBookingService {
       return of(this.ticketsCache[key]);
     }
 
-    const url = `${enviroment.apiUrl}/tickets?page=${page}&limit=${limit}`;
+    const url = `${enviroment.apiUrl}/passengers/tickets?page=${page}&limit=${limit}`;
     return this.http.get<any>(url).pipe(
       tap(data => {
         if (!this.ticketsCache) this.ticketsCache = {};

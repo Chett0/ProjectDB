@@ -116,8 +116,26 @@
 	   </div>
 </section>
 
+	<!-- Paginatore biglietti -->
+	<div class="tickets-paginator mt-3" *ngIf="ticketsTotal > ticketsLimit" style="display:flex;justify-content:center;">
+		<div class="d-flex align-items-center">
+			<button class="btn btn-sm btn-outline-primary me-2" (click)="prevTicketsPage()" [disabled]="ticketsPage <= 1">Prev</button>
+
+			<ng-container *ngFor="let p of getVisibleTicketPages(); let i = index">
+				<ng-container *ngIf="p === '...'; else tBtn">
+					<span class="mx-1">&hellip;</span>
+				</ng-container>
+				<ng-template #tBtn>
+					<button class="btn btn-sm me-1" [ngClass]="{'btn-primary': ticketsPage === (+p), 'btn-outline-secondary': ticketsPage !== (+p)}" (click)="setTicketsPage(+p)">{{ p }}</button>
+				</ng-template>
+			</ng-container>
+
+			<button class="btn btn-sm btn-outline-primary ms-2" (click)="nextTicketsPage()" [disabled]="ticketsPage >= getTicketsTotalPages()">Next</button>
+		</div>
+	</div>
+
 <div class="passenger-page">
-	<app-footer></app-footer>
+		<app-footer></app-footer>
 </div>
 	
 

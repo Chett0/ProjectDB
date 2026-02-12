@@ -87,7 +87,7 @@ export const createTicket = asyncHandler(
     }
 );
 
-//to do
+
 export const getPassengerTickets = asyncHandler(
      async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
 
@@ -95,11 +95,23 @@ export const getPassengerTickets = asyncHandler(
         if (!passengerId) 
             throw new UnauthorizedError();
 
-        await passengerService.getPassengerTickets(passengerId);
+        const page: number = parseInt((req.query.page as string) || '1') || 1;
+        const limit: number = parseInt((req.query.limit as string) || '10') || 10;
+        const state: string | undefined = req.query.state as string | undefined;
+        const flightIdParam: string | undefined = req.query.flightId as string | undefined;
+        const flightId: number | undefined = flightIdParam ? parseInt(flightIdParam) : undefined;
 
-        return successResponse<void>(
-            res, 
-            "Tickets retrieved successfully"
+        const filtersObj: { state?: string; flightId?: number } = {};
+        if (state) filtersObj.state = state;
+        if (flightId !== undefined) filtersObj.flightId = flightId;
+        const filtersParam = Object.keys(filtersObj).length ? filtersObj : undefined;
+
+        const { tickets, total } = await passengerService.getPassengerTickets(passengerId, page, limit, filtersParam);
+
+        return successResponse<any>(
+            res,
+            "Tickets retrieved successfully",
+            { tickets, total, page, limit }
         );
 });
 
