@@ -27,17 +27,15 @@
             </mat-autocomplete> 
           </mat-form-field>
 
-            <!-- [min]="today" -->
+            <!-- DateAdapter issues -->
            <mat-form-field class="form-input">
-            <mat-label>MM/DD/YYYY</mat-label>
-            <input 
-              matInput 
-              [matDatepicker]="picker" 
+            <mat-label>Departure date</mat-label>
+            <input
+              matInput
+              type="date"
               formControlName="departure_date"
-              [min]="today"
-              >
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
+              [min]="today | date:'yyyy-MM-dd'"
+            />
           </mat-form-field>
 
           <button type="button" class="btn btn-primary" (click)="searchFlights()">Search</button>

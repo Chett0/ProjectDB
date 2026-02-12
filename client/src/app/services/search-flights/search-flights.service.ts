@@ -28,7 +28,8 @@ export class SearchFlightsService {
     to: string,
     departure_date: string,
     filters: Filters
-  ): Observable<Response<Journeys[]>> {
+  , page: number = 1, limit: number = 10
+  ): Observable<Response<{ journeys: Journeys[]; total: number; page: number; limit: number }>> {
     let params = new HttpParams()
       .set('from', from)
       .set('to', to)
@@ -36,13 +37,15 @@ export class SearchFlightsService {
 
     params = params.set('max_price', filters.maxPrice);
     params = params.set('n_stops', filters.nStops);
+    params = params.set('page', String(page));
+    params = params.set('limit', String(limit));
     
     if(filters.sortBy && filters.order){
       params = params.set('sort_by', filters.sortBy);
       params = params.set('order', filters.order);
     }
 
-    return this.http.get<Response<Journeys[]>>(`${this.apiUrl}/flights`, { params });
+    return this.http.get<Response<{ journeys: Journeys[]; total: number; page: number; limit: number }>>(`${this.apiUrl}/flights`, { params });
   }
 
   searchFlight(id: string): Observable<any> {

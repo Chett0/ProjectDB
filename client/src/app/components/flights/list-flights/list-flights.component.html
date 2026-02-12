@@ -1,24 +1,28 @@
-@if(loading){
-    <app-loading></app-loading>
-}
-@else if(!journeys || journeys.length === 0 ){
-<div class="no-flights">
-    <p>No flights found</p>
-</div>
-}
-@else {
-    <h1>Flights found</h1>
-<div *ngFor="let journey of journeys" class="card flight-card mb-4 shadow-sm">
-    <div class="card-body">
-       
-        <h5 class="card-title text-primary">
-            <ng-container *ngIf="journey.flights.length > 1; else diretto">
-                Stopovers
-            </ng-container>
-            <ng-template #diretto>One way</ng-template>
-        </h5>
+<ng-container *ngIf="loading; else notLoading">
+  <app-loading></app-loading>
+</ng-container>
 
-        <hr>
+<ng-template #notLoading>
+  <ng-container *ngIf="!journeys || journeys.length === 0; else hasFlights">
+    <div class="no-flights">
+      <p>No flights found</p>
+    </div>
+  </ng-container>
+</ng-template>
+
+<ng-template #hasFlights>
+  <h1>Flights found</h1>
+  <div *ngFor="let journey of journeys" class="card flight-card mb-4 shadow-sm">
+    <div class="card-body">
+      <ng-container *ngIf="journey.flights.length > 1; else direttoBlock">
+        <h5 class="card-title text-primary">Stopovers</h5>
+      </ng-container>
+      <ng-template #direttoBlock>
+        <h5 class="card-title text-primary">One way</h5>
+      </ng-template>
+
+      <hr>
+
 
         <!-- Primo volo -->
         <div class="mb-3">
@@ -70,5 +74,24 @@
         </div>
     </div>
 </div>
-}
+
+
+  <!-- Paginatore -->
+  <div class="pagination-controls mt-4" *ngIf="total > 0" style="display:flex;justify-content:center;">
+    <div class="d-flex align-items-center">
+      <button class="btn btn-sm btn-outline-primary me-2" (click)="prevPage()" [disabled]="page <= 1">Prev</button>
+
+      <ng-container *ngFor="let p of getVisiblePages(); let i = index">
+        <ng-container *ngIf="p === '...'; else pageBtn">
+          <span class="mx-1">&hellip;</span>
+        </ng-container>
+        <ng-template #pageBtn>
+          <button class="btn btn-sm me-1" [ngClass]="{'btn-primary': page === (+p), 'btn-outline-secondary': page !== (+p)}" (click)="setPage(+p)">{{ p }}</button>
+        </ng-template>
+      </ng-container>
+
+      <button class="btn btn-sm btn-outline-primary ms-2" (click)="nextPage()" [disabled]="page >= getTotalPages()">Next</button>
+    </div>
+  </div>
+
 

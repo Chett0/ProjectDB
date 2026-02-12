@@ -5,6 +5,7 @@ import { Filters } from '../../../../types/flights/flights';
 
 @Component({
   selector: 'app-filters-flights',
+  standalone: true,
   imports: [FormsModule],
   templateUrl: './filters-flights.component.html',
   styleUrl: './filters-flights.component.css'

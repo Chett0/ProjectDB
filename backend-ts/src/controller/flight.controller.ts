@@ -65,10 +65,17 @@ export const searchFlights = asyncHandler(
 
         const journeys : JourneysInfoDTO[] = await flightService.searchFlights(params);
 
-        return successResponse<JourneysInfoDTO[]>(
-            res, 
-            "Flight retrieved successfully", 
-            journeys
+        const page: number = parseInt((req.query.page as string) || '1') || 1;
+        const limit: number = parseInt((req.query.limit as string) || '10') || 10;
+
+        const total: number = journeys.length;
+        const start = (page - 1) * limit;
+        const paginated = journeys.slice(start, start + limit);
+
+        return successResponse<any>(
+            res,
+            "Flight retrieved successfully",
+            { journeys: paginated, total, page, limit }
         );
     }
 );
