@@ -10,10 +10,11 @@ import { AdminDashboard } from '../../../../types/users/admin';
 import { Airline, AirlineAsUser } from '../../../../types/users/airlines';
 import { Response } from '../../../../types/responses/responses';
 import { CreatedAirline } from '../../../../types/users/auth';
+import { HeaderComponent } from '../../header/header.component';
 
 @Component({
   selector: 'app-admin-home',
-  imports: [CommonModule, FormsModule, FooterComponent],
+  imports: [CommonModule, FormsModule, FooterComponent, HeaderComponent],
   templateUrl: './admin-home.component.html',
   styleUrl: './admin-home.component.css'
 })

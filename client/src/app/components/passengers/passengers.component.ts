@@ -8,11 +8,12 @@ import { PassengerService } from '../../services/passenger/passenger.service';
 import { TicketBookingService } from '../../services/ticket-booking/ticket-booking.service';
 import { PassengerInfo } from '../../../types/users/passenger';
 import { Response } from '../../../types/responses/responses';
+import { HeaderComponent } from '../header/header.component';
 
 @Component({
   selector: 'app-passengers',
   standalone: true,
-  imports: [CommonModule, FormsModule, FooterComponent],
+  imports: [CommonModule, FormsModule, FooterComponent, HeaderComponent],
   providers: [DatePipe],
   templateUrl: './passengers.component.html',
   styleUrls: ['./passengers.component.css']

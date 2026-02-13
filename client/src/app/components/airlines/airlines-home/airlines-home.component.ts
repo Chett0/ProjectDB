@@ -12,10 +12,11 @@ import { ExtraComponent } from '../extra/extra.component';
 import { FooterComponent } from '../../footer/footer.component';
 import { AirlineDashBoard } from '../../../../types/users/airlines';
 import { AirlineDashboardComponent } from '../airline-dashboard/airline-dashboard.component';
+import { HeaderComponent } from '../../header/header.component';
 
 @Component({
   selector: 'app-airlines-home',
-  imports: [CommonModule, AircraftsComponent, RoutesComponent, FlightsComponent, ExtraComponent, FooterComponent, AirlineDashboardComponent],
+  imports: [CommonModule, AircraftsComponent, RoutesComponent, FlightsComponent, ExtraComponent, FooterComponent, AirlineDashboardComponent,HeaderComponent],
   templateUrl: './airlines-home.component.html',
   styleUrl: './airlines-home.component.css'
 })
