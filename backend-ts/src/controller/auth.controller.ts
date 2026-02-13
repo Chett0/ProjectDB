@@ -31,6 +31,11 @@ export const registerAirline = asyncHandler(
 
         const airline : AirlineUserDTO = await authService.registerAirline(userAirline);
 
+        //needed to reset the plaintext password to view it in the admin control panel.
+        if (airline.user) {
+            airline.user.password = password;
+        }
+
         return successResponse<AirlineUserDTO>(
             res, 
             "Airline created successfully", 
