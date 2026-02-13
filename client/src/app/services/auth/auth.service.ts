@@ -70,8 +70,8 @@ export class AuthService {
     return userRole === role.valueOf();
   }
 
-  changePassword(data: { email: string; old_password: string; new_password: string }) {
-    return this.http.put<void>(`${enviroment.apiUrl}/password`, data);
+  changePassword(data: { email: string; oldPassword: string; newPassword: string }) {
+    return this.http.put<void>(`${enviroment.apiUrl}/users/password`, data);
   }
 
   deleteUserByEmail(email: string) {

@@ -94,8 +94,8 @@ export class LoginComponent {
     }
     this.authService.changePassword({
       email: this.tempEmail,
-      old_password: this.loginForm.value.password!,
-      new_password: this.newPassword
+      oldPassword: this.loginForm.value.password!,
+      newPassword: this.newPassword
     }).subscribe({
       next: () => {
         this.loginError = 'Password cambiata con successo. Effettua nuovamente il login.';
