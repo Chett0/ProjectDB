@@ -5,6 +5,7 @@ const router = Router();
 
 router.put('/', passengerController.updatePassenger);
 router.get('/me', passengerController.getPassengerDetails);
+router.get('/me/stats', passengerController.getPassengerStats);
 
 router.post('/tickets', passengerController.createTicket);
 router.get('/tickets', passengerController.getPassengerTickets);

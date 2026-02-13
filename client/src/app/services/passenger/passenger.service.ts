@@ -47,8 +47,11 @@ export class PassengerService {
     );
   }
 
+  getPassengerStats(): Observable<Response<{ totalFlights: number; flightHours: { hours: number; minutes: number }; moneySpent: number }>> {
+    return this.http.get<Response<{ totalFlights: number; flightHours: { hours: number; minutes: number }; moneySpent: number }>>(`${enviroment.apiUrl}/passengers/me/stats`);
+  }
+
   clearPassengerCache() {
-    console.log('clearing cache...')
     this.passengerCache = null;
     this.passengerCacheTimestamp = null;
   }

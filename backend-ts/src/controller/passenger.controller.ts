@@ -162,3 +162,19 @@ export const createSeatSession = asyncHandler(
             "Seat session created successfully"
         );
 });
+
+export const getPassengerStats = asyncHandler(
+    async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
+        const passengerId: number | null = req.user!.id;
+
+        if (!passengerId) throw new UnauthorizedError("Passenger ID is required");
+
+        const stats = await passengerService.getPassengerStats(passengerId);
+
+        return successResponse<any>(
+            res,
+            "Passenger stats retrieved successfully",
+            stats
+        );
+    }
+);
