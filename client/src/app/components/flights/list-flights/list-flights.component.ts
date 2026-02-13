@@ -24,6 +24,10 @@ export class ListFlightsComponent implements OnInit{
   public total: number = 0;
   public page: number = 1;
   public limit: number = 10;
+  public selectedStops: number | null = null;
+  public sortBy: string = 'total_price';
+  public order: 'asc' | 'desc' = 'asc';
+  public maxPrice: number = 0;
 
   constructor(
     private searchFlightsService: SearchFlightsService,
@@ -56,9 +60,47 @@ export class ListFlightsComponent implements OnInit{
       this.page = page;
       this.limit = limit;
 
+      this.selectedStops = params['nStops'] !== undefined && params['nStops'] !== null ? Number(params['nStops']) : null;
+      this.sortBy = params['sortBy'] || this.sortBy;
+      this.order = (params['order'] as 'asc' | 'desc') || this.order;
+      this.maxPrice = params['maxPrice'] ? Number(params['maxPrice']) : 0;
+
       this.searchFlights(departureDate, departureCity, destinationCity, filters, page, limit);
     })
     
+  }
+
+  setStops(n: number | null) {
+    const qp: any = { nStops: n, page: 1 };
+    if (n === null) qp.nStops = null;
+    this.router.navigate([], { relativeTo: this.route, queryParams: qp, queryParamsHandling: 'merge' });
+  }
+
+  setSort(sortKey: string) {
+    this.sortBy = sortKey;
+    this.router.navigate([], { relativeTo: this.route, queryParams: { sortBy: sortKey, page: 1 }, queryParamsHandling: 'merge' });
+  }
+
+  toggleOrder() {
+    this.order = this.order === 'asc' ? 'desc' : 'asc';
+    this.router.navigate([], { relativeTo: this.route, queryParams: { order: this.order, page: 1 }, queryParamsHandling: 'merge' });
+  }
+
+  onMaxPriceChange(value: string | number) {
+    const v = Number(value) || 0;
+    this.maxPrice = v;
+    this.router.navigate([], { relativeTo: this.route, queryParams: { maxPrice: v || null, page: 1 }, queryParamsHandling: 'merge' });
+  }
+
+  formatDuration(totalSeconds: number): string {
+    if (!totalSeconds && totalSeconds !== 0) return '';
+    const mins = Math.floor(totalSeconds / 60);
+    const hours = Math.floor(mins / 60);
+    const minutes = mins % 60;
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
   }
 
   searchFlights(departureDate: string, departureCity: string, destinationCity: string, filters: Filters, page: number = 1, limit: number = 10) : void {
@@ -150,6 +192,14 @@ export class ListFlightsComponent implements OnInit{
       } 
     });
     
+  }
+
+  onRegister() {
+    this.router.navigate(['/register']);
+  }
+
+  onLogin() {
+    this.router.navigate(['/login']);
   }
 
 }

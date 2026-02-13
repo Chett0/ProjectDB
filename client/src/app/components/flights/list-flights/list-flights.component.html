@@ -3,6 +3,28 @@
 </ng-container>
 
 <ng-template #notLoading>
+  <div class="filter-bar">
+    <div class="filters-left">
+      <span class="filter-label">Scali:</span>
+      <button class="chip" [ngClass]="{'active': selectedStops === null}" (click)="setStops(null)">Tutti</button>
+      <button class="chip" [ngClass]="{'active': selectedStops === 0}" (click)="setStops(0)">Diretto</button>
+      <button class="chip" [ngClass]="{'active': selectedStops === 1}" (click)="setStops(1)">1 scalo</button>
+
+      <span class="filter-label price-label">Prezzo max:</span>
+      <input type="range" min="0" max="1000" step="5" [value]="maxPrice" (input)="onMaxPriceChange($any($event.target).value)"/>
+      <span class="price-value">€{{ maxPrice }}</span>
+    </div>
+
+    <div class="filters-right">
+      <span class="filter-label">Ordina:</span>
+      <button class="chip" [ngClass]="{'active': sortBy === 'total_price'}" (click)="setSort('total_price')">Prezzo</button>
+      <button class="chip" [ngClass]="{'active': sortBy === 'departure_time'}" (click)="setSort('departure_time')">Partenza</button>
+      <button class="chip" [ngClass]="{'active': sortBy === 'arrival_time'}" (click)="setSort('arrival_time')">Arrivo</button>
+      <button class="chip" [ngClass]="{'active': sortBy === 'total_duration'}" (click)="setSort('total_duration')">Durata</button>
+      <button class="chip order-chip" (click)="toggleOrder()">{{ order === 'asc' ? '↑' : '↓' }}</button>
+    </div>
+  </div>
+
   <ng-container *ngIf="!journeys || journeys.length === 0; else hasFlights">
     <div class="no-flights">
       <p>No flights found</p>
@@ -11,70 +33,53 @@
 </ng-template>
 
 <ng-template #hasFlights>
-  <h1>Flights found</h1>
-  <div *ngFor="let journey of journeys" class="card flight-card mb-4 shadow-sm">
-    <div class="card-body">
-      <ng-container *ngIf="journey.flights.length > 1; else direttoBlock">
-        <h5 class="card-title text-primary">Stopovers</h5>
-      </ng-container>
-      <ng-template #direttoBlock>
-        <h5 class="card-title text-primary">One way</h5>
-      </ng-template>
+  <div class="flights-list">
+    <div *ngFor="let journey of journeys" class="flight-card">
+      <div class="flight-top">
+        <div class="airline">
+          <div class="airline-badge">{{ journey.flights[0].aircraft.airline.name.charAt(0) }}</div>
+          <div class="airline-info">
+            <div class="airline-name">{{ journey.flights[0].aircraft.airline.name }}</div>
+          </div>
+        </div>
 
-      <hr>
+        <div class="times">
+          <div class="time-left">
+            <div class="time-big">{{ journey.flights[0].departureTime | date:'HH:mm' }}</div>
+            <div class="airport-code">{{ journey.flights[0].departureAirport.code }}</div>
+          </div>
 
-
-        <!-- Primo volo -->
-        <div class="mb-3">
-            <h6 class="text-muted">Primo volo</h6>
-            <div class="d-flex justify-content-between">
-                <div>
-                    <p class="mb-1"><strong>{{ journey.flights[0].aircraft.airline.name }}</strong></p>
-                    <p class="mb-1">
-                        {{ journey.flights[0].departureAirport.city }} ({{
-                        journey.flights[0].departureAirport.code }})
-                        → {{ journey.flights[0].arrivalAirport.city }} ({{
-                        journey.flights[0].arrivalAirport.code }})
-                    </p>
-                </div>
-                <div class="text-end">
-                    <p class="mb-1">{{ journey.flights[0].departureTime | date: 'medium'}} → {{
-                        journey.flights[0].arrivalTime | date: 'medium' }}</p>
-                    <p class="mb-1 text-success">€{{ journey.flights[0].basePrice }}</p>
-                </div>
+          <div class="timeline-wrap">
+            <div class="duration">{{ formatDuration(journey.totalDuration) }}</div>
+            <div class="timeline">
+              <span class="dot start"></span>
+              <span class="line"></span>
+              <span class="dot end"></span>
             </div>
+            <div class="direct">{{ journey.flights.length > 1 ? 'Stop' : 'Diretto' }}</div>
+          </div>
+
+          <div class="time-right">
+            <div class="time-big">{{ journey.flights[journey.flights.length-1].arrivalTime | date:'HH:mm' }}</div>
+            <div class="airport-code">{{ journey.flights[journey.flights.length-1].arrivalAirport.code }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flight-bottom">
+        <div class="price-block">
+          <div class="from-text">a partire da</div>
+          <div class="price">€{{ journey.totalPrice }}</div>
+          <div class="per">per persona</div>
         </div>
 
-        <!-- Secondo volo (solo se presente) -->
-        <div *ngIf="journey.flights.length > 1" class="mb-3">
-            <h6 class="text-muted">Secondo volo</h6>
-            <div class="d-flex justify-content-between">
-                <div>
-                    <p class="mb-1"><strong>{{ journey.flights[1].aircraft.airline.name }}</strong></p>
-                    <p class="mb-1">
-                        {{ journey.flights[1].departureAirport.city }} ({{
-                        journey.flights[1].departureAirport.code }})
-                        → {{ journey.flights[1].arrivalAirport.city }} ({{
-                        journey.flights[1].arrivalAirport.code }})
-                    </p>
-                </div>
-                <div class="text-end">
-                    <p class="mb-1">{{ journey.flights[1].departureTime | date: 'medium'}} → {{
-                        journey.flights[1].arrivalTime | date:'medium' }}</p>
-                    <p class="mb-1 text-success">€{{ journey.flights[1].basePrice }}</p>
-                </div>
-            </div>
+        <div class="select-block">
+          <button class="select-btn" (click)="onBuyTicket(journey)">Seleziona <span class="arrow">→</span></button>
         </div>
-
-        <!-- Info generali -->
-        <div class="d-flex justify-content-between align-items-center mt-3">
-            <span><strong>Durata totale:</strong> {{ (journey.totalDuration / 3600) | number: '1.1-1' }} ore</span>
-            <button class="btn btn-primary btn-sm"
-                (click)="onBuyTicket(journey)">Select</button>
-        </div>
+      </div>
     </div>
-</div>
-
+  </div>
+  
 
   <!-- Paginatore -->
   <div class="pagination-controls mt-4" *ngIf="total > 0" style="display:flex;justify-content:center;">
@@ -93,5 +98,6 @@
       <button class="btn btn-sm btn-outline-primary ms-2" (click)="nextPage()" [disabled]="page >= getTotalPages()">Next</button>
     </div>
   </div>
+</ng-template>
 
 

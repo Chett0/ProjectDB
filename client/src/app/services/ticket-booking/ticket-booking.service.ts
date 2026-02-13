@@ -16,9 +16,10 @@ export class TicketBookingService {
   constructor(private http: HttpClient) { }
 
   buyTicket(ticket : CreateTicket): Observable<Response<any>> {
-
     return this.http.post<Response<any>>(`${enviroment.apiUrl}/passengers/tickets`, ticket).pipe(
-      tap(() => this.clearTicketsCache())
+      tap((res) => {
+        this.clearTicketsCache();
+      })
     );
   }
 

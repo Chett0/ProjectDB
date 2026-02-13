@@ -118,4 +118,20 @@ export class SearchFlightsComponent implements OnInit{
     }
     this.filteredDestinationCities = this.cities.filter(o => o.toLowerCase().includes(filterValue));
   }
+
+  onRegister() {
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/passengers']);
+      return;
+    }
+    this.router.navigate(['/register']);
+  }
+
+  onLogin() {
+    if (this.authService.isAuthenticated()) {
+      this.router.navigate(['/passengers']);
+      return;
+    }
+    this.router.navigate(['/login']);
+  }
 }

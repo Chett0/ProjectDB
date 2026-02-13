@@ -38,6 +38,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('access_token');
+    localStorage.removeItem('userProfile');
     this.isLoggedIn.next(false);
     this.token.clearTokens();
     AuthService.clearRedirectPath();

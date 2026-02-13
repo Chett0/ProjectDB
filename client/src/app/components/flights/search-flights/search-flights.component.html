@@ -2,48 +2,83 @@
   <app-header></app-header>
   <main class="body">
     <div class="container">
-      <form [formGroup]="searchForm" class="search-form">
-        <div class="d-flex gap-2 flex-wrap">
 
-          <mat-form-field class="form-input">
-            <mat-label>Departure</mat-label>
-            <input #departureCity type="text" placeholder="Pick one" matInput [formControl]="searchForm.controls.from" [matAutocomplete]="departureAuto"
-              (input)="filterDepartureCities()" (focus)="filterDepartureCities()">
+      <section class="hero">
+        <h1 class="hero-title">Vola verso la tua <span class="accent">prossima</span> <br/> <span class="accent-light">avventura</span></h1>
+        <p class="hero-sub">Scopri migliaia di destinazioni e prenota il tuo volo al miglior prezzo. Viaggiare non è mai stato così semplice.</p>
+      </section>
+
+      <form [formGroup]="searchForm" class="search-card">
+        <div class="inputs">
+          <div class="field">
+            <label>Da</label>
+            <div class="input-with-icon">
+              <svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#7b8aa5" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <input #departureCity type="text" placeholder="Milano" matInput [formControl]="searchForm.controls.from" [matAutocomplete]="departureAuto"
+                (input)="filterDepartureCities()" (focus)="filterDepartureCities()">
+            </div>
             <mat-autocomplete requireSelection #departureAuto="matAutocomplete">
               @for (option of filteredDepartureCities; track option) {
               <mat-option [value]="option">{{option}}</mat-option>
               }
-            </mat-autocomplete> 
-          </mat-form-field>
+            </mat-autocomplete>
+          </div>
 
-            <mat-form-field class="form-input">
-            <mat-label>Destination</mat-label>
-            <input #destinationCity type="text" placeholder="Pick one" matInput [formControl]="searchForm.controls.to" [matAutocomplete]="destinationAuto"
-              (input)="filterDestinationCities()" (focus)="filterDestinationCities()">
+          <div class="field">
+            <label>A</label>
+            <div class="input-with-icon">
+              <svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#2b6df6" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <input #destinationCity type="text" placeholder="Roma" matInput [formControl]="searchForm.controls.to" [matAutocomplete]="destinationAuto"
+                (input)="filterDestinationCities()" (focus)="filterDestinationCities()">
+            </div>
             <mat-autocomplete requireSelection #destinationAuto="matAutocomplete">
               @for (option of filteredDestinationCities; track option) {
               <mat-option [value]="option">{{option}}</mat-option>
               }
-            </mat-autocomplete> 
-          </mat-form-field>
+            </mat-autocomplete>
+          </div>
 
-            <!-- DateAdapter issues -->
-           <mat-form-field class="form-input">
-            <mat-label>Departure date</mat-label>
-            <input
-              matInput
-              type="date"
-              formControlName="departure_date"
-              [min]="today | date:'yyyy-MM-dd'"
-            />
-          </mat-form-field>
-
-          <button type="button" class="btn btn-primary" (click)="searchFlights()">Search</button>
+          <div class="field">
+            <label>Data</label>
+            <div class="input-with-icon">
+              <svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="18" height="16" rx="2" stroke="#7b8aa5" stroke-width="1.2"/><path d="M16 3v4M8 3v4" stroke="#7b8aa5" stroke-width="1.2" stroke-linecap="round"/></svg>
+              <input
+                matInput
+                type="date"
+                formControlName="departure_date"
+                [min]="today | date:'yyyy-MM-dd'"
+                placeholder="gg/mm/aaaa"
+              />
+            </div>
+          </div>
         </div>
 
-      </form>  
+        <div class="actions">
+          <button type="button" class="search-btn" (click)="searchFlights()">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-4.35-4.35" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="#fff" stroke-width="1.6"/></svg>
+            Cerca
+          </button>
+        </div>
+      </form>
+
       <router-outlet></router-outlet>
-      
+
+      <section class="cta-banner">
+        <div class="cta-inner">
+          <div class="cta-icon" aria-hidden="true">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9L2 14v2l8-1v3l-2 1v1l3-0.5L15 19v-3l6-0.5z" stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h2>Pronto a Partire?</h2>
+          <p>Registrati ora e ricevi offerte esclusive sulle migliori destinazioni. Il tuo prossimo viaggio ti aspetta!</p>
+          <div class="cta-actions">
+            <button class="cta-primary" (click)="onRegister()">Inizia Ora</button>
+            <button class="cta-ghost" (click)="onLogin()">Accedi</button>
+          </div>
+        </div>
+      </section>
+
     </div>
   </main>
 
