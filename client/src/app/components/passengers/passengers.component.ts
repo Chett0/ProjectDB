@@ -36,6 +36,10 @@ export class PassengersComponent {
   public ticketsPage: number = 1;
   public ticketsLimit: number = 5;
 
+  public totalFlights: number = 0;
+  public flightHoursDisplay: string = '0h 0m';
+  public moneySpent: number = 0;
+
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -64,6 +68,19 @@ export class PassengersComponent {
         if(passengerData.passengerResponse && passengerData.passengerResponse.success && passengerData.passengerResponse.data)
           this.passenger = passengerData.passengerResponse.data;
         this.loadTickets(this.ticketsPage);
+        // load passenger stats
+        this.passengerService.getPassengerStats().subscribe({
+          next: (res: any) => {
+            const payload = res?.data ? res.data : res;
+            this.totalFlights = payload?.totalFlights || 0;
+            const fh = payload?.flightHours || { hours: 0, minutes: 0 };
+            this.flightHoursDisplay = `${fh.hours}h ${fh.minutes}m`;
+            this.moneySpent = payload?.moneySpent || 0;
+          },
+          error: (err) => {
+            console.error('Error loading passenger stats', err);
+          }
+        });
       }
     })
 
