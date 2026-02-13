@@ -55,4 +55,8 @@ export class HeaderComponent {
   goToPassengers() {
     this.router.navigate(['/passengers']);
   }
+
+  onRegister() {
+    this.router.navigate(['/register']);
+  }
 }
