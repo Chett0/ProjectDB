@@ -72,21 +72,25 @@ export class ExtraBookingComponent implements OnInit{
 
   confirmBooking() {
     this.journey.flights.forEach(flight => {
+      const selectedSeat = this.selectedSeats.get(flight.id);
+      const multiplier = selectedSeat && (selectedSeat as any).aircraftClass ? Number((selectedSeat as any).aircraftClass.priceMultiplier) : 1;
+      const extrasList = this.selectedExtras.get(flight.id) || [];
+      const extrasTotal = extrasList.reduce((sum, e) => sum + (Number((e as any).price) || 0), 0);
+      const basePrice = Number(flight.basePrice) || 0;
+      const finalCost = basePrice * multiplier + extrasTotal;
 
       const ticket : CreateTicket = {
         flightId: flight.id,
-        finalCost: 0,
-        seatNumber: this.selectedSeats.get(flight.id)?.number || '',
-        extrasIds: this.selectedExtras.get(flight.id)?.map(extra => extra.id) || []
+        finalCost: finalCost,
+        seatNumber: selectedSeat?.number || '',
+        extrasIds: extrasList.map(extra => extra.id) || []
       }
 
       this.bookingService.buyTicket(ticket).subscribe({
         next: (res: Response<any>) => {
-          if(res.success)
-            console.log("Ticket bought successfully");
-          },
+        },
         error: (err) => {
-          console.log(err);
+          console.error('buyTicket error:', err);
         }
       });
     });
