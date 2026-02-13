@@ -18,9 +18,12 @@
 						</svg>
 					</button>
           </div>
-          <ng-template #notLogged>
-            <button class="btn icon-only" aria-label="companies" (click)="onLogin()">Login/Register</button>
-          </ng-template>
+					<ng-template #notLogged>
+						<div class="auth-actions">
+							<button class="btn btn-login" (click)="onLogin()">Accedi</button>
+							<button class="btn btn-register" (click)="onRegister()">Registrati</button>
+						</div>
+					</ng-template>
 					
 					
 				</nav>

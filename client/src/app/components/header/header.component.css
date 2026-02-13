@@ -53,6 +53,39 @@
 	color: #0f1724
 }
 
+.auth-actions { display:flex; gap:8px; align-items:center }
+
+.btn-login {
+	background: #ffffff;
+	color: #0f1724;
+	border: none;
+	padding: 8px 12px;
+	border-radius: 8px;
+	transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.btn-login:hover {
+	background: linear-gradient(90deg,#f1c18b,#f49681); 
+	color: #fff;
+	transform: translateY(-6px) scale(1.04);
+	box-shadow: 0 14px 30px rgba(255,90,30,0.16);
+}
+
+.btn-register {
+	background: linear-gradient(90deg,#2b74ff,#1e58d1);
+	color: #fff;
+	border: none; 
+	padding: 8px 12px;
+	border-radius: 8px;
+	transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+
+.btn-register:hover {
+	transform: translateY(-6px) scale(1.04);
+	box-shadow: 0 14px 30px rgba(11,45,200,0.12);
+}
+
 .logout-btn {
 	width: 40px;
 	height: 40px;
