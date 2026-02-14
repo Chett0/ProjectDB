@@ -101,8 +101,13 @@ export class AircraftsComponent implements OnInit {
           this.addSuccess = 'Aereo aggiunto con successo.';
           setTimeout(() => this.addSuccess = null, 4000);
           this.addLoading = false;
-          this.closeAddModal();
           this.aircrafts.push(res.data);
+
+          //this part is needed to update the viewed aircraft list
+          const currentFilter = (this.searchControl.value || '').trim().toLocaleLowerCase();
+          this.applyFilter(currentFilter);
+
+          this.closeAddModal();
         }
       },
       error: () => {
