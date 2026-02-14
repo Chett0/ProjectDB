@@ -5,7 +5,7 @@ import { SearchFlightsComponent } from './components/flights/search-flights/sear
 import { AirlinesHomeComponent } from './components/airlines/airlines-home/airlines-home.component';
 import { AdminHomeComponent } from './components/admin/admin-home/admin-home.component';
 import { TicketBookingComponent } from './components/booking/ticket-booking/ticket-booking.component';
-import { adminGuard, airlineGuard, passengerGuard } from './core/guards/auth.guard';
+import { adminGuard, airlineGuard, guestGuard, guestOrPassengerGuard, passengerGuard } from './core/guards/auth.guard';
 import { PassengersComponent } from './components/passengers/passengers.component';
 import { PassengersResolver } from './core/resolvers/passengers.resolver';
 import { AirlinesResolver } from './core/resolvers/airlines.resolver';
@@ -25,10 +25,12 @@ export const routes: Routes = [
     },
     {
         path: 'login',
+        canActivate: [guestGuard],
         component: LoginComponent
     },
     {
         path: 'register',
+        canActivate: [guestGuard],
         component: RegisterComponent
     },
     {
@@ -67,6 +69,7 @@ export const routes: Routes = [
     {
         path: 'search-flights',
         component: SearchFlightsComponent,
+        canActivate: [guestOrPassengerGuard],
         children: [
             {
                 path: 'flights',
