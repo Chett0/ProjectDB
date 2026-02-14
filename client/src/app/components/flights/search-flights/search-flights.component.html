@@ -63,7 +63,7 @@
 
       <router-outlet></router-outlet>
 
-      <section class="cta-banner">
+      <section *ngIf="showBanner" class="cta-banner">
         <div class="cta-inner">
           <div class="cta-icon" aria-hidden="true">
             <svg width="52" height="52" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

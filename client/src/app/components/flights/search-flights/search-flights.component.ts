@@ -134,4 +134,9 @@ export class SearchFlightsComponent implements OnInit{
     }
     this.router.navigate(['/login']);
   }
+
+  get showBanner(): boolean {
+    return !this.authService.isAuthenticated();
+  }
+
 }
