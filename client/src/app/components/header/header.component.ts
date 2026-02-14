@@ -21,6 +21,7 @@ import { RoutesService } from '../../services/airlines/routes.service';
 export class HeaderComponent implements OnInit {
 
   isLogged: Observable<boolean> | null = null;
+  homePage: string = '/';
 
   //user data
   userRole: string | null = null;
@@ -48,6 +49,7 @@ export class HeaderComponent implements OnInit {
         this.userRole = null;
         this.passengerName = '';
         this.airlineName = '';
+        this.homePage = '/';
       }
     });
   }
@@ -56,12 +58,15 @@ export class HeaderComponent implements OnInit {
     //check the ROLE
     if(this.authService.hasRole(UserRole.PASSENGER)){
       this.userRole = UserRole.PASSENGER;
+      this.homePage='/';
       this.fetchPassengerData();
     } else if (this.authService.hasRole(UserRole.AIRLINE)){
       this.userRole = UserRole.AIRLINE;
+      this.homePage='/airlines';
       this.fetchAirlineData();
     } else if (this.authService.hasRole(UserRole.ADMIN)){
       this.userRole = UserRole.ADMIN;
+      this.homePage='/admin';
     }
   }
 
