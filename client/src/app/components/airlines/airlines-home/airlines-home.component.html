@@ -1,44 +1,49 @@
 <div class="airlines-page">
   <app-header></app-header>
-  <main class="container">
+
+  <div class="layout-width page-header-wrapper"> 
     <section class="page-header">
       <h2>Dashboard Compagnia Aerea</h2>
       <p class="subtitle">Gestisci i tuoi aerei, tratte e voli</p>
     </section>
-  </main>
-  <div class="dashboard-body">
-      <aside class="sidebar-tabs">
-        <div class="tabs-vertical">
-          <div class="tabs-indicator-vertical" [ngStyle]="{
-            top: (activeTab * 50) + 'px',
-            height: '50px'
-          }"></div>
-          <button *ngFor="let tab of tabs; let i = index"
-            class="tab-v"
-            [class.active]="activeTab===i"
-            (click)="setTab(i)">
-            {{tab.label}}
-          </button>
-        </div>
-      </aside>
+  </div>
 
-      <!-- Metterli in un for però occhio a passare i dati al figlio-->
+  <div class="layout-width dashboard-body">
+
+    <aside class="sidebar-tabs">
+      <div class="tabs-vertical">
+        <div class="tabs-indicator-vertcal" [ngStyle]="{
+          top: (activeTab * 50) + 'px',
+          height: '50px'
+        }"></div>
+
+        <button *ngFor="let tab of tabs; let i = index"
+          class="tab-v"
+          [class.active]="activeTab===i"
+          (click)="setTab(i)">
+          {{tab.label}}
+        </button>
+      </div>
+    </aside>
+
+    <main class="dashboard-content">
       <section *ngIf="activeTab===0">
-      <app-airline-dashboard [dashboardStats]="dashboardStats"></app-airline-dashboard>
-    </section>
-      <section *ngIf="activeTab===1">
-      <app-aircrafts></app-aircrafts>
-    </section>
-    <section *ngIf="activeTab===2">
-      <app-flights></app-flights>
-    </section>
-    <section *ngIf="activeTab===3">
-      <app-routes></app-routes>
-    </section>
-    <section *ngIf="activeTab===4">
-      <app-extra></app-extra>
-    </section>
+            <app-airline-dashboard [dashboardStats]="dashboardStats"></app-airline-dashboard>
+          </section>
+          <section *ngIf="activeTab===1">
+            <app-aircrafts></app-aircrafts>
+          </section>
+          <section *ngIf="activeTab===2">
+            <app-flights></app-flights>
+          </section>
+          <section *ngIf="activeTab===3">
+            <app-routes></app-routes>
+          </section>
+          <section *ngIf="activeTab===4">
+            <app-extra></app-extra>
+          </section>
+    </main>
+  </div>
 
-    </div>
   <app-footer></app-footer>
 </div>
