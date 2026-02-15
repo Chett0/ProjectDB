@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 import { LoadingComponent } from "../../utils/loading/loading.component";
 import { Response } from '../../../../types/responses/responses';
 import { Filters, Journeys } from '../../../../types/flights/flights';
-import { filter } from 'rxjs';
 import { TicketService } from '../../../services/ticket/ticket.service';
 
 @Component({

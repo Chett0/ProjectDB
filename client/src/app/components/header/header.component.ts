@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, retry } from 'rxjs';
+import { Observable} from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';

@@ -42,13 +42,6 @@ export class AdminHomeComponent implements OnInit {
     private route: ActivatedRoute
   ) {}
 
-  onLogout() {
-    const confirmed = confirm('Sei sicuro di voler effettuare il logout?');
-    if (!confirmed) return;
-    this.authService.logout();
-    this.router.navigate(['/login']);
-  }
-
   ngOnInit(): void {
 
     this.route.data.subscribe(({ adminData }) => {

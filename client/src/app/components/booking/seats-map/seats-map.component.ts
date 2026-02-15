@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TicketService } from '../../../services/ticket/ticket.service';
 import { Flight, Journeys, SeatInfo, SeatState } from '../../../../types/flights/flights';
-import { Response } from '../../../../types/responses/responses';
 import { SeatsService } from '../../../services/seats/seats.service';
 import { Class } from '../../../../types/users/airlines';
 import { ClassesService } from '../../../services/classes/classes.service';

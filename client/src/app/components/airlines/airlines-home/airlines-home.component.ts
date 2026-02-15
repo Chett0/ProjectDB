@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, NumberSymbol } from '@angular/common';
-import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
+import { CommonModule} from '@angular/common';
+import { ActivatedRoute, Router} from '@angular/router';
 import { AuthService } from '../../../services/auth/auth.service';
 import { AirlinesService } from '../../../services/airlines/airlines.service';
 import { AircraftsService } from '../../../services/airlines/aircrafts.service';
@@ -85,16 +85,6 @@ export class AirlinesHomeComponent implements OnInit{
     this.router.navigate([route], { relativeTo: this.route });
   }
 
-  onLogout() {
-    const confirmed = confirm('Sei sicuro di voler effettuare il logout?');
-    if (!confirmed) return;
-    this.aircraftsService.clearCache();
-    this.routesService.clearCache();
-    this.airlinesService.clearExtrasCache();
-    this.airlinesService.clearFlightsCache();
-    this.authService.logout();
-    this.router.navigate(['/login']);
-  }
 
   setTab(index: number) {
     this.activeTab = index;

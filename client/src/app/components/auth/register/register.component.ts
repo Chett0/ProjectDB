@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, ReactiveFormsModule, FormsModule, Validators, FormBuilder } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule, Validators, FormBuilder } from '@angular/forms';
 import { PassengerAsUser } from '../../../../types/users/passenger';
 import { AuthService } from '../../../services/auth/auth.service';
-import { ParseSourceSpan } from '@angular/compiler';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
