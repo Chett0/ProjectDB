@@ -12,7 +12,7 @@ export class ClassesService {
 
   constructor(private http: HttpClient) {}
 
-  getClasses(aircraftId: number): Observable<Response<Class[]>> {
-    return this.http.get<Response<Class[]>>(`${enviroment.apiUrl}/aircrafts/${aircraftId}/classes`);
+  getClasses(airlineId : number, aircraftId: number): Observable<Response<Class[]>> {
+    return this.http.get<Response<Class[]>>(`${enviroment.apiUrl}/airlines/${airlineId}/aircrafts/${aircraftId}/classes`);
   }
 }

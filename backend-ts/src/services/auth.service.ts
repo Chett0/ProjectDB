@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import {airlines, userrole, users} from '@prisma/client';
 import { PayloadJWT, User, UserAirline, UserInfo, UserPassenger } from "../types/auth.types";
-import { AdminDTO, AirlineUserDTO, LoginResponseDTO, PassengerDTO, toAdminDTO, toAirlineUserDTO, toPassengerDTO } from "../dtos/user.dto";
+import { AdminDTO, AirlineUserDTO, LoginResponseDTO, PassengerDTO, RefreshTokenResponseDTO, toAdminDTO, toAirlineUserDTO, toPassengerDTO } from "../dtos/user.dto";
 import { ConflictError, NotFoundError, UnauthorizedError } from "../utils/errors";
 
 const JWT_ACCESS_TOKEN_SECRET : string = process.env.JWT_ACCESS_TOKEN_SECRET! as string;
@@ -163,7 +163,7 @@ export const login = async(
 
 export const refreshToken = async(
     refreshToken: string
-) : Promise<any> => {
+) : Promise<RefreshTokenResponseDTO> => {
     try {
         const payload: any = jwt.verify(refreshToken, JWT_REFRESH_TOKEN_SECRET);
 

@@ -5,44 +5,34 @@ import { AirportDTO, CityDTO, toAirportDTO, toCityDTO } from '../dtos/airport.dt
 export const getAirportByCode = async (
     code : string
 ) : Promise<AirportDTO | null> => {
-    try{
-        const airport : airports | null = await prisma.airports.findFirst({
-            where: {
-                iata: code,
-                active: true
-            }
-        })
 
-        return airport ? toAirportDTO(airport) : null;
+    const airport : airports | null = await prisma.airports.findFirst({
+        where: {
+            iata: code,
+            active: true
+        }
+    })
 
-    } catch(err){
-        throw new Error(
-            `Failed to retrieving airport: ${err instanceof Error ? err.message : "Unknown error"}`
-        ); 
-    }
+    return airport ? toAirportDTO(airport) : null;
+
 };
 
 export const getAirportsByCity = async (
     city : string
 ) : Promise<airports[]> => {
-    try{
-        const airports : airports[] = await prisma.airports.findMany({
-            where: {
-                city: {
-                    contains: city,
-                    mode: "insensitive"
-                },
-                active: true
-            }
-        })
 
-        return airports;
+    const airports : airports[] = await prisma.airports.findMany({
+        where: {
+            city: {
+                contains: city,
+                mode: "insensitive"
+            },
+            active: true
+        }
+    })
 
-    } catch(err){
-        throw new Error(
-            `Failed to retrieving airport: ${err instanceof Error ? err.message : "Unknown error"}`
-        ); 
-    }
+    return airports;
+
 };
 
 export const getAirportsCities = async () : Promise<CityDTO[]> => {

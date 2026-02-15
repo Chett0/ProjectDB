@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angula
 import { AirlinesService } from '../../../services/airlines/airlines.service';
 import { Extra } from '../../../../types/users/airlines';
 import { Response } from '../../../../types/responses/responses';
+import { ExtraService } from '../../../services/airlines/extras.service';
 
 @Component({
   selector: 'app-extra',
@@ -24,7 +25,10 @@ export class ExtraComponent implements OnInit {
   loading = false;
   error: string | null = null;
 
-  constructor(private airlinesService: AirlinesService) {
+  constructor(
+    private airlinesService: AirlinesService,
+    private extraService: ExtraService
+  ) {
     this.searchControl.valueChanges.subscribe(() => {
       this.applySearch();
     });
@@ -37,7 +41,7 @@ export class ExtraComponent implements OnInit {
 
   fetchExtras() {
     this.loading = true;
-    this.airlinesService.getExtras().subscribe({
+    this.extraService.getAirlineExtras().subscribe({
       next: (res : Response<Extra[]>) => {
         this.extras = res.data || [];
         this.applySearch();
@@ -66,7 +70,7 @@ export class ExtraComponent implements OnInit {
     if (this.addExtraForm.invalid) return;
     this.submitting = true;
     const { name, price } = this.addExtraForm.value;
-    this.airlinesService.createExtra({ 
+    this.extraService.createExtra({ 
       name: name ?? '', 
       price: Number(price) 
     }).subscribe({
@@ -89,7 +93,7 @@ export class ExtraComponent implements OnInit {
 
   deleteExtra(extra: Extra) {
     if (!extra.id) return;
-    this.airlinesService.deleteExtra(extra.id).subscribe({
+    this.extraService.deleteExtra(extra.id).subscribe({
       next: (res : Response<void>) => {
         if(!res.success){
           this.error = 'Errore eliminazione extra'; 

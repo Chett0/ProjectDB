@@ -4,23 +4,19 @@ import { filter, Observable } from 'rxjs';
 import { Filters, Journeys } from '../../../types/flights/flights';
 import { Response } from '../../../types/responses/responses';
 import { City } from '../../../types/airports/airports';
+import { enviroment } from '../../enviroments/enviroments';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SearchFlightsService {
-  private apiUrl: string = 'http://localhost:5000/api';
 
   private http = inject(HttpClient);
 
   constructor() {}
 
-  searchLocations(query: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/cities?query=${query}`);
-  }
-
   getCities() : Observable<Response<City[]>> {
-    return this.http.get<Response<City[]>>(`${this.apiUrl}/airports/cities`);
+    return this.http.get<Response<City[]>>(`${enviroment.apiUrl}/v1/cities`);
   }
 
   searchFlights(
@@ -45,14 +41,7 @@ export class SearchFlightsService {
       params = params.set('order', filters.order);
     }
 
-    return this.http.get<Response<{ journeys: Journeys[]; total: number; page: number; limit: number }>>(`${this.apiUrl}/flights`, { params });
+    return this.http.get<Response<{ journeys: Journeys[]; total: number; page: number; limit: number }>>(`${enviroment.apiUrl}/v1/flights`, { params });
   }
-
-  searchFlight(id: string): Observable<any> {
-    const parsedId: number = parseInt(id);
-    return this.http.get<any[]>(`${this.apiUrl}/flights/${parsedId}`);
-  }
-
-  
 
 }

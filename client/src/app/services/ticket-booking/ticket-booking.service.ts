@@ -16,32 +16,10 @@ export class TicketBookingService {
   constructor(private http: HttpClient) { }
 
   buyTicket(ticket : CreateTicket): Observable<Response<any>> {
-    return this.http.post<Response<any>>(`${enviroment.apiUrl}/passengers/tickets`, ticket).pipe(
+    return this.http.post<Response<any>>(`${enviroment.apiUrl}/v1/passenger/tickets`, ticket).pipe(
       tap((res) => {
         this.clearTicketsCache();
       })
-    );
-  }
-
-  buyTickets(tickets: {
-    flightId: number;
-    finalCost: number;
-    seatNumber: string;
-    extras: number[];
-  }[]): Observable<any> {
-    const url = `${enviroment.apiUrl}/tickets/bulk`;
-
-    const body = {
-      tickets: tickets.map(t => ({
-        flight_id: t.flightId,
-        final_cost: t.finalCost,
-        seat_number: t.seatNumber,
-        extras: t.extras
-      }))
-    };
-
-    return this.http.post(url, body).pipe(
-      tap(() => this.clearTicketsCache())
     );
   }
 
@@ -52,7 +30,7 @@ export class TicketBookingService {
       return of(this.ticketsCache[key]);
     }
 
-    const url = `${enviroment.apiUrl}/passengers/tickets?page=${page}&limit=${limit}`;
+    const url = `${enviroment.apiUrl}/v1/passenger/tickets?page=${page}&limit=${limit}`;
     return this.http.get<any>(url).pipe(
       tap(data => {
         if (!this.ticketsCache) this.ticketsCache = {};

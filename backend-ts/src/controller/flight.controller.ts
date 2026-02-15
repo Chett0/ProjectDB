@@ -7,36 +7,6 @@ import { JourneysInfoDTO, SeatsDTO } from "../dtos/flight.dto";
 import { asyncHandler } from "../utils/helpers/asyncHandler.helper";
 import { BadRequestError } from "../utils/errors";
 
-export const createFlight = asyncHandler(
-    async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
-
-        const {routeId, aircraftId, departureTime, arrivalTime, basePrice} = req.body;
-        const airlineId : number | null = req.user!.id;
-        
-        if(!routeId || !aircraftId || !airlineId || !departureTime || !arrivalTime || !basePrice)
-            throw new BadRequestError("Missing required fields");
-
-        const flight : Flight = {
-            airlineId: airlineId,
-            routeId : Number(routeId),
-            aircraftId : Number(aircraftId),
-            departureTime: new Date(departureTime),
-            arrivalTime: new Date(arrivalTime),
-            basePrice: Number(basePrice),
-            durationSeconds: (new Date(arrivalTime).getTime() - new Date(departureTime).getTime()) / 1000
-        };
-
-        await flightService.createFlight(flight);
-
-        return successResponse<void>(
-            res, 
-            "Flight created successfully"
-        );
-    }
-);
-
-
-
 export const searchFlights = asyncHandler(
      async(req : Request, res : Response): Promise<Response> => {
 

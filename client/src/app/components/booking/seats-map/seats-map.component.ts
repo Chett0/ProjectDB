@@ -55,7 +55,7 @@ export class SeatsMapComponent implements OnInit {
       journey.flights.forEach(flight => {
         forkJoin({
           responseSeats: this.seatService.getSeats(flight.id),
-          responseClasses: this.classService.getClasses(flight.aircraft.id)
+          responseClasses: this.classService.getClasses(flight.aircraft.airline.id, flight.aircraft.id)
         }).subscribe(({ responseSeats, responseClasses }) => {
 
           if (responseSeats.success && responseSeats.data) {

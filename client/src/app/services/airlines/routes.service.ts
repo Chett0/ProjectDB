@@ -22,7 +22,7 @@ export class RoutesService {
         data: this.routesCache 
       });
     }
-    return this.http.get<Response<AirlineRoute[]>>(`${enviroment.apiUrl}/airlines/routes`).pipe(
+    return this.http.get<Response<AirlineRoute[]>>(`${enviroment.apiUrl}/v1/airline/routes`).pipe(
       tap(res => {
         if(res && res.success)
           this.routesCache = res.data || [];
@@ -30,12 +30,8 @@ export class RoutesService {
     );
   }
 
-    getRoutesCountAll() {
-    return this.http.get<any>(`${enviroment.apiUrl}/flights/routes-count-all`);
-  }
-
   addRoute(route : Route){
-    return this.http.post<Response<AirlineRoute>>(`${enviroment.apiUrl}/airlines/routes`, route).pipe(
+    return this.http.post<Response<AirlineRoute>>(`${enviroment.apiUrl}/v1/airline/routes`, route).pipe(
       tap(res => {
         if(res && res.success && res.data){
           if(!this.routesCache){
@@ -48,11 +44,7 @@ export class RoutesService {
   }
 
   deleteRoute(routeId : number){
-    return this.http.delete<Response<void>>(`${enviroment.apiUrl}/airlines/routes/${routeId}`)
-  }
-
-  getRoutesCount() {
-    return this.http.get<any>(`${enviroment.apiUrl}/flights/routes-count`);
+    return this.http.delete<Response<void>>(`${enviroment.apiUrl}/v1/airline/routes/${routeId}`)
   }
 
   clearCache(){

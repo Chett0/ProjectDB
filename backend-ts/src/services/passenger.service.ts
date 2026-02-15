@@ -3,7 +3,7 @@ import prisma from "../config/db";
 import { ExtraDTO } from "../dtos/airline.dto";
 import { FullTicketInfo, PassengerUser, Ticket, UserPassengerInfo } from "../types/passenger.types";
 import * as flightService from "../services/flight.service"
-import { TicketInfoDTO, toTicketInfoDTO, TicketDisplayDTO, toTicketDisplayDTO } from "../dtos/passenger.dto";
+import { TicketInfoDTO, toTicketInfoDTO, TicketDisplayDTO, toTicketDisplayDTO, PassengerStatsDTO } from "../dtos/passenger.dto";
 import { PassengerUserDTO, toPassengerUserDTO } from '../dtos/user.dto';
 import { BadRequestError, ConflictError, NotFoundError } from '../utils/errors';
 
@@ -219,7 +219,7 @@ export const createSeatSession =  async (
 
 export const getPassengerStats = async (
     passengerId: number
-): Promise<{ totalFlights: number; flightHours: { hours: number; minutes: number }; moneySpent: number }> => {
+): Promise<PassengerStatsDTO> => {
     const ticketsList = await prisma.tickets.findMany({
         where: {
             passenger_id: passengerId,

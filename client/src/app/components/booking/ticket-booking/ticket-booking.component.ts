@@ -5,7 +5,7 @@ import { HeaderComponent } from '../../header/header.component';
 import { SearchFlightsService } from '../../../services/search-flights/search-flights.service';
 import { PassengerService } from '../../../services/passenger/passenger.service';
 import { ClassesService } from '../../../services/classes/classes.service';
-import { ExtrasService } from '../../../services/airlines/extras.service';
+import { ExtraService } from '../../../services/airlines/extras.service';
 import { SeatsService } from '../../../services/seats/seats.service';
 import { FormsModule } from '@angular/forms';
 import { Flight, Journeys, Seat, SeatInfo } from '../../../../types/flights/flights';
@@ -36,7 +36,7 @@ export class TicketBookingComponent {
     private ticketService: TicketService,
     private passengerService: PassengerService,
     private classesService: ClassesService,
-    private extrasService: ExtrasService,
+    private extrasService: ExtraService,
     private seatService: SeatsService,
     private ticketBookingService: TicketBookingService,
     private router: Router
@@ -70,7 +70,7 @@ export class TicketBookingComponent {
         this.extrasService.getExtras(flight.aircraft.airline.id).subscribe((res: Response<Extra[]>) => {
           if (res.success) this.flightTickets[fid].extras = res.data || [];
         });
-        this.classesService.getClasses(flight.aircraft.id).subscribe((res: Response<Class[]>) => {
+        this.classesService.getClasses(flight.aircraft.airline.id, flight.aircraft.id).subscribe((res: Response<Class[]>) => {
           if (res.success) this.flightTickets[fid].classes = res.data || [];
         });
         this.seatService.getSeats(flight.id).subscribe((res: Response<SeatInfo[]>) => {
@@ -209,26 +209,6 @@ export class TicketBookingComponent {
     } else {
       flightData.selectedExtras = (flightData.selectedExtras || []).filter((id: number) => id !== value);
     }
-  }
-
-  buyTickets() {
-    const tickets = this.flightIds.map(fid => {
-      const f = this.flightTickets[fid];
-      return {
-        flightId: f.flight.id,
-        finalCost: this.calculateTotal(fid),
-        seatNumber: f.selectedSeat ? f.selectedSeat.number : '',
-        extras: f.selectedExtras || []
-      };
-    });
-
-    this.ticketBookingService.buyTickets(tickets).subscribe({
-      next: (res: any) => {
-        const ok = res && (res.success === undefined || res.success === true);
-        this.showModal(ok ? 'successModal' : 'errorModal');
-      },
-      error: () => this.showModal('errorModal')
-    });
   }
 
   showModal(modalId: string) {

@@ -10,6 +10,7 @@ server/migrations
 
 Video/
 Documentazione/
+DocsTAW/
 
 node_modules/
 dist/

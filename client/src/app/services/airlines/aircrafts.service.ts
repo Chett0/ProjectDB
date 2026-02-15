@@ -23,7 +23,7 @@ export class AircraftsService {
         data: this.aircraftsCache
       });
     }
-    return this.http.get<Response<AircraftWithClasses[]>>(`${enviroment.apiUrl}/airlines/aircrafts`).pipe(
+    return this.http.get<Response<AircraftWithClasses[]>>(`${enviroment.apiUrl}/v1/airline/aircrafts`).pipe(
       tap(res => {
         if(res.success)
           this.aircraftsCache = res.data || [];
@@ -32,7 +32,7 @@ export class AircraftsService {
   }
 
   addAircraft(aircraft: CreateAircraft) : Observable<Response<AircraftWithClasses>> {
-    return this.http.post<Response<AircraftWithClasses>>(`${enviroment.apiUrl}/airlines/aircrafts`, aircraft).pipe(
+    return this.http.post<Response<AircraftWithClasses>>(`${enviroment.apiUrl}/v1/airline/aircrafts`, aircraft).pipe(
       tap((res : Response<AircraftWithClasses>) => {
         if(res.success && res.data){
           if(!this.aircraftsCache)
@@ -44,7 +44,7 @@ export class AircraftsService {
   }
 
   deleteAircraft(aircraftId: number) {
-    return this.http.delete<Response<void>>(`${enviroment.apiUrl}/airlines/aircrafts/${aircraftId}`).pipe(
+    return this.http.delete<Response<void>>(`${enviroment.apiUrl}/v1/airline/aircrafts/${aircraftId}`).pipe(
       tap((res: Response<void>) => {
         if(res.success)
           this.airlinesService.clearFlightsCache();

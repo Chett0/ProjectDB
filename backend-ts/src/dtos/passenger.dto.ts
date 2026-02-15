@@ -1,6 +1,28 @@
 import { Decimal } from "@prisma/client/runtime/library";
 import { tickets } from '@prisma/client';
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     TicketInfoDTO:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           example: 501
+ *         seatNumber:
+ *           type: string
+ *           example: 12A
+ *         finalCost:
+ *           type: number
+ *           format: float
+ *           example: 249.99
+ *       required:
+ *         - id
+ *         - seatNumber
+ *         - finalCost
+ */
 export interface TicketInfoDTO {
     id: number;
     seatNumber: string;
@@ -77,4 +99,42 @@ export const toTicketDisplayDTO = (ticket: any): TicketDisplayDTO => {
     };
 }
 
-// }
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     PassengerStatsDTO:
+ *       type: object
+ *       properties:
+ *         totalFlights:
+ *           type: integer
+ *           example: 15
+ *         flightHours:
+ *           type: object
+  *           properties:
+ *             hours:
+ *               type: integer
+ *               example: 42
+ *             minutes:
+ *               type: integer
+ *               example: 30
+ *           required:
+ *             - hours
+ *             - minutes
+ *         moneySpent:
+ *           type: number
+ *           format: float
+ *           example: 1250.75
+ *       required:
+ *         - totalFlights
+ *         - flightHours
+ *         - moneySpent
+ */
+export interface PassengerStatsDTO {
+    totalFlights: number;
+    flightHours: {
+        hours: number;
+        minutes: number;
+    };
+    moneySpent: number;
+}

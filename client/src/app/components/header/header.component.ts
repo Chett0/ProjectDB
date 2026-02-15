@@ -11,6 +11,7 @@ import { PassengerInfo } from '../../../types/users/passenger';
 import { AirlinesService } from '../../services/airlines/airlines.service';
 import { AircraftsService } from '../../services/airlines/aircrafts.service';
 import { RoutesService } from '../../services/airlines/routes.service';
+import { ExtraService } from '../../services/airlines/extras.service';
 
 @Component({
   selector: 'app-header',
@@ -34,6 +35,7 @@ export class HeaderComponent implements OnInit {
     private passengerService: PassengerService,
     private ticketBookingService: TicketBookingService,
     private airlineService: AirlinesService,
+    private extraService: ExtraService,
     private aircraftsService: AircraftsService,
     private routesService: RoutesService
   ) {}
@@ -96,7 +98,7 @@ export class HeaderComponent implements OnInit {
       this.passengerService.clearPassengerCache();
       this.ticketBookingService.clearTicketsCache();
     } else if(this.userRole === UserRole.AIRLINE){
-      this.airlineService.clearExtrasCache();
+      this.extraService.clearExtrasCache();
       this.airlineService.clearFlightsCache();
       this.routesService.clearCache();
       this.aircraftsService.clearCache();

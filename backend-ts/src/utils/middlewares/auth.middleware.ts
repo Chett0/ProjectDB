@@ -19,7 +19,7 @@ const verifyToken = async (req : AuthenticatedRequest, res : Response, next : Ne
 
         if (!accessToken) {
             return res.status(401).json({ 
-                message: "Missing Token",
+                message: "Missing token",
                 success: false,
             });
         }

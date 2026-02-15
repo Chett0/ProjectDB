@@ -13,16 +13,9 @@ import { CreateFlight, Flight } from '../../../types/flights/flights';
   providedIn: 'root'
 })
 export class AirlinesService {
-  private extrasCache: any[] | null = null;
-  private extrasCacheTimestamp: number | null = null;
   private flightCache: Flight[] | null = null;
   private flightCacheTimestamp: number | null = null;
 
-
-  clearExtrasCache() {
-    this.extrasCache = null;
-    this.extrasCacheTimestamp = null;
-  }
   clearFlightsCache() {
     this.flightCache = null;
     this.flightCacheTimestamp = null;
@@ -32,23 +25,23 @@ export class AirlinesService {
   constructor(private http : HttpClient) { }
 
   getAirlinesInfo() {
-    return this.http.get<any>(`${enviroment.apiUrl}/airlines/me`);
+    return this.http.get<any>(`${enviroment.apiUrl}/v1/airline/me`);
   }
 
   getAllAirlines() {
-    return this.http.get<Response<Airline[]>>(`${enviroment.apiUrl}/admin/airlines`);
+    return this.http.get<Response<Airline[]>>(`${enviroment.apiUrl}/v1/airlines`);
   }
 
   getDashboardStats() {
-    return this.http.get<Response<AirlineDashBoard>>(`${enviroment.apiUrl}/airlines/dashboard-stats`);
+    return this.http.get<Response<AirlineDashBoard>>(`${enviroment.apiUrl}/v1/airline/dashboard_stats`);
   }
 
   getAdminDashboardStats() {
-    return this.http.get<Response<AdminDashboard>>(`${enviroment.apiUrl}/admin/dashboard-stats`);
+    return this.http.get<Response<AdminDashboard>>(`${enviroment.apiUrl}/v1/admin/dashboard_stats`);
   }
 
   createFlight(newFlight: CreateFlight) : Observable<Response<Flight>> {
-    return this.http.post<any>(`${enviroment.apiUrl}/airlines/flights`, newFlight).pipe(
+    return this.http.post<any>(`${enviroment.apiUrl}/v1/airline/flights`, newFlight).pipe(
       tap((res : Response<Flight>) => {
         if(res.success && res.data) {
           if(!this.flightCache)
@@ -85,37 +78,7 @@ export class AirlinesService {
       }
     }
     const params = paramsArr.length ? `?${paramsArr.join('&')}` : '';
-    return this.http.get<Response<any>>(`${enviroment.apiUrl}/airlines/flights${params}`);
+    return this.http.get<Response<any>>(`${enviroment.apiUrl}/v1/airline/flights${params}`);
   }
 
-  createExtra(extra: CreateExtra) {
-    this.extrasCache = null;
-    this.extrasCacheTimestamp = null;
-    return this.http.post<Response<Extra>>(`${enviroment.apiUrl}/airlines/extras`, extra);
-  }
-
-  getExtras(forceRefresh = false): Observable<Response<Extra[]>> {
-    const now = Date.now();
-    if (!forceRefresh && this.extrasCache && this.extrasCacheTimestamp && (now - this.extrasCacheTimestamp < this.cacheTTL)) {
-      return of({ 
-        success: true,
-        message: 'Extras retrieved successfully (cache)', 
-        data: this.extrasCache 
-      });
-    }
-    return this.http.get<Response<Extra[]>>(`${enviroment.apiUrl}/airlines/extras`).pipe(
-      tap((res : Response<Extra[]>) => {
-        if (res && res.data) {
-          this.extrasCache = res.data;
-          this.extrasCacheTimestamp = Date.now();
-        }
-      })
-    );
-  }
-
-  deleteExtra(extraId: number) {
-    this.extrasCache = null;
-    this.extrasCacheTimestamp = null;
-    return this.http.delete<Response<void>>(`${enviroment.apiUrl}/airlines/extras/${extraId}`);
-  }
 }

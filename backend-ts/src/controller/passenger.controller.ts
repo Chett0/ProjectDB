@@ -4,7 +4,7 @@ import { successResponse } from "../utils/helpers/response.helper";
 import { PassengerUserDTO } from "../dtos/user.dto";
 import * as passengerService from "./../services/passenger.service";
 import { BookingState, Ticket, UserPassengerInfo } from "../types/passenger.types";
-import { TicketInfoDTO } from "../dtos/passenger.dto";
+import { TicketInfoDTO, PassengerStatsDTO } from "../dtos/passenger.dto";
 import { asyncHandler } from "../utils/helpers/asyncHandler.helper";
 import { BadRequestError, UnauthorizedError } from "../utils/errors";
 
@@ -169,9 +169,9 @@ export const getPassengerStats = asyncHandler(
 
         if (!passengerId) throw new UnauthorizedError("Passenger ID is required");
 
-        const stats = await passengerService.getPassengerStats(passengerId);
+        const stats : PassengerStatsDTO = await passengerService.getPassengerStats(passengerId);
 
-        return successResponse<any>(
+        return successResponse<PassengerStatsDTO>(
             res,
             "Passenger stats retrieved successfully",
             stats

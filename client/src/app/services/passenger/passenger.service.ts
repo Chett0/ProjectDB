@@ -26,7 +26,7 @@ export class PassengerService {
         data: this.passengerCache 
       });
     }
-    return this.http.get<Response<PassengerInfo>>(`${enviroment.apiUrl}/passengers/me`).pipe(
+    return this.http.get<Response<PassengerInfo>>(`${enviroment.apiUrl}/v1/passenger/me`).pipe(
       tap(res => {
         if(res.success){
           this.passengerCache = res.data || null;
@@ -37,7 +37,7 @@ export class PassengerService {
   }
 
   updatePassenger(data: Partial<PassengerInfo>): Observable<Response<PassengerInfo>> {
-    return this.http.put<Response<PassengerInfo>>(`${enviroment.apiUrl}/passengers`, data).pipe(
+    return this.http.put<Response<PassengerInfo>>(`${enviroment.apiUrl}/v1/passenger`, data).pipe(
       tap(res => {
         if (res.success && res.data) {
           this.passengerCache = res.data;
@@ -48,7 +48,7 @@ export class PassengerService {
   }
 
   getPassengerStats(): Observable<Response<{ totalFlights: number; flightHours: { hours: number; minutes: number }; moneySpent: number }>> {
-    return this.http.get<Response<{ totalFlights: number; flightHours: { hours: number; minutes: number }; moneySpent: number }>>(`${enviroment.apiUrl}/passengers/me/stats`);
+    return this.http.get<Response<{ totalFlights: number; flightHours: { hours: number; minutes: number }; moneySpent: number }>>(`${enviroment.apiUrl}/v1/passenger/dashboard_stats`);
   }
 
   clearPassengerCache() {

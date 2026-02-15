@@ -14,11 +14,11 @@ export class SeatsService {
   constructor(private http: HttpClient) { }
 
   getSeats(flightId: number): Observable<Response<SeatInfo[]>> {
-    return this.http.get<Response<SeatInfo[]>>(`${enviroment.apiUrl}/flights/${flightId}/seats`);
+    return this.http.get<Response<SeatInfo[]>>(`${enviroment.apiUrl}/v1/flights/${flightId}/seats`);
   }
 
   createSeatSession(seatId: number): Observable<Response<void>> {
-    return this.http.post<Response<void>>(`${enviroment.apiUrl}/passengers/seats/${seatId}/session`, {});
+    return this.http.post<Response<void>>(`${enviroment.apiUrl}/v1/passenger/seats/${seatId}/session`, {});
   }
 
 }

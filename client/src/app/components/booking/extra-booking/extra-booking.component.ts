@@ -4,7 +4,7 @@ import { Extra } from '../../../../types/users/airlines';
 import { CreateTicket, Flight, Journeys, SeatInfo } from '../../../../types/flights/flights';
 import { Response } from '../../../../types/responses/responses';
 import { TicketService } from '../../../services/ticket/ticket.service';
-import { ExtrasService } from '../../../services/airlines/extras.service';
+import { ExtraService } from '../../../services/airlines/extras.service';
 import { HeaderComponent } from '../../header/header.component';
 import { CommonModule } from '@angular/common';
 import { TicketBookingService } from '../../../services/ticket-booking/ticket-booking.service';
@@ -25,7 +25,7 @@ export class ExtraBookingComponent implements OnInit{
   constructor(
     private ticketService: TicketService,
     private bookingService: TicketBookingService,  
-    private extrasService: ExtrasService,
+    private extrasService: ExtraService,
     private router: Router
   ) { }
 

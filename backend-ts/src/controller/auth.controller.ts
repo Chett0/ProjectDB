@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import * as authService from "../services/auth.service";
 import { User, UserAirline, UserPassenger, UserRole } from "../types/auth.types";
 import { successResponse } from "../utils/helpers/response.helper";
-import { AdminDTO, AirlineUserDTO, LoginResponseDTO, PassengerDTO } from "../dtos/user.dto";
+import { AdminDTO, AirlineUserDTO, LoginResponseDTO, PassengerDTO, RefreshTokenResponseDTO } from "../dtos/user.dto";
 import { asyncHandler } from "../utils/helpers/asyncHandler.helper";
 import { BadRequestError, UnauthorizedError } from "../utils/errors";
 import { UserInfo } from "../types/auth.types";
@@ -153,9 +153,9 @@ export const refreshToken = asyncHandler(
 
         const refreshToken : string = req.cookies.jwt;
 
-        const refreshResponse = await authService.refreshToken(refreshToken);
+        const refreshResponse : RefreshTokenResponseDTO = await authService.refreshToken(refreshToken);
 
-        return successResponse<any>(
+        return successResponse<RefreshTokenResponseDTO>(
             res,
             "Token refreshed successful",
             refreshResponse

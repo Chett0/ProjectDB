@@ -26,7 +26,7 @@ export class AuthService {
   }
 
   login(user : UserLogin) {
-    return this.http.post<Response<AuthResp>>(`${enviroment.apiUrl}/auth/login`, user, { withCredentials: true })
+    return this.http.post<Response<AuthResp>>(`${enviroment.apiUrl}/v1/auth/login`, user, { withCredentials: true })
     .pipe(
       tap((response: Response<AuthResp>) => {
         //only access token
@@ -46,11 +46,11 @@ export class AuthService {
   }
 
   registerPassenger(passenger : PassengerAsUser) {
-    return this.http.post<Response<void>>(`${enviroment.apiUrl}/auth/passengers/register`, passenger);
+    return this.http.post<Response<void>>(`${enviroment.apiUrl}/v1/auth/passengers/register`, passenger);
   }
 
   registerAirline(airline: AirlineAsUser) {
-    return this.http.post<Response<CreatedAirline>>(`${enviroment.apiUrl}/auth/airlines/register`, airline);
+    return this.http.post<Response<CreatedAirline>>(`${enviroment.apiUrl}/v1/auth/airlines/register`, airline);
   }
 
   getAccessToken(): string | null {
@@ -72,15 +72,15 @@ export class AuthService {
   }
 
   changePassword(data: { email: string; oldPassword: string; newPassword: string }) {
-    return this.http.put<void>(`${enviroment.apiUrl}/users/password`, data);
+    return this.http.put<void>(`${enviroment.apiUrl}/v1/users/password`, data);
   }
 
   deleteUserByEmail(email: string) {
-    return this.http.delete<Response<any>>(`${enviroment.apiUrl}/users/${encodeURIComponent(email)}`);
+    return this.http.delete<Response<any>>(`${enviroment.apiUrl}/v1/users/${encodeURIComponent(email)}`);
   }
 
   reactivateUserByEmail(email: string) {
-    return this.http.patch<Response<any>>(`${enviroment.apiUrl}/users/${encodeURIComponent(email)}/activate`, {});
+    return this.http.patch<Response<any>>(`${enviroment.apiUrl}/v1/users/${encodeURIComponent(email)}`, {});
   }
 
   static clearRedirectPath() {

@@ -13,6 +13,7 @@ import { FooterComponent } from '../../footer/footer.component';
 import { AirlineDashBoard } from '../../../../types/users/airlines';
 import { AirlineDashboardComponent } from '../airline-dashboard/airline-dashboard.component';
 import { HeaderComponent } from '../../header/header.component';
+import { ExtraService } from '../../../services/airlines/extras.service';
 
 @Component({
   selector: 'app-airlines-home',
@@ -33,9 +34,10 @@ export class AirlinesHomeComponent implements OnInit{
   totalFlights: number = 0;
   totalPassengers: number = 0;
   constructor(
-  private airlinesService : AirlinesService,
-  private aircraftsService: AircraftsService,
-  private routesService: RoutesService,
+    private airlinesService : AirlinesService,
+    private extraService: ExtraService,
+    private aircraftsService: AircraftsService,
+    private routesService: RoutesService,
     private router : Router,
     private route : ActivatedRoute,
     private authService: AuthService
@@ -90,7 +92,7 @@ export class AirlinesHomeComponent implements OnInit{
     if (!confirmed) return;
     this.aircraftsService.clearCache();
     this.routesService.clearCache();
-    this.airlinesService.clearExtrasCache();
+    this.extraService.clearExtrasCache();
     this.airlinesService.clearFlightsCache();
     this.authService.logout();
     this.router.navigate(['/login']);
