@@ -30,12 +30,6 @@ export class TicketBookingComponent {
   passenger! : PassengerInfo;
   flightTickets: { [key: number]: any } = {};
   flightIds: number[] = [];
-  ticketColors: Record<string, string> = {
-    'Economy': 'lightblue',
-    'Business': 'gold',
-    'First Class': 'purple',
-    'Premium': 'red'
-  };
 
   constructor(
     private route: ActivatedRoute,
@@ -171,8 +165,14 @@ export class TicketBookingComponent {
 
   getTotal(): number {
     let total = 0;
+    if (!this.journey || !this.journey.flights) return 0;
     this.journey.flights.forEach(flight => {
-      total += flight.basePrice;
+      const fid = flight.id;
+      if (this.flightTickets[fid]) {
+        total += Number(this.calculateTotal(fid)) || 0;
+      } else {
+        total += Number(flight.basePrice) || 0;
+      }
     });
     return total;
   }
@@ -187,7 +187,7 @@ export class TicketBookingComponent {
     if (!flightData || !flightData.flight) return 0;
 
     const basePrice = Number(flightData.flight.basePrice) || 0;
-    const multiplier = flightData.selectedSeat && (flightData.selectedSeat as any).aircraftClass ? Number((flightData.selectedSeat as any).aircraftClass.priceMultiplier) : 1;
+    const multiplier = flightData.selectedSeat && (flightData.selectedSeat as SeatInfo).class ? Number((flightData.selectedSeat as SeatInfo).class.priceMultiplier) : 1;
 
     const extrasTotal = (flightData.extras || [])
       .filter((e: any) => (flightData.selectedExtras || []).includes(e.id))

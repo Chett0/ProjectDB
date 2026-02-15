@@ -46,12 +46,12 @@
 
   <div class="total-section">
     <div class="total-row">
-      <span>Totale</span>
-      <span class="total-price">€ {{ getTotal() | number:'1.2-2' }}</span>
+      <span>A partire da</span>
+      <span class="total-price">€{{ getTotal() | number:'1.2-2' }}</span>
     </div>
 
     <button class="confirm-btn" (click)="confirmPurchase()">
-      Conferma Acquisto
+      Procedi con l'acquisto
     </button>
   </div>
 
