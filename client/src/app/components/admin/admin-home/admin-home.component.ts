@@ -24,8 +24,13 @@ export class AdminHomeComponent implements OnInit {
   airlineEmail = '';
   airlinePassword = '';
   airlineConfirmPassword = '';
-  feedbackMsg = '';
-  feedbackType: 'success' | 'error' | '' = '';
+
+  addFeedbackMsg = '';
+  addFeedbackType: 'success' | 'error' | '' = '';
+  userFeedbackMsg = '';
+  userFeedbackType: 'success' | 'error' | '' = '';
+  
+  searchQuery = '';
   activeTab: any = 0;
   airlines: Airline[] = [];
   deleteEmail: string = '';
@@ -61,11 +66,11 @@ export class AdminHomeComponent implements OnInit {
   }
 
   addAirline() {
-    this.feedbackMsg = '';
-    this.feedbackType = '';
+    this.addFeedbackMsg = '';
+    this.addFeedbackType = '';
     if (!this.airlineName || !this.airlineCode || !this.airlineEmail) {
-      this.feedbackMsg = 'Compila tutti i campi.';
-      this.feedbackType = 'error';
+      this.addFeedbackMsg = 'Compila tutti i campi.';
+      this.addFeedbackType = 'error';
       return;
     }
     const airline : AirlineAsUser = {
@@ -79,8 +84,8 @@ export class AdminHomeComponent implements OnInit {
         if (res && res.data && res.data.user) {
           passwordMsg = `\nPassword temporanea: ${res.data.user.password}`;
         }
-        this.feedbackMsg = 'Compagnia aggiunta!' + passwordMsg;
-        this.feedbackType = 'success';
+        this.addFeedbackMsg = 'Compagnia aggiunta!' + passwordMsg;
+        this.addFeedbackType = 'success';
         this.airlineName = '';
         this.airlineCode = '';
         this.airlineEmail = '';
@@ -90,22 +95,18 @@ export class AdminHomeComponent implements OnInit {
         }
       },
       error: (err) => {
-        if (err && err.status === 409) {
-          this.feedbackMsg = 'Email già in uso.';
-        } else {
-          this.feedbackMsg = 'Errore durante la registrazione.';
-        }
-        this.feedbackType = 'error';
+        this.addFeedbackMsg = err && err.status === 409 ? 'Email già in uso.' : 'Errore durante la registrazione.';
+        this.addFeedbackType = 'error';
       }
     });
   }
 
   deleteUserByEmail() {
-    this.feedbackMsg = '';
-    this.feedbackType = '';
+    this.userFeedbackMsg = '';
+    this.userFeedbackType = '';
     if (!this.deleteEmail) {
-      this.feedbackMsg = 'Inserisci un email.';
-      this.feedbackType = 'error';
+      this.userFeedbackMsg = 'Inserisci un email.';
+      this.userFeedbackType = 'error';
       return;
     }
 
@@ -114,27 +115,23 @@ export class AdminHomeComponent implements OnInit {
 
     this.authService.deleteUserByEmail(this.deleteEmail).subscribe({
       next: (res: Response<any>) => {
-        this.feedbackMsg = 'Utente eliminato con successo.';
-        this.feedbackType = 'success';
+        this.userFeedbackMsg = 'Utente eliminato con successo.';
+        this.userFeedbackType = 'success';
         this.deleteEmail = '';
       },
       error: (err) => {
-        if (err && err.status === 404) {
-          this.feedbackMsg = 'Utente non trovato.';
-        } else {
-          this.feedbackMsg = 'Errore durante l\'eliminazione.';
-        }
-        this.feedbackType = 'error';
+        this.userFeedbackMsg = err && err.status === 404 ? 'Utente non trovato.' : 'Errore durante l\'eliminazione.';
+        this.userFeedbackType = 'error';
       }
     });
   }
 
   reactivateUserByEmail() {
-    this.feedbackMsg = '';
-    this.feedbackType = '';
+    this.userFeedbackMsg = '';
+    this.userFeedbackType = '';
     if (!this.deleteEmail) {
-      this.feedbackMsg = 'Inserisci un email.';
-      this.feedbackType = 'error';
+      this.userFeedbackMsg = 'Inserisci un email.';
+      this.userFeedbackType = 'error';
       return;
     }
 
@@ -143,18 +140,24 @@ export class AdminHomeComponent implements OnInit {
 
     this.authService.reactivateUserByEmail(this.deleteEmail).subscribe({
       next: (res: Response<any>) => {
-        this.feedbackMsg = 'Utente riattivato con successo.';
-        this.feedbackType = 'success';
+        this.userFeedbackMsg = 'Utente riattivato con successo.';
+        this.userFeedbackType = 'success';
         this.deleteEmail = '';
       },
       error: (err) => {
-        if (err && err.status === 404) {
-          this.feedbackMsg = 'Utente non trovato.';
-        } else {
-          this.feedbackMsg = 'Errore durante la riattivazione.';
-        }
-        this.feedbackType = 'error';
+        this.userFeedbackMsg = err && err.status === 404 ? 'Utente non trovato.' : 'Errore durante la riattivazione.';
+        this.userFeedbackType = 'error';
       }
+    });
+  }
+
+  get filteredAirlines(): Airline[] {
+    const q = this.searchQuery ? this.searchQuery.trim().toLowerCase() : '';
+    if (!q) return this.airlines;
+    return this.airlines.filter(a => {
+      const name = (a.name || '').toLowerCase();
+      const code = (a.code || '').toLowerCase();
+      return name.includes(q) || code.includes(q);
     });
   }
 

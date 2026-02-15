@@ -20,12 +20,12 @@
         <div class="companies-header">
           <h3 *ngIf="activeTab===0 || activeTab===1">Compagnie Aeree Registrate</h3>
           <h3 *ngIf="activeTab===2">Gestione Utenti</h3>
-          <input *ngIf="activeTab===0" class="search" placeholder="Cerca compagnia..." />
+          <input *ngIf="activeTab===0" class="search" placeholder="Cerca compagnia..." [(ngModel)]="searchQuery" />
         </div>
 
         <!-- compagnie -->
         <ul class="company-list" *ngIf="activeTab===0">
-          <li class="company-item" *ngFor="let airline of airlines">
+          <li class="company-item" *ngFor="let airline of filteredAirlines">
             <div class="logo-pill">{{ airline.code ? airline.code : (airline.name ? (airline.name | slice:0:2 | uppercase) : '--') }}</div>
             <div class="company-info">
               <div class="name">{{ airline.name }}</div>
@@ -57,7 +57,7 @@
 
           <div class="form-actions">
             <button class="btn" (click)="addAirline()"><span style="margin-right:8px">+</span> Aggiungi Compagnia</button>
-            <div class="feedback" *ngIf="feedbackMsg" [class.error]="feedbackType==='error'" [class.success]="feedbackType==='success'">{{feedbackMsg}}</div>
+            <div class="feedback" *ngIf="addFeedbackMsg" [class.error]="addFeedbackType==='error'" [class.success]="addFeedbackType==='success'">{{addFeedbackMsg}}</div>
           </div>
         </div>
 
@@ -74,7 +74,7 @@
           <div class="form-actions">
             <button class="btn danger" (click)="deleteUserByEmail()">Elimina Utente</button>
             <button class="btn" style="margin-left:8px" (click)="reactivateUserByEmail()">Riattiva Utente</button>
-            <div class="feedback" *ngIf="feedbackMsg" [class.error]="feedbackType==='error'" [class.success]="feedbackType==='success'">{{feedbackMsg}}</div>
+            <div class="feedback" *ngIf="userFeedbackMsg" [class.error]="userFeedbackType==='error'" [class.success]="userFeedbackType==='success'">{{userFeedbackMsg}}</div>
           </div>
         </div>
 
