@@ -3,31 +3,45 @@
 
   <main class="body">
 
-      <!-- serve per iterare su tutti i voli presenti in base agli scali-->
-    <div *ngFor="let flight of journey.flights">
-        <h2 class="title">Seleziona i posti per il volo {{ flight.aircraft.airline.name }} ({{ flight.aircraft.airline.code }})</h2>
+    <div class="flights-grid">
+      <div class="flight-card" *ngFor="let flight of journey.flights; let i = index">
+        <h2 class="title">
+          {{ i === 0 ? 'Primo volo' : i === 1 ? 'Secondo volo' : ('Volo ' + (i + 1)) }} -
+          {{ flight.aircraft.airline.name }} ({{ flight.aircraft.airline.code }})
+        </h2>
 
-        <div 
-    *ngFor="let extra of extras.get(flight.id)"
-    class="extra-card"
-    [class.selected]="isExtraSelected(flight, extra)"
-    (click)="toggleExtra(flight, extra)"
-  >
-    <div class="extra-info">
-      <span class="name">{{ extra.name }}</span>
-      <span class="price">+{{ extra.price }}€</span>
+        <div class="extras-options">
+          <div 
+            *ngFor="let extra of extras.get(flight.id)"
+            class="extra-card"
+            [class.selected]="isExtraSelected(flight, extra)"
+            (click)="toggleExtra(flight, extra)"
+          >
+            <div class="extra-info">
+              <span class="name">{{ extra.name }}</span>
+              <span class="price">+{{ extra.price }}€</span>
+            </div>
+
+            <div class="checkmark" *ngIf="isExtraSelected(flight, extra)">
+              ✓
+            </div>
+          </div>
+        </div>
+        <div class="flight-total">
+          <strong>Subtotale volo:</strong>
+          <span>€ {{ getFlightTotal(flight) | number:'1.2-2' }}</span>
+        </div>
+      </div>
     </div>
 
-    <!-- ✔ ICONA -->
-    <div class="checkmark" *ngIf="isExtraSelected(flight, extra)">
-      ✓
+    <div class="total-summary">
+      <div class="total-label">Totale da pagare:</div>
+      <div class="total-amount">€ {{ getTotal() | number:'1.2-2' }}</div>
     </div>
-  </div>
-    </div>  
 
     <button class="confirm-btn" (click)="confirmBooking()">
-      Confirm
+      Conferma extra
     </button>
 
-    </main>
+  </main>
 </div>
