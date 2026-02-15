@@ -12,21 +12,27 @@ import { AirlinesService } from './airlines.service';
 })
 export class AircraftsService {
   private aircraftsCache: AircraftWithClasses[] | null = null;
+  private aircraftsCacheTimestamp: number | null = null;
+  private readonly cacheTTL = 2 * 60 * 1000; // 2 minutes
 
   constructor(private http : HttpClient, private airlinesService: AirlinesService) { }
 
-  getAircrafts(): Observable<Response<AircraftWithClasses[]>> {
-    if (this.aircraftsCache) {
+  getAircrafts(forceRefresh = false): Observable<Response<AircraftWithClasses[]>> {
+    const now = Date.now();
+    if (!forceRefresh && this.aircraftsCache && this.aircraftsCacheTimestamp && (now - this.aircraftsCacheTimestamp < this.cacheTTL)) {
       return of({
         success: true,
         message: 'Cached aircrafts',
         data: this.aircraftsCache
       });
     }
+
     return this.http.get<Response<AircraftWithClasses[]>>(`${enviroment.apiUrl}/airlines/aircrafts`).pipe(
       tap(res => {
-        if(res.success)
+        if(res.success) {
           this.aircraftsCache = res.data || [];
+          this.aircraftsCacheTimestamp = Date.now();
+        }
       })
     );
   }
@@ -38,6 +44,7 @@ export class AircraftsService {
           if(!this.aircraftsCache)
             this.aircraftsCache = [];
           this.aircraftsCache.push(res.data);
+          this.aircraftsCacheTimestamp = Date.now();
         } 
       })
     );
@@ -48,11 +55,13 @@ export class AircraftsService {
       tap((res: Response<void>) => {
         if(res.success)
           this.airlinesService.clearFlightsCache();
+          this.clearAircraftsCache();
       })
     );
   }
 
-  clearCache(){
+  clearAircraftsCache(){
     this.aircraftsCache = null;
+    this.aircraftsCacheTimestamp = null;
   }
 }

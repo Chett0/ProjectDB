@@ -11,6 +11,7 @@ import { PassengerInfo } from '../../../types/users/passenger';
 import { AirlinesService } from '../../services/airlines/airlines.service';
 import { AircraftsService } from '../../services/airlines/aircrafts.service';
 import { RoutesService } from '../../services/airlines/routes.service';
+import { ExtrasService } from '../../services/airlines/extras.service';
 
 @Component({
   selector: 'app-header',
@@ -35,7 +36,8 @@ export class HeaderComponent implements OnInit {
     private ticketBookingService: TicketBookingService,
     private airlineService: AirlinesService,
     private aircraftsService: AircraftsService,
-    private routesService: RoutesService
+    private routesService: RoutesService,
+    private extrasService: ExtrasService
   ) {}
   
   ngOnInit(): void {
@@ -96,10 +98,10 @@ export class HeaderComponent implements OnInit {
       this.passengerService.clearPassengerCache();
       this.ticketBookingService.clearTicketsCache();
     } else if(this.userRole === UserRole.AIRLINE){
-      this.airlineService.clearExtrasCache();
+      this.extrasService.clearExtrasCache();
       this.airlineService.clearFlightsCache();
-      this.routesService.clearCache();
-      this.aircraftsService.clearCache();
+      this.routesService.clearRoutesCache();
+      this.aircraftsService.clearAircraftsCache();
     }
     //admin doesn't have any cache to delete (?)
 
