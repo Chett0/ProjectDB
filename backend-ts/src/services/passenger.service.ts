@@ -1,4 +1,4 @@
-import { bookingstate, extras, flights, seats, seatstate, tickets } from '@prisma/client';
+import { bookingstate, extras, flights, seats, seat_holds, seatstate, tickets } from '@prisma/client';
 import prisma from "../config/db";
 import { ExtraDTO } from "../dtos/airline.dto";
 import { FullTicketInfo, PassengerUser, Ticket, UserPassengerInfo } from "../types/passenger.types";
@@ -195,7 +195,7 @@ export const createSeatSession =  async (
 
     await prisma.$transaction(async (tx) => {
 
-        const seatSession : any = await (tx as any).seat_holds.findFirst({
+        const seatSession : seat_holds | null = await tx.seat_holds.findFirst({
             where: {
                 seat_id: seatId,
                 expires_at: {
@@ -207,7 +207,7 @@ export const createSeatSession =  async (
         if(seatSession)
             throw new ConflictError("Seat is currently held by another user");
 
-        await (tx as any).seat_holds.create({
+        await tx.seat_holds.create({
             data : {
                 user_id: passengerId,
                 seat_id: seatId,
