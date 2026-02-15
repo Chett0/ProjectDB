@@ -68,7 +68,18 @@ export class PassengersComponent {
       if(passengerData){
         if(passengerData.passengerResponse && passengerData.passengerResponse.success && passengerData.passengerResponse.data)
           this.passenger = passengerData.passengerResponse.data;
-        this.loadTickets(this.ticketsPage);
+
+        
+        if (passengerData.tickets) {
+          const payload = passengerData.tickets?.data ? passengerData.tickets.data : passengerData.tickets;
+          this.tickets = payload?.tickets || [];
+          this.ticketsTotal = payload?.total || 0;
+          this.ticketsPage = payload?.page || this.ticketsPage;
+          this.ticketsLimit = payload?.limit || this.ticketsLimit;
+        } else {
+          this.loadTickets(this.ticketsPage);
+        }
+
         // load passenger stats
         this.passengerService.getPassengerStats().subscribe({
           next: (res: any) => {

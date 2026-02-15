@@ -12,8 +12,7 @@ export class AdminResolver implements Resolve<AdminResolverResponse> {
 
   resolve(): Observable<AdminResolverResponse> {
     return forkJoin({
-      airlinesResponse: this.airlinesService.getAllAirlines().pipe(),
-      dashboardResponse : this.airlinesService.getAdminDashboardStats().pipe()
+      airlinesResponse: this.airlinesService.getAllAirlines().pipe()
     });
   }
 }

@@ -6,7 +6,6 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { FooterComponent } from '../../footer/footer.component';
-import { AdminDashboard } from '../../../../types/users/admin';
 import { Airline, AirlineAsUser } from '../../../../types/users/airlines';
 import { Response } from '../../../../types/responses/responses';
 import { CreatedAirline } from '../../../../types/users/auth';
@@ -35,12 +34,7 @@ export class AdminHomeComponent implements OnInit {
   airlines: Airline[] = [];
   deleteEmail: string = '';
 
-  dashboardStats : AdminDashboard = {
-    passengersCount: 0,
-    airlinesCount: 0,
-    activeRoutesCount: 0,
-    flightsCount: 0
-  }
+
 
   constructor(
     private authService: AuthService,
@@ -60,7 +54,6 @@ export class AdminHomeComponent implements OnInit {
     this.route.data.subscribe(({ adminData }) => {
       if(adminData){
         this.airlines = adminData.airlinesResponse.data || [];
-        this.dashboardStats = adminData.dashboardResponse.data;
       }
     });
   }
@@ -91,7 +84,6 @@ export class AdminHomeComponent implements OnInit {
         this.airlineEmail = '';
         if (res && res.data && res.data.airline) {
           this.airlines = [...this.airlines, res.data.airline];
-          this.dashboardStats.airlinesCount++;
         }
       },
       error: (err) => {

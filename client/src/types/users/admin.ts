@@ -11,5 +11,4 @@ export interface AdminDashboard {
 
 export interface AdminResolverResponse {
     airlinesResponse: Response<Airline[]>;
-    dashboardResponse: Response<AdminDashboard>;
 }
