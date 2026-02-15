@@ -3,6 +3,7 @@
 
   <main class="body">
 
+    @if (journey !== null) {  
     <div class="flights-grid">
       <div class="flight-card" *ngFor="let flight of journey.flights; let i = index">
         <h2 class="title">
@@ -56,6 +57,7 @@
         </div>
       </div>
     </div>
+  }
 
     <button class="confirm-btn" (click)="confirmSeats()">
       Confirm

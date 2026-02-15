@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ExtrasService } from '../../../services/airlines/extras.service';
 import { ActivatedRoute } from '@angular/router';
 import { Extra } from '../../../../types/users/airlines';
 import { Response } from '../../../../types/responses/responses';
@@ -27,8 +26,8 @@ export class ExtraComponent implements OnInit {
   error: string | null = null;
 
   constructor(
-    private airlinesService: AirlinesService,
-    private extraService: ExtraService
+    private extraService: ExtraService,
+    private route: ActivatedRoute
   ) {
     this.searchControl.valueChanges.subscribe(() => {
       this.applySearch();
@@ -51,7 +50,7 @@ export class ExtraComponent implements OnInit {
 
   fetchExtras() {
     this.loading = true;
-    this.extraService.getAirlineExtras().subscribe({
+    this.extraService.getExtras().subscribe({
       next: (res : Response<Extra[]>) => {
         this.extras = res.data || [];
         this.applySearch();

@@ -37,8 +37,7 @@ export class HeaderComponent implements OnInit {
     private airlineService: AirlinesService,
     private extraService: ExtraService,
     private aircraftsService: AircraftsService,
-    private routesService: RoutesService,
-    private extrasService: ExtrasService
+    private routesService: RoutesService
   ) {}
   
   ngOnInit(): void {

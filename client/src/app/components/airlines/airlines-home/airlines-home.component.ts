@@ -87,17 +87,6 @@ export class AirlinesHomeComponent implements OnInit{
     this.router.navigate([route], { relativeTo: this.route });
   }
 
-  onLogout() {
-    const confirmed = confirm('Sei sicuro di voler effettuare il logout?');
-    if (!confirmed) return;
-    this.aircraftsService.clearCache();
-    this.routesService.clearCache();
-    this.extraService.clearExtrasCache();
-    this.airlinesService.clearFlightsCache();
-    this.authService.logout();
-    this.router.navigate(['/login']);
-  }
-
   setTab(index: number) {
     this.activeTab = index;
   }

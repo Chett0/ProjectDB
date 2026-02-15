@@ -8,7 +8,7 @@ import { asyncHandler } from "../utils/helpers/asyncHandler.helper";
 import { UnauthorizedError } from "../utils/errors";
 
 
-/*export const getAdminDashboardStats = asyncHandler(
+export const getAdminDashboardStats = asyncHandler(
     async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
 
         const adminId : number | null = req.user!.id;
@@ -35,7 +35,6 @@ import { UnauthorizedError } from "../utils/errors";
         );
     }
 );
-*/
 
 export const getAllAirlines = asyncHandler(
     async(req : AuthenticatedRequest, res : Response): Promise<Response> => {

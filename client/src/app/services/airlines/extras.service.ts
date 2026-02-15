@@ -16,27 +16,32 @@ export class ExtraService {
 
   constructor(private http: HttpClient) {}
 
-  getExtras(airlineId : number): Observable<Response<Extra[]>> {
-    return this.http.get<Response<Extra[]>>(`${enviroment.apiUrl}/v1/airlines/${airlineId}/extras`);
+  createExtra(extra: CreateExtra): Observable<Response<Extra>> {
+    this.clearExtrasCache();
+    return this.http.post<Response<Extra>>(`${enviroment.apiUrl}/v1/airline/extras`, extra).pipe(
+      tap((res: Response<Extra>) => {
+        if (res && res.data) {
+          if (!this.extrasCache) this.extrasCache = [];
+          this.extrasCache.push(res.data);
+          this.extrasCacheTimestamp = Date.now();
+        }
+      })
+    );
   }
 
-  createExtra(extra: CreateExtra) {
-    this.extrasCache = null;
-    this.extrasCacheTimestamp = null;
-    return this.http.post<Response<Extra>>(`${enviroment.apiUrl}/v1/airline/extras`, extra);
-  }
-
-  getAirlineExtras(forceRefresh = false): Observable<Response<Extra[]>> {
+  getExtras(airlineId?: number, forceRefresh = false): Observable<Response<Extra[]>> {
     const now = Date.now();
     if (!forceRefresh && this.extrasCache && this.extrasCacheTimestamp && (now - this.extrasCacheTimestamp < this.cacheTTL)) {
-      return of({ 
+      return of({
         success: true,
-        message: 'Extras retrieved successfully (cache)', 
-        data: this.extrasCache 
+        message: 'Extras retrieved successfully (cache)',
+        data: this.extrasCache
       });
     }
-    return this.http.get<Response<Extra[]>>(`${enviroment.apiUrl}/v1/airline/extras`).pipe(
-      tap((res : Response<Extra[]>) => {
+
+    const url = airlineId ? `${enviroment.apiUrl}/v1/airlines/${airlineId}/extras` : `${enviroment.apiUrl}/v1/airline/extras`;
+    return this.http.get<Response<Extra[]>>(url).pipe(
+      tap((res: Response<Extra[]>) => {
         if (res && res.data) {
           this.extrasCache = res.data;
           this.extrasCacheTimestamp = Date.now();
@@ -46,8 +51,7 @@ export class ExtraService {
   }
 
   deleteExtra(extraId: number) {
-    this.extrasCache = null;
-    this.extrasCacheTimestamp = null;
+    this.clearExtrasCache();
     return this.http.delete<Response<void>>(`${enviroment.apiUrl}/v1/airline/extras/${extraId}`);
   }
 

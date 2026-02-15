@@ -13,6 +13,6 @@ export class ClassesService {
   constructor(private http: HttpClient) {}
 
   getClasses(airlineId : number, aircraftId: number): Observable<Response<Class[]>> {
-    return this.http.get<Response<Class[]>>(`${enviroment.apiUrl}/airlines/${airlineId}/aircrafts/${aircraftId}/classes`);
+    return this.http.get<Response<Class[]>>(`${enviroment.apiUrl}/v1/airlines/${airlineId}/aircrafts/${aircraftId}/classes`);
   }
 }

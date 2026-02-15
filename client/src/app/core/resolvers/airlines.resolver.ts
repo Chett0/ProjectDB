@@ -3,7 +3,7 @@ import { Resolve } from '@angular/router';
 import { AirlinesService } from '../../services/airlines/airlines.service';
 import { RoutesService } from '../../services/airlines/routes.service';
 import { AircraftsService } from '../../services/airlines/aircrafts.service';
-import { ExtrasService } from '../../services/airlines/extras.service';
+import { ExtraService } from '../../services/airlines/extras.service';
 import { Observable, forkJoin, of, tap } from 'rxjs';
 import { AirlineResolverResponse } from '../../../types/users/airlines';
 
@@ -13,7 +13,7 @@ export class AirlinesResolver implements Resolve<AirlineResolverResponse> {
     private airlinesService: AirlinesService,
     private routesService: RoutesService,
     private aircraftsService: AircraftsService,
-    private extrasService: ExtrasService,
+    private extraService: ExtraService,
   ) {}
 
   resolve(): Observable<AirlineResolverResponse> {
@@ -22,7 +22,7 @@ export class AirlinesResolver implements Resolve<AirlineResolverResponse> {
       routesResponse: this.routesService.getRoutes().pipe(),
       aircraftsResponse: this.aircraftsService.getAircrafts().pipe(),
       flightsResponse: this.airlinesService.getAirlinesFlights(1, 6).pipe(),
-      extrasResponse: this.extrasService.getExtras().pipe()
+      extrasResponse: this.extraService.getExtras().pipe()
     });
   }
 }

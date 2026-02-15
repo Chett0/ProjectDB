@@ -2,7 +2,7 @@ import { airlines } from "@prisma/client";
 import prisma from "../config/db";
 import { AirlineDTO, toAirlineDTO } from "../dtos/user.dto";
 
-/*
+
 export const getActivePassengersCount = async () : Promise<number> => {
     try{
 
@@ -78,7 +78,7 @@ export const getActiveRoutes = async () : Promise<number> => {
         ); 
     }
 };
-*/
+
 
 export const getAllAirlines = async () : Promise<AirlineDTO[]> => {
     const airlines : airlines[] = await prisma.airlines.findMany({
