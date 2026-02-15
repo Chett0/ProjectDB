@@ -301,7 +301,6 @@ router.post('/tickets', passengerController.createTicket);
  *         description: Internal server error
  */
 router.get('/tickets', passengerController.getPassengerTickets);
-//router.get('/tickets/:ticketId', passengerController.getPassengerTicketById);
 
 /**
  * @swagger

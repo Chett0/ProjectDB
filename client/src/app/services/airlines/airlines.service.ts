@@ -4,7 +4,6 @@ import { Injectable } from '@angular/core';
 import { enviroment } from '../../enviroments/enviroments';
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { AdminDashboard } from '../../../types/users/admin';
 import { Response } from '../../../types/responses/responses';
 import { Airline, AirlineDashBoard, CreateExtra, Extra } from '../../../types/users/airlines';
 import { CreateFlight, Flight } from '../../../types/flights/flights';
@@ -34,10 +33,6 @@ export class AirlinesService {
 
   getDashboardStats() {
     return this.http.get<Response<AirlineDashBoard>>(`${enviroment.apiUrl}/v1/airline/dashboard_stats`);
-  }
-
-  getAdminDashboardStats() {
-    return this.http.get<Response<AdminDashboard>>(`${enviroment.apiUrl}/v1/admin/dashboard_stats`);
   }
 
   createFlight(newFlight: CreateFlight) : Observable<Response<Flight>> {

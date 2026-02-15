@@ -169,25 +169,6 @@ export const getPassengerTickets = async (
     }
 };
 
-/*
-export const getPassengerTicketById =  async (
-    passengerId: number,
-    ticketId: number
-): Promise<tickets> => {
-        
-    const ticket : tickets | null = await prisma.tickets.findFirst({
-        where: {
-            id: ticketId,
-            passenger_id: passengerId
-        }
-    });
-
-    if(!ticket)
-        throw new NotFoundError("Ticket not found");
-
-    return ticket;
-};*/
-
 export const createSeatSession =  async (
     passengerId: number,
     seatId: number

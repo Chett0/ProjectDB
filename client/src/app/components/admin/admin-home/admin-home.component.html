@@ -6,6 +6,25 @@
       <p class="subtitle">Gestisci compagnie aeree e monitora le performance del sistema</p>
     </section>
 
+    <section class="stats">
+			<div class="stat-card">
+				<small>Compagnie Aeree</small>
+				<div class="big">{{ dashboardStats ? dashboardStats.airlinesCount : 'N/A' }}</div>
+			</div>
+			<div class="stat-card">
+				<small>Passeggeri Totali</small>
+				<div class="big">{{ dashboardStats ? dashboardStats.passengersCount : 'N/A' }}</div>
+				</div>
+			<div class="stat-card">
+				<small>Voli Totali</small>
+				<div class="big">{{ dashboardStats ? dashboardStats.flightsCount : 'N/A' }}</div>
+			</div>
+			<div class="stat-card">
+				<small>Numero Tratte</small>
+				<div class="big">{{ dashboardStats ? dashboardStats.activeRoutesCount : 'N/A' }}</div>
+			</div>
+		</section>
+
     <section class="controls">
       <div class="tabs" [style.position]="'relative'">
         <div class="tabs-indicator" [ngStyle]="{ left: (activeTab * 33.3333) + '%', width: '33.3333%' }"></div>

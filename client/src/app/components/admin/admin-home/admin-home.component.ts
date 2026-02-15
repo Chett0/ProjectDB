@@ -10,6 +10,8 @@ import { Airline, AirlineAsUser } from '../../../../types/users/airlines';
 import { Response } from '../../../../types/responses/responses';
 import { CreatedAirline } from '../../../../types/users/auth';
 import { HeaderComponent } from '../../header/header.component';
+import { AdminService } from '../../../services/admin/admin.service';
+import { AdminDashboard } from '../../../../types/users/admin';
 
 @Component({
   selector: 'app-admin-home',
@@ -34,6 +36,8 @@ export class AdminHomeComponent implements OnInit {
   airlines: Airline[] = [];
   deleteEmail: string = '';
 
+  dashboardStats: AdminDashboard | null = null;
+
 
 
   constructor(
@@ -47,6 +51,7 @@ export class AdminHomeComponent implements OnInit {
     this.route.data.subscribe(({ adminData }) => {
       if(adminData){
         this.airlines = adminData.airlinesResponse.data || [];
+        this.dashboardStats = adminData.dashbboardStatsResponse.data || null;
       }
     });
   }
