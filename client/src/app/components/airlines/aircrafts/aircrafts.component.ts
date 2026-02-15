@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AircraftsService } from '../../../services/airlines/aircrafts.service';
@@ -29,10 +30,21 @@ export class AircraftsComponent implements OnInit {
   addSuccess: string | null = null;
   showAddModal = false;
 
-  constructor(private aircraftsService: AircraftsService) {}
+  constructor(private aircraftsService: AircraftsService, private route: ActivatedRoute) {}
 
   ngOnInit() {
-  this.fetchAircrafts();
+    
+    //prefetch aircrafts
+    this.route.data.subscribe(({ airlineData }) => {
+      if (airlineData && airlineData.aircraftsResponse && airlineData.aircraftsResponse.success) {
+        this.aircrafts = airlineData.aircraftsResponse.data || [];
+        this.applyFilter((this.searchControl.value || '').trim().toLowerCase());
+        this.loading = false;
+      } else {
+        this.fetchAircrafts();
+      }
+    });
+
     this.searchControl.valueChanges.subscribe(value => {
       this.applyFilter(String(value || '').trim().toLowerCase());
     });

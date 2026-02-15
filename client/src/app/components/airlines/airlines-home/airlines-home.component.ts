@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, NumberSymbol } from '@angular/common';
-import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
+import { CommonModule} from '@angular/common';
+import { ActivatedRoute, Router} from '@angular/router';
 import { AuthService } from '../../../services/auth/auth.service';
 import { AirlinesService } from '../../../services/airlines/airlines.service';
 import { AircraftsService } from '../../../services/airlines/aircrafts.service';

@@ -11,21 +11,26 @@ import { tap } from 'rxjs/operators';
 })
 export class RoutesService {
   private routesCache: AirlineRoute[] | null = null;
+  private routesCacheTimestamp: number | null = null;
+  private readonly cacheTTL = 2 * 60 * 1000; // 2 minutes
 
   constructor(private http : HttpClient) { }
 
-  getRoutes() : Observable<Response<AirlineRoute[]>> {
-    if (this.routesCache) {
-      return of({ 
+  getRoutes(forceRefresh = false) : Observable<Response<AirlineRoute[]>> {
+    const now = Date.now();
+    if (!forceRefresh && this.routesCache && this.routesCacheTimestamp && (now - this.routesCacheTimestamp < this.cacheTTL)) {
+      return of({
         success: true,
         message: 'Cached routes',
-        data: this.routesCache 
+        data: this.routesCache
       });
     }
     return this.http.get<Response<AirlineRoute[]>>(`${enviroment.apiUrl}/v1/airline/routes`).pipe(
       tap(res => {
-        if(res && res.success)
+        if(res && res.success) {
           this.routesCache = res.data || [];
+          this.routesCacheTimestamp = Date.now();
+        }
       })
     );
   }
@@ -36,8 +41,9 @@ export class RoutesService {
         if(res && res.success && res.data){
           if(!this.routesCache){
             this.routesCache = [];
-          this.routesCache.push(res.data);
+            this.routesCache.push(res.data);
           }
+          this.routesCacheTimestamp = Date.now();
         }
       })
     );
@@ -47,7 +53,8 @@ export class RoutesService {
     return this.http.delete<Response<void>>(`${enviroment.apiUrl}/v1/airline/routes/${routeId}`)
   }
 
-  clearCache(){
+  clearRoutesCache(){
     this.routesCache = null;
+    this.routesCacheTimestamp = null;
   }
 }

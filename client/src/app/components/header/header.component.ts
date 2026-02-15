@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, retry } from 'rxjs';
+import { Observable} from 'rxjs';
 import { AuthService } from '../../services/auth/auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -37,7 +37,8 @@ export class HeaderComponent implements OnInit {
     private airlineService: AirlinesService,
     private extraService: ExtraService,
     private aircraftsService: AircraftsService,
-    private routesService: RoutesService
+    private routesService: RoutesService,
+    private extrasService: ExtrasService
   ) {}
   
   ngOnInit(): void {
@@ -100,8 +101,8 @@ export class HeaderComponent implements OnInit {
     } else if(this.userRole === UserRole.AIRLINE){
       this.extraService.clearExtrasCache();
       this.airlineService.clearFlightsCache();
-      this.routesService.clearCache();
-      this.aircraftsService.clearCache();
+      this.routesService.clearRoutesCache();
+      this.aircraftsService.clearAircraftsCache();
     }
     //admin doesn't have any cache to delete (?)
 

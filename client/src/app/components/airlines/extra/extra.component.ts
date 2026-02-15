@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
-import { AirlinesService } from '../../../services/airlines/airlines.service';
+import { ExtrasService } from '../../../services/airlines/extras.service';
+import { ActivatedRoute } from '@angular/router';
 import { Extra } from '../../../../types/users/airlines';
 import { Response } from '../../../../types/responses/responses';
 import { ExtraService } from '../../../services/airlines/extras.service';
@@ -35,7 +36,16 @@ export class ExtraComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.fetchExtras();
+    // prefetch extras
+    this.route.data.subscribe(({ airlineData }) => {
+      if (airlineData && airlineData.extrasResponse && airlineData.extrasResponse.success) {
+        this.extras = airlineData.extrasResponse.data || [];
+        this.applySearch();
+        this.loading = false;
+      } else {
+        this.fetchExtras();
+      }
+    });
   }
 
 
