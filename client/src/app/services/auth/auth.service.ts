@@ -6,7 +6,7 @@ import { PassengerAsUser } from '../../../types/users/passenger';
 import { BehaviorSubject, tap } from 'rxjs';
 import { enviroment } from '../../enviroments/enviroments';
 import { TokensService } from '../tokens/tokens.service';
-import { Router } from '@angular/router';
+import { Router, RouterStateSnapshot } from '@angular/router';
 import { AuthResp, Response } from '../../../types/responses/responses';
 import { AirlineAsUser } from '../../../types/users/airlines';
 
@@ -88,8 +88,7 @@ export class AuthService {
     AuthService.redirectQuery = null;
   }
 
-  static settingRedirect(state : any) {
-    const router = inject(Router)
+  static settingRedirect(state : RouterStateSnapshot, router: Router) {
     AuthService.redirectPath = state.url.split('?')[0];
     AuthService.redirectQuery = router.parseUrl(state.url).queryParams;
     router.navigate(['/login']);
