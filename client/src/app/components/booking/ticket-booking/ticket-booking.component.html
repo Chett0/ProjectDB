@@ -5,9 +5,10 @@
   <h2 class="title">Riepilogo Prenotazione</h2>
 
   <div class="card" *ngIf="passenger">
-    <h3>Dati Passeggero</h3>
+    <h3 style="text-align: center;">Dati Passeggero</h3>
     <div class="passenger-grid">
-      <div><strong>Nome:</strong> {{ passenger.name }} {{ passenger.surname }}</div>
+      <div><strong>Nome:</strong> {{ passenger.name }} </div>
+      <div><strong>Cognome:</strong> {{ passenger.surname }}</div>
       <div><strong>Email:</strong> {{ passenger.email }}</div>
     </div>
   </div>
@@ -17,6 +18,7 @@
       <span class="airline">
         {{ flight.aircraft.airline.name }} ({{ flight.aircraft.airline.code }})
       </span>
+      <span class="aircraft">{{ flight.aircraft.model }}</span>
       <span class="price">€ {{ flight.basePrice | number:'1.2-2' }}</span>
     </div>
 
@@ -25,7 +27,8 @@
         <div class="airport">
           <div class="code">{{ flight.departureAirport.code }}</div>
           <div>{{ flight.departureAirport.city }}</div>
-          <small>{{ flight.departureTime }}</small>
+          <small>{{ flight.departureTime | date:'dd/MM/yyyy HH:mm' }}</small>
+          <div>{{ flight.departureAirport.name }}</div>
         </div>
 
         <div class="arrow">→</div>
@@ -33,13 +36,9 @@
         <div class="airport">
           <div class="code">{{ flight.arrivalAirport.code }}</div>
           <div>{{ flight.arrivalAirport.city }}</div>
-          <small>{{ flight.arrivalTime }}</small>
+          <small>{{ flight.arrivalTime | date:'dd/MM/yyyy HH:mm' }}</small>
+          <div>{{ flight.arrivalAirport.name }}</div>
         </div>
-      </div>
-
-      <div class="details">
-        <span>Aereo: {{ flight.aircraft.model }}</span>
-        <span>Aeroporti: {{ flight.departureAirport.name }} → {{ flight.arrivalAirport.name }}</span>
       </div>
     </div>
   </div>

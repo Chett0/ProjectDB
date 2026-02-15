@@ -19,9 +19,17 @@
 }
 
 .passenger-grid {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.passenger-grid > div {
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
 }
 
 .flight-header {
@@ -37,6 +45,12 @@
 
 .price {
   font-size: 18px;
+}
+
+.aircraft {
+  font-size: 14px;
+  color: #555;
+  text-align: center;
 }
 
 .flight-body {
@@ -61,7 +75,7 @@
 }
 
 .arrow {
-  font-size: 20px;
+  font-size: 50px;
   color: #888;
 }
 
