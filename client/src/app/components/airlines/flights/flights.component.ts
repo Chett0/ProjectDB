@@ -122,32 +122,84 @@ export class FlightsComponent implements OnInit {
       this.applyRoutesModalFilter(String(value || '').trim().toLowerCase());
     });
 
-    this.aircraftsService.getAircrafts().subscribe({
-      next: (res: Response<AircraftWithClasses[]>) => {
-        if(res.success){
-          this.aircrafts = res.data || [];
-          this.applyAircraftsModalFilter(String(this.modalAircraftSearchControl.value || '').trim().toLowerCase())
+    //use prefetch data if available
+    //aircrafts
+    this.route.data.subscribe(({ airlineData }) => {
+      if (airlineData) {
+        if (airlineData.aircraftsResponse && airlineData.aircraftsResponse.success) {
+          this.aircrafts = airlineData.aircraftsResponse.data || [];
+          this.applyAircraftsModalFilter(String(this.modalAircraftSearchControl.value || '').trim().toLowerCase());
+        } else {
+          this.aircraftsService.getAircrafts().subscribe({
+            next: (res: Response<AircraftWithClasses[]>) => {
+              if(res.success){
+                this.aircrafts = res.data || [];
+                this.applyAircraftsModalFilter(String(this.modalAircraftSearchControl.value || '').trim().toLowerCase())
+              }
+            },
+            error: () => { this.aircrafts = []; this.filteredAircrafts = []; }
+          });
         }
-      },
-      error: (err) => {
-          this.aircrafts = [];
-          this.filteredAircrafts = [];
-      }
-    });
 
-    this.routesService.getRoutes().subscribe({
-      next: (res: Response<AirlineRoute[]>) => {
-        if(res.success){
-          this.routes = res.data || [];
+        //routes
+        if (airlineData.routesResponse && airlineData.routesResponse.success) {
+          this.routes = airlineData.routesResponse.data || [];
           this.applyRoutesModalFilter(String(this.modalRouteSearchControl.value || '').trim().toLowerCase());
+        } else {
+          this.routesService.getRoutes().subscribe({
+            next: (res: Response<AirlineRoute[]>) => {
+              if(res.success){
+                this.routes = res.data || [];
+                this.applyRoutesModalFilter(String(this.modalRouteSearchControl.value || '').trim().toLowerCase());
+              }
+            },
+            error: () => { this.routes = []; }
+          });
         }
-      },
-      error: (err) => {
-        this.routes = [];
+
+
+        //flights
+        if (airlineData.flightsResponse) {
+          const payload = airlineData.flightsResponse?.data ? airlineData.flightsResponse.data : airlineData.flightsResponse;
+          this.flights = payload?.flights || [];
+          this.flightsTotal = payload?.total || 0;
+          this.flightsPage = payload?.page || this.flightsPage;
+          this.flightsLimit = payload?.limit || this.flightsLimit;
+          this.applyCombinedFilters(String(this.searchControl.value || '').trim().toLowerCase());
+          this.loading = false;
+        } else {
+          this.loadFlights(this.flightsPage);
+        }
+
+      } else {
+        this.aircraftsService.getAircrafts().subscribe({
+          next: (res: Response<AircraftWithClasses[]>) => {
+            if(res.success){
+              this.aircrafts = res.data || [];
+              this.applyAircraftsModalFilter(String(this.modalAircraftSearchControl.value || '').trim().toLowerCase())
+            }
+          },
+          error: (err) => {
+              this.aircrafts = [];
+              this.filteredAircrafts = [];
+          }
+        });
+
+        this.routesService.getRoutes().subscribe({
+          next: (res: Response<AirlineRoute[]>) => {
+            if(res.success){
+              this.routes = res.data || [];
+              this.applyRoutesModalFilter(String(this.modalRouteSearchControl.value || '').trim().toLowerCase());
+            }
+          },
+          error: (err) => {
+            this.routes = [];
+          }
+        });
+
+        this.loadFlights(this.flightsPage);
       }
     });
-
-    this.loadFlights(this.flightsPage);
 
     this.searchControl.valueChanges.subscribe(val => {
       const q = String(val || '').trim();

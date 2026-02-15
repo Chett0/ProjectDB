@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RoutesService } from '../../../services/airlines/routes.service';
+import { ActivatedRoute } from '@angular/router';
 import { AirlineRoute, Route } from '../../../../types/users/airlines';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -13,7 +14,7 @@ import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angula
 })
 export class RoutesComponent implements OnInit{
 
-  constructor(private routesService : RoutesService, private router : Router) {}
+  constructor(private routesService : RoutesService, private router : Router, private route: ActivatedRoute) {}
 
   routes : AirlineRoute[] = [];
   filteredRoutes : AirlineRoute[] = [];
@@ -31,7 +32,16 @@ export class RoutesComponent implements OnInit{
 
   ngOnInit(): void {
 
-    this.loadRoutes();
+    //prefetch routes
+    this.route.data.subscribe(({ airlineData }) => {
+      if (airlineData && airlineData.routesResponse && airlineData.routesResponse.success) {
+        this.routes = airlineData.routesResponse.data || [];
+        this.filteredRoutes = this.routes.slice();
+        this.loading = false;
+      } else {
+        this.loadRoutes();
+      }
+    });
 
     this.searchControl.valueChanges.subscribe(value => {
       this.applyFilter(String(value || '').trim().toLowerCase());
@@ -116,7 +126,7 @@ export class RoutesComponent implements OnInit{
         if(res.success){
           this.routes = this.routes.filter(r => r.id !== route.id);
           this.applyFilter((this.searchControl.value || '').trim().toLowerCase());
-          this.routesService.clearCache();
+          this.routesService.clearRoutesCache();
           this.deletingId = null;
         }
       },

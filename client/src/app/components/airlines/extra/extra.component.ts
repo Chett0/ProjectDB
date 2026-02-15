@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
-import { AirlinesService } from '../../../services/airlines/airlines.service';
+import { ExtrasService } from '../../../services/airlines/extras.service';
+import { ActivatedRoute } from '@angular/router';
 import { Extra } from '../../../../types/users/airlines';
 import { Response } from '../../../../types/responses/responses';
 
@@ -24,20 +25,29 @@ export class ExtraComponent implements OnInit {
   loading = false;
   error: string | null = null;
 
-  constructor(private airlinesService: AirlinesService) {
+  constructor(private extrasService: ExtrasService, private route: ActivatedRoute) {
     this.searchControl.valueChanges.subscribe(() => {
       this.applySearch();
     });
   }
 
   ngOnInit(): void {
-    this.fetchExtras();
+    // prefetch extras
+    this.route.data.subscribe(({ airlineData }) => {
+      if (airlineData && airlineData.extrasResponse && airlineData.extrasResponse.success) {
+        this.extras = airlineData.extrasResponse.data || [];
+        this.applySearch();
+        this.loading = false;
+      } else {
+        this.fetchExtras();
+      }
+    });
   }
 
 
   fetchExtras() {
     this.loading = true;
-    this.airlinesService.getExtras().subscribe({
+    this.extrasService.getExtras().subscribe({
       next: (res : Response<Extra[]>) => {
         this.extras = res.data || [];
         this.applySearch();
@@ -66,7 +76,7 @@ export class ExtraComponent implements OnInit {
     if (this.addExtraForm.invalid) return;
     this.submitting = true;
     const { name, price } = this.addExtraForm.value;
-    this.airlinesService.createExtra({ 
+    this.extrasService.createExtra({ 
       name: name ?? '', 
       price: Number(price) 
     }).subscribe({
@@ -89,7 +99,7 @@ export class ExtraComponent implements OnInit {
 
   deleteExtra(extra: Extra) {
     if (!extra.id) return;
-    this.airlinesService.deleteExtra(extra.id).subscribe({
+    this.extrasService.deleteExtra(extra.id).subscribe({
       next: (res : Response<void>) => {
         if(!res.success){
           this.error = 'Errore eliminazione extra'; 

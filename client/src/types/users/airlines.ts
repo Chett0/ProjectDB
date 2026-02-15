@@ -105,4 +105,8 @@ export interface AirlineDashBoard {
 
 export interface AirlineResolverResponse {
     dashboardStatsResponse: Response<AirlineDashBoard>;
+    routesResponse?: Response<AirlineRoute[]>;
+    aircraftsResponse?: Response<AircraftWithClasses[]>;
+    flightsResponse?: Response<any>;
+    extrasResponse?: Response<Extra[]>;
 }
