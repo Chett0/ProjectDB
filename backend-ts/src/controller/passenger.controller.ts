@@ -115,7 +115,7 @@ export const getPassengerTickets = asyncHandler(
         );
 });
 
-//to do
+/*
 export const getPassengerTicketById = asyncHandler(
      async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
 
@@ -137,7 +137,7 @@ export const getPassengerTicketById = asyncHandler(
             res,
             "Ticket retrieved successfully"
         );
-});
+});*/
 
 
 export const createSeatSession = asyncHandler(

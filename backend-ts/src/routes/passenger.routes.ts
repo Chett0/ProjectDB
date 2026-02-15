@@ -9,7 +9,7 @@ router.get('/me/stats', passengerController.getPassengerStats);
 
 router.post('/tickets', passengerController.createTicket);
 router.get('/tickets', passengerController.getPassengerTickets);
-router.get('/tickets/:ticketId', passengerController.getPassengerTicketById);
+//router.get('/tickets/:ticketId', passengerController.getPassengerTicketById);
 
 router.post('/seats/:seatId/session', passengerController.createSeatSession);
 

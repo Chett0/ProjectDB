@@ -169,7 +169,7 @@ export const getPassengerTickets = async (
     }
 };
 
-//to do
+/*
 export const getPassengerTicketById =  async (
     passengerId: number,
     ticketId: number
@@ -186,7 +186,7 @@ export const getPassengerTicketById =  async (
         throw new NotFoundError("Ticket not found");
 
     return ticket;
-};
+};*/
 
 export const createSeatSession =  async (
     passengerId: number,
