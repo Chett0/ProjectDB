@@ -3,6 +3,7 @@
 
   <main class="body">
 
+    <div class="container">
     <div class="flights-grid">
       <div class="flight-card" *ngFor="let flight of journey.flights; let i = index">
         <h2 class="title">
@@ -42,6 +43,6 @@
     <button class="confirm-btn" (click)="confirmBooking()">
       Conferma extra
     </button>
-
+  </div>
   </main>
 </div>

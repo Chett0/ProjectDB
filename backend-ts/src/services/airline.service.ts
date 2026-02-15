@@ -496,6 +496,21 @@ export const deleteAircraft = async (
                         deletion_time: new Date()
                     }
                 }
+            },
+            flights : {
+                updateMany: {
+                    where: {
+                        aircraft_id: aircraftId,
+                        active: true,
+                        departure_time: {
+                            gt: new Date()
+                        }
+                    },
+                    data: {
+                        active: false,
+                        deletion_time: new Date()
+                    }
+                }
             }
         }
     });

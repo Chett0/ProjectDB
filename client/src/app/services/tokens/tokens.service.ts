@@ -73,7 +73,7 @@ export class TokensService {
 
   refreshToken(): Observable<any> {
     
-    return this.http.post<any>(`${enviroment.apiUrl}/auth/refresh`, {}, { withCredentials: true }).pipe(
+    return this.http.post<any>(`${enviroment.apiUrl}/v1/auth/refresh`, {}, { withCredentials: true }).pipe(
       tap((response: any) => {
         const newAccess = response?.data?.accessToken || response?.accessToken;
         if (newAccess) this.setTokens(newAccess);

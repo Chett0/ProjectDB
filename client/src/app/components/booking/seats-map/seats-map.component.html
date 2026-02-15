@@ -3,6 +3,10 @@
 
   <main class="body">
 
+    
+
+    <div class="cont">
+      <h1 class="main-title">Seleziona i posti per ogni volo</h1>
     @if (journey !== null) {  
     <div class="flights-grid">
       <div class="flight-card" *ngFor="let flight of journey.flights; let i = index">
@@ -14,6 +18,7 @@
         <div class="flight-content">
 
           <div class="classes-panel">
+            <span>Classi</span>
             <div 
               *ngFor="let c of (classes.get(flight.id) || [])" 
               class="class-card"
@@ -26,17 +31,17 @@
             >
               <h3>{{ c.name }}</h3>
               <p>Posti: {{ c.nSeats }}</p>
-              <p>Price: {{ c.priceMultiplier * flight.basePrice | currency }}</p>
+              <p>Prezzo: {{ c.priceMultiplier * flight.basePrice | currency:'EUR':'symbol':'1.2-2':'it-IT' }}</p>
             </div>
 
             <div 
               *ngIf="seatsSelected.get(flight.id) as selectedSeat" 
               class="class-card"
             >
-              <h2>Selected Seat:</h2>
+              <h2>Posto Scelto:</h2>
               <h3>{{ selectedSeat.number }}</h3>
-              <p>Class: {{ selectedSeat.class.name }}</p>
-              <p>Price: {{ selectedSeat.price | currency }}</p>
+              <p>Classe: {{ selectedSeat.class.name }}</p>
+              <p>Prezzo: {{ selectedSeat.price | currency:'EUR':'symbol':'1.2-2':'it-IT' }}</p>
             </div>
 
           </div>
@@ -62,6 +67,6 @@
     <button class="confirm-btn" (click)="confirmSeats()">
       Confirm
     </button>
-
+    </div>
   </main>
 </div>
