@@ -14,13 +14,31 @@ html, body {
 .body {
   flex: 1;
   padding: 30px 0;
-  background: linear-gradient(120deg, #e0e7ff 0%, #f8fafc 100%);
+  background: #ffffff;
 }
 
 .flight-content {
   display: flex;
   gap: 30px;
   align-items: flex-start;
+}
+
+/* multiple flights */
+.flights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 20px;
+  align-items: start;
+  width: 100%;
+  padding: 20px 40px;
+  box-sizing: border-box;
+}
+
+.flight-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
 }
 
 /* PANNELLO CLASSI */
@@ -46,8 +64,34 @@ html, body {
 }
 
 .class-card.active {
-  border: 2px solid #1976d2;
-  background: #e3f2fd;
+  background: #f5f7fb;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.04);
+}
+
+.class-first {
+  background: linear-gradient(90deg, rgba(212,175,55,0.12), rgba(212,175,55,0.06));
+  border-color: rgba(212,175,55,0.4);
+}
+.class-business {
+  background: linear-gradient(90deg, rgba(192,192,192,0.12), rgba(192,192,192,0.06));
+  border-color: rgba(192,192,192,0.4);
+}
+.class-economy {
+  background: linear-gradient(90deg, rgba(205,127,50,0.12), rgba(205,127,50,0.06));
+  border-color: rgba(205,127,50,0.4);
+}
+
+.class-card.active.class-first {
+  background: rgba(212,175,55,0.15);
+  box-shadow: 0 6px 14px rgba(212,175,55,0.12);
+}
+.class-card.active.class-business {
+  background: rgba(192,192,192,0.15);
+  box-shadow: 0 6px 14px rgba(192,192,192,0.12);
+}
+.class-card.active.class-economy {
+  background: rgba(205,127,50,0.15);
+  box-shadow: 0 6px 14px rgba(205,127,50,0.12);
 }
 
 .seat-map {
@@ -73,7 +117,7 @@ html, body {
 }
 
 .seat.disabled {
-  background: #9e9e9e;   
+  background: #000000;   
   cursor: not-allowed;
   opacity: 0.7;
 }
@@ -85,8 +129,17 @@ html, body {
 }
 
 .seat.selected {
-  outline: 3px solid black !important; 
-  background-color: green !important;
+  outline: none !important;
+  border: 3px solid;
+  border-color: #1a73e8 ;
+  transform: translateY(-1px);
+  
+}
+
+.seat-label {
+  font-size: 0px;
+  color: white;
+  font-weight: 700;
 }
 
 .container {
@@ -175,4 +228,28 @@ html, body {
 
 .buy-btn:hover {
   background: #1558b0;
+}
+
+.confirm-btn {
+  display: block;
+  width: 220px;
+  max-width: 90%;
+  margin: 24px auto 0;
+  padding: 12px 18px;
+  background: #1a73e8;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(26,115,232,0.18);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.confirm-btn:hover {
+  transform: translateY(-3px);
+  background: #1558b0;
+  box-shadow: 0 12px 30px rgba(21,88,176,0.22);
 }

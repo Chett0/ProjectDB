@@ -25,12 +25,15 @@ export class SeatsMapComponent implements OnInit {
 
   SeatState = SeatState;
 
-  ticketColors: Record<string, string> = {
-    'Economy': 'lightblue',
-    'Business': 'gold',
-    'First Class': 'purple',
-    'Premium': 'red'
-  };
+
+  seatColor(seat: SeatInfo): string {
+    const cname = (seat.class && (seat.class as Class).name) ? String((seat.class as Class).name).toLowerCase() : '';
+    if (cname.includes('first')) return '#D4AF37'; // gold
+    if (cname.includes('business')) return '#C0C0C0'; // silver
+    if (cname.includes('econom')) return '#CD7F32'; // bronze
+    if (cname.includes('premium')) return '#ff6b6b';
+    return 'steelblue';
+  }
 
   constructor(
     private seatService: SeatsService,

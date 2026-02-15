@@ -3,54 +3,63 @@
 
   <main class="body">
 
-      <!-- serve per iterare su tutti i voli presenti in base agli scali-->
-      <div *ngFor="let flight of journey.flights">
+    <div class="flights-grid">
+      <div class="flight-card" *ngFor="let flight of journey.flights; let i = index">
+        <h2 class="title">
+          {{ i === 0 ? 'Primo volo' : i === 1 ? 'Secondo volo' : ('Volo ' + (i + 1)) }} -
+          {{ flight.aircraft.airline.name }} ({{ flight.aircraft.airline.code }})
+        </h2>
 
-        <h2 class="title">Seleziona i posti per il volo {{ flight.aircraft.airline.name }} ({{ flight.aircraft.airline.code }})</h2>
+        <div class="flight-content">
 
-          <div class="flight-content">
+          <div class="classes-panel">
+            <div 
+              *ngFor="let c of (classes.get(flight.id) || [])" 
+              class="class-card"
+              [ngClass]="{
+                'class-first': c.name.toLowerCase().includes('first'),
+                'class-business': c.name.toLowerCase().includes('business'),
+                'class-economy': c.name.toLowerCase().includes('econom'),
+                'active': seatsSelected.get(flight.id)?.class?.id === c.id
+              }"
+            >
+              <h3>{{ c.name }}</h3>
+              <p>Posti: {{ c.nSeats }}</p>
+              <p>Price: {{ c.priceMultiplier * flight.basePrice | currency }}</p>
+            </div>
 
-    <div class="classes-panel">
-      <div 
-        *ngFor="let c of classes.get(flight.id)" 
-        class="class-card"
-      >
-        <h3>{{ c.name }}</h3>
-        <p>Posti: {{ c.nSeats }}</p>
-        <p>Price: {{ c.priceMultiplier * flight.basePrice | currency }}</p>
+            <div 
+              *ngIf="seatsSelected.get(flight.id) as selectedSeat" 
+              class="class-card"
+            >
+              <h2>Selected Seat:</h2>
+              <h3>{{ selectedSeat.number }}</h3>
+              <p>Class: {{ selectedSeat.class.name }}</p>
+              <p>Price: {{ selectedSeat.price | currency }}</p>
+            </div>
+
+          </div>
+
+                <div class="seat-map">
+                  <div *ngFor="let seat of getFilteredSeats(flight)" class="row">
+                        <button class="seat"
+                          [class.disabled]="seat.state != SeatState.AVAILABLE"
+                          [class.selected]="seatsSelected.get(flight.id)?.id === seat.id"
+                          [disabled]="seat.state != SeatState.AVAILABLE"
+                          (click)="selectSeat(flight, seat)"
+                          [ngStyle]="seat.state === SeatState.AVAILABLE ? {'background-color': seatColor(seat)} : null">
+                      <span class="seat-label">{{ seat.number }}</span>
+                    </button>
+                  </div>
+                </div>
+
+        </div>
       </div>
-
-      <div 
-        *ngIf="seatsSelected.get(flight.id) as selectedSeat" 
-        class="class-card"
-      >
-        <h2>Selected Seat:</h2>
-        <h3>{{ selectedSeat.number }}</h3>
-        <p>Class: {{ selectedSeat.class.name }}</p>
-        <p>Price: {{ selectedSeat.price | currency }}</p>
-      </div>
-
     </div>
-
-    
-
-    <div class="seat-map">
-      <div *ngFor="let seat of getFilteredSeats(flight)" class="row">
-        <button class="seat"
-                [class.disabled]="seat.state != SeatState.AVAILABLE"
-                [disabled]="seat.state != SeatState.AVAILABLE"
-                (click)="selectSeat(flight, seat)">
-        </button>
-      </div>
-    </div>
-
-    </div>  
-
-    </div>  
 
     <button class="confirm-btn" (click)="confirmSeats()">
       Confirm
     </button>
 
-    </main>
+  </main>
 </div>

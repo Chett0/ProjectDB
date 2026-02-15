@@ -73,7 +73,7 @@ export class ExtraBookingComponent implements OnInit{
   confirmBooking() {
     this.journey.flights.forEach(flight => {
       const selectedSeat = this.selectedSeats.get(flight.id);
-      const multiplier = selectedSeat && (selectedSeat as any).aircraftClass ? Number((selectedSeat as any).aircraftClass.priceMultiplier) : 1;
+      const multiplier = selectedSeat && (selectedSeat as SeatInfo).class ? Number((selectedSeat as SeatInfo).class.priceMultiplier) : 1;
       const extrasList = this.selectedExtras.get(flight.id) || [];
       const extrasTotal = extrasList.reduce((sum, e) => sum + (Number((e as any).price) || 0), 0);
       const basePrice = Number(flight.basePrice) || 0;
@@ -95,6 +95,20 @@ export class ExtraBookingComponent implements OnInit{
       });
     });
     this.router.navigate(['/passengers']);
+  }
+
+  getFlightTotal(flight: Flight): number {
+    const selectedSeat = this.selectedSeats?.get(flight.id);
+    const multiplier = selectedSeat && (selectedSeat as SeatInfo).class ? Number((selectedSeat as SeatInfo).class.priceMultiplier) : 1;
+    const extrasList = this.selectedExtras.get(flight.id) || [];
+    const extrasTotal = extrasList.reduce((sum, e) => sum + (Number((e as any).price) || 0), 0);
+    const basePrice = Number(flight.basePrice) || 0;
+    return basePrice * multiplier + extrasTotal;
+  }
+
+  getTotal(): number {
+    if (!this.journey || !this.journey.flights) return 0;
+    return this.journey.flights.reduce((sum, flight) => sum + (Number(this.getFlightTotal(flight)) || 0), 0);
   }
 
 
