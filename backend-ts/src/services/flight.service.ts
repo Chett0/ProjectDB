@@ -12,6 +12,7 @@ import { NotFoundError } from '../utils/errors';
 const MINIMUM_CONNECTION_SECONDS = 2 * 3600;
 const MAXIMUM_CONNECTION_SECONDS = 12 * 3600;
 
+//this method is never used ?
 export const createFlight = async (
     flight: Flight
 ) : Promise<flights | null> => {

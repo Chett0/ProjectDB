@@ -104,19 +104,19 @@ export const getRoutesMostInDemand = async (
 
     const routes : RoutesMostInDemandDTO[] = await prisma.$queryRaw`
         SELECT 
-            AR.route_id AS "routeId",
-            Dep.iata AS "departureAirportCode",
-            Arr.iata AS "arrivalAirportCode",
-            CAST(COUNT(*) AS INT) AS "passengersCount"
-        FROM Tickets T 
-        JOIN Flights F ON T.flight_id = F.id 
-        JOIN Aircrafts A ON F.aircraft_id = A.id
-        JOIN public."airlineRoute" AR ON F.route_id = AR.route_id 
-        JOIN Routes R ON R.id = AR.route_id
-        JOIN Airports Dep ON R.departure_airport_id = Dep.id
-        JOIN Airports Arr ON R.arrival_airport_id = Arr.id
-        WHERE A.id =  ${airlineId}
-        GROUP BY AR.route_id, Dep.iata, Arr.iata
+        R.id AS "routeId",
+        Dep.iata AS "departureAirportCode",
+        Arr.iata AS "arrivalAirportCode",
+        CAST(COUNT(T.id) AS INT) AS "passengersCount"
+        FROM tickets T 
+        JOIN flights F ON T.flight_id = F.id 
+        JOIN aircrafts A ON F.aircraft_id = A.id
+        JOIN routes R ON F.route_id = R.id
+        JOIN airports Dep ON R.departure_airport_id = Dep.id
+        JOIN airports Arr ON R.arrival_airport_id = Arr.id
+        WHERE A.airline_id = ${airlineId}
+        AND T.state = 'CONFIRMED'
+        GROUP BY R.id, Dep.iata, Arr.iata
         ORDER BY "passengersCount" DESC
         LIMIT ${nRoutes}
     `;

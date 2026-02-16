@@ -27,7 +27,7 @@ export class AirlineDashboardComponent implements OnInit{
     maintainAspectRatio: false,
     scales: {
     y: {
-      beginAtZero: false,
+        beginAtZero: true,
       title: {
         display: true,
       }
@@ -56,7 +56,9 @@ export class AirlineDashboardComponent implements OnInit{
         label: 'Passenger Count',
         data: [] as number[],
         backgroundColor: '#3b82f6',
-        borderRadius: 6
+        borderRadius: 6,
+        maxBarThickness: 50,
+      barPercentage: 0.8,
       }
     ]
   };
@@ -102,6 +104,7 @@ export class AirlineDashboardComponent implements OnInit{
 
 
 ngOnInit() {
+  console.log(this.dashboardStats)
   this.prepareRouteChart();
   this.prepareIncomeChart();
   }
