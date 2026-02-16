@@ -1,3 +1,34 @@
+# Avvio container Docker
+
+Prerequisiti
+- Docker / Docker Desktop installato
+- `docker compose` o `docker-compose` disponibile
+
+Avviare tutti i servizi (dalla root del progetto)
+
+```bash
+docker compose up --build
+# oppure in background
+docker compose up -d --build
+# se usi la vecchia CLI:
+docker-compose up --build
+```
+
+Log e gestione
+
+```bash
+docker compose logs -f            # segui i log di tutti i servizi
+docker compose logs -f <servizio> # segui i log di uno specifico servizio
+docker compose down               # ferma e rimuove i container di compose
+```
+
+Suggerimenti utili
+- Se i servizi non si avviano, esegui `docker compose config` per verificare la sintassi del file `docker-compose.yml`.
+- Se cambiano le variabili d'ambiente o i Dockerfile, ricostruisci con `--build`.
+- Se usi macOS con chip Apple Silicon, verifica l'architettura delle immagini (arm64 vs amd64).
+
+
+
 # Client
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.15.

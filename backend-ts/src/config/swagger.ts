@@ -1,6 +1,6 @@
 import swaggerJsdoc from "swagger-jsdoc";
 import { config } from 'dotenv';
-import path from "path/win32";
+import path from "path";
 
 config();
 const PORT = process.env.PORT || 5000;
