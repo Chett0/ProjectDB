@@ -126,10 +126,13 @@ export const toExtraDTO = (extra: extras): ExtraDTO => ({
  *     AirlineDashBoardDTO:
  *       type: object
  *       properties:
+ *         year
+ *           type: integer
+ *           example: 2026
  *         passengerCount:
  *           type: integer
  *           example: 1200
- *         monthlyIncome:
+ *         totalIncome:
  *           type: number
  *           format: float
  *           example: 125000.75
@@ -148,16 +151,18 @@ export const toExtraDTO = (extra: extras): ExtraDTO => ({
  *           items:
  *             $ref: '#/components/schemas/MonthlyIncomeDTO'
  *       required:
+ *         - year
  *         - passengerCount
- *         - monthlyIncome
+ *         - totalIncome
  *         - activeRoutes
  *         - flightsInProgress
  *         - routesMostInDemand
  *         - monthlyIncomes
  */
 export interface AirlineDashBoardDTO {
+    year: number,
     passengerCount: number;
-    monthlyIncome: number;
+    totalIncome: number;
     activeRoutes: number;
     flightsInProgress: number;
     routesMostInDemand: RoutesMostInDemandDTO[];

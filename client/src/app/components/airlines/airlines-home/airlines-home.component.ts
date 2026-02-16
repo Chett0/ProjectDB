@@ -45,8 +45,9 @@ export class AirlinesHomeComponent implements OnInit{
   activeTab: number = 0; 
 
   dashboardStats : AirlineDashBoard = {
+    year: 0,
     passengerCount: 0,
-    monthlyIncome: 0,
+    totalIncome: 0,
     activeRoutes: 0,
     flightsInProgress: 0,
     routesMostInDemand: [],

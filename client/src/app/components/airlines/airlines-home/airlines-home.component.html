@@ -12,11 +12,6 @@
 
     <aside class="sidebar-tabs">
       <div class="tabs-vertical">
-        <div class="tabs-indicator-vertcal" [ngStyle]="{
-          top: (activeTab * 50) + 'px',
-          height: '50px'
-        }"></div>
-
         <button *ngFor="let tab of tabs; let i = index"
           class="tab-v"
           [class.active]="activeTab===i"

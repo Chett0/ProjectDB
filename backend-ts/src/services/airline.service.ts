@@ -41,7 +41,7 @@ export const getAirlinePassengerCount = async (
 };
 
 
-export const getAirlineMonthlyIncome = async (
+export const getAirlineTotalIncome = async (
     airlineId : number
 ) : Promise<number> => {
 
@@ -49,20 +49,17 @@ export const getAirlineMonthlyIncome = async (
     const startOfMonth : Date = new Date(now.getFullYear(), now.getMonth(), 1);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-    const result = await prisma.$queryRaw<[{ monthlyIncome: bigint | number }]>`
-        SELECT COALESCE(SUM(T.final_cost), 0) as "monthlyIncome"
+    const result = await prisma.$queryRaw<[{ totalIncome: bigint | number }]>`
+        SELECT COALESCE(SUM(T.final_cost), 0) as "totalIncome"
         FROM Tickets T 
         JOIN Flights F ON T.flight_id = F.id
         JOIN Aircrafts A ON F.aircraft_id = A.id
         WHERE 
-            A.airline_id = ${airlineId} AND
-            T.purchase_date >= ${startOfMonth} AND
-            T.purchase_date <= ${endOfMonth}
-
+            A.airline_id = ${airlineId}
     `;
 
-    const monthlyIncome : number = result.length > 0 ? Number(result[0].monthlyIncome) : 0;
-    return monthlyIncome as number;
+    const totalIncome : number = result.length > 0 ? Number(result[0].totalIncome) : 0;
+    return totalIncome as number;
 };
 
 

@@ -44,8 +44,8 @@
 
 
 .sidebar-tabs {
-  width: 260px;
-  flex: 0 0 260px;
+  width: 180px;
+  flex: 0 0 180px;
   flex-shrink: 0;
   background: #fff;
   border-radius: 12px;
@@ -94,23 +94,13 @@
   background-color: rgba(43, 116, 255, 0.05);
 }
 
-.tabs-indicator-vertical {
-  position: absolute;
-  left: 0;
-  width: 4px;
-  background-color: #2b74ff;
-  transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 3;
-}
-
 .dashboard-content {
   flex-grow: 1;
   width: 0;
   min-width: 0;
 }
 
-/* to make the page responsive */
-
+/* resopnsive page */
 @media (max-width: 900px) {
   .dashboard-body {
     flex-direction: column;

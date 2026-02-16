@@ -94,8 +94,9 @@ export interface MonthlyIncome {
 }
 
 export interface AirlineDashBoard {
+    year: number
     passengerCount: number;
-    monthlyIncome: number;
+    totalIncome: number;
     activeRoutes: number;
     flightsInProgress: number;
     routesMostInDemand: RoutesMostInDemand[];

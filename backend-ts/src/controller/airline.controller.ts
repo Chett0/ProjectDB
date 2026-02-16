@@ -45,7 +45,7 @@ export const getAirlineDashboardStats = asyncHandler(
             throw new BadRequestError("Airline ID is missing");
 
         const passengerCount : number = await airlineService.getAirlinePassengerCount(airlineId);
-        const monthlyIncome : number = await airlineService.getAirlineMonthlyIncome(airlineId);
+        const totalIncome : number = await airlineService.getAirlineTotalIncome(airlineId);
         const activeRoutes : number = await airlineService.getAirlineRouteCount(airlineId);
         const flightsInProgress : number = await airlineService.getAirlineFlightsInProgressCount(airlineId);
 
@@ -54,8 +54,9 @@ export const getAirlineDashboardStats = asyncHandler(
 
 
         const dashBoard : AirlineDashBoardDTO = {
+            year: year,
             passengerCount: passengerCount,
-            monthlyIncome: monthlyIncome,
+            totalIncome: totalIncome,
             activeRoutes: activeRoutes,
             flightsInProgress: flightsInProgress,
             routesMostInDemand: routesMostInDemand,

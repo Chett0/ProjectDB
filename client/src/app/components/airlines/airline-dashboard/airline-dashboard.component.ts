@@ -24,9 +24,10 @@ export class AirlineDashboardComponent implements OnInit{
 
   public barChartOptions: ChartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     scales: {
     y: {
-      beginAtZero: true,
+      beginAtZero: false,
       title: {
         display: true,
       }
@@ -74,6 +75,7 @@ export class AirlineDashboardComponent implements OnInit{
 
   public lineChartOptions: ChartOptions<'line'> = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         display: true
@@ -91,7 +93,8 @@ export class AirlineDashboardComponent implements OnInit{
         title: {
           display: true,
         },
-        beginAtZero: true
+        beginAtZero: false,
+        grace: '25%'
       }
     }
   };
@@ -114,5 +117,4 @@ ngOnInit() {
     this.lineChartData.datasets[0].data = this.dashboardStats.monthlyIncomes.map(d => d.income);
 
   }
-
 }
