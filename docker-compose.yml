@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: projectdb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      retries: 5
+
+  backend:
+    build: ./backend-ts
+    env_file: ./backend-ts/.env
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/projectdb?schema=public
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  client:
+    build: ./client
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  migrate:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./backend-ts:/app
+      - migrate-node-modules:/app/node_modules
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/projectdb?schema=public
+    command: sh -c "npm ci && npx prisma migrate deploy && npm run seed"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  db-data:
+  migrate-node-modules:
