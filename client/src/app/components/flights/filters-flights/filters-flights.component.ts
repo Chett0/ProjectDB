@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Filters } from '../../../../types/flights/flights';
@@ -11,6 +11,8 @@ import { Filters } from '../../../../types/flights/flights';
   styleUrl: './filters-flights.component.css'
 })
 export class FiltersFlightsComponent implements OnInit{
+
+  @Output() close = new EventEmitter<void>();
 
   filters! : Filters;
   private maxPrice : number = 2000;
@@ -46,6 +48,8 @@ export class FiltersFlightsComponent implements OnInit{
       queryParams: this.filters,
       queryParamsHandling: 'merge'
     });
+
+    this.close.emit();
   }
 
   isNonStopChecked(): boolean {

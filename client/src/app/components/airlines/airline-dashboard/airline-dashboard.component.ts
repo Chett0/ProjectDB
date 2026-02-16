@@ -102,7 +102,6 @@ export class AirlineDashboardComponent implements OnInit{
 
 
 ngOnInit() {
-  console.log(this.dashboardStats);
   this.prepareRouteChart();
   this.prepareIncomeChart();
   }

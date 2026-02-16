@@ -16,7 +16,7 @@
           </div>
 
           <div *ngSwitchCase="'AIRLINE'">
-             <span class="airline-title-large">{{ airlineName }}</span>
+             <button class="btn icon-only" (click)="goToDashboard()">{{ airlineName }}</button>
           </div>
 
           <div *ngSwitchCase="'PASSENGER'">

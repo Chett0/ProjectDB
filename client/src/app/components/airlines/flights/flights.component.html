@@ -12,7 +12,7 @@
 	<!-- Lista voli -->
 		<!-- Filters panel (uses same filters component as main search) -->
 		<div *ngIf="showFilters" class="filters-panel">
-			<app-filters-flights></app-filters-flights>
+			<app-filters-flights (close)="showFilters = false"></app-filters-flights>
 		</div>
 
 		<div class="flights-list" *ngIf="filteredFlights && filteredFlights.length">

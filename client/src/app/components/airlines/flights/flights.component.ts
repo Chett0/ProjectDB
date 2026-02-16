@@ -85,6 +85,14 @@ export class FlightsComponent implements OnInit {
       this.addError = 'Inserisci data/ora di partenza e arrivo.';
       return;
     }
+
+    const start = new Date(this.newFlight.departure_time);
+    const end = new Date(this.newFlight.arrival_time);
+    if(start >= end){
+        this.addError = "La data di arrivo deve essere dopo la data di partenza"
+        return;
+      }
+
     this.addLoading = true;
 
     const newFlight : CreateFlight = {
