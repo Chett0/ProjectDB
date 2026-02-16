@@ -45,8 +45,9 @@
 
         <div class="times">
           <div class="time-left">
-            <div class="time-big">{{ journey.flights[0].departureTime | date:'HH:mm' }}</div>
             <div class="airport-code">{{ journey.flights[0].departureAirport.code }}</div>
+            <div class="time-big">{{ journey.flights[0].departureTime | date:'HH:mm' }}</div>
+            <div class="date">{{ journey.flights[0].departureTime | date : 'dd/MM/yyyy' }}</div>
           </div>
 
           <div class="timeline-wrap">
@@ -60,8 +61,9 @@
           </div>
 
           <div class="time-right">
-            <div class="time-big">{{ journey.flights[journey.flights.length-1].arrivalTime | date:'HH:mm' }}</div>
             <div class="airport-code">{{ journey.flights[journey.flights.length-1].arrivalAirport.code }}</div>
+            <div class="time-big">{{ journey.flights[journey.flights.length-1].arrivalTime | date:'HH:mm' }}</div>
+            <div class="date">{{ journey.flights[journey.flights.length-1].arrivalTime | date : 'dd/MM/yyyy' }}</div>
           </div>
         </div>
       </div>

@@ -59,8 +59,7 @@ export class AirlinesHomeComponent implements OnInit{
     { label: 'Aerei', component: AircraftsComponent },
     { label: 'Voli', component: FlightsComponent },
     { label: 'Tratte', component: RoutesComponent },
-    { label: 'Extra', component: ExtraComponent },
-    { label: 'Settings', component: null }
+    { label: 'Extra', component: ExtraComponent }
   ];
 
   get activeComponent(): any {

@@ -10,7 +10,7 @@ import { BadRequestError } from "../utils/errors";
 export const searchFlights = asyncHandler(
      async(req : Request, res : Response): Promise<Response> => {
 
-        const sortBy : string = (req.query.sort_by as string) || 'total_duration';
+        const sortBy : string = (req.query.sort_by as string) || 'total_price';
         const order : string = ((req.query.order as string) || 'asc').toLowerCase();
         const departureAirportCity : string | undefined = req.query.from as string;
         const arrivalAirportCity : string | undefined = req.query.to as string;

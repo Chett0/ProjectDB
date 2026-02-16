@@ -6,6 +6,7 @@ import { AdminDTO, AirlineUserDTO, LoginResponseDTO, PassengerDTO, RefreshTokenR
 import { asyncHandler } from "../utils/helpers/asyncHandler.helper";
 import { BadRequestError, UnauthorizedError } from "../utils/errors";
 import { UserInfo } from "../types/auth.types";
+import * as authHelper from "../utils/helpers/auth.helpers";
 
 const cookieparser = require('cookie-parser');
 
@@ -17,8 +18,7 @@ export const registerAirline = asyncHandler(
         if(!email || !name || !code)
             throw new BadRequestError("Missing required fields");
 
-        // const password : string = await authHelper.generateRandomPassword();
-        const password : string = "123";
+        const password : string = await authHelper.generateRandomPassword();
         const hashedPassword : string = await authService.hashPassword(password);
 
         const userAirline : UserAirline = {

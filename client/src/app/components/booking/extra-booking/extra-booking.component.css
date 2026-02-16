@@ -4,6 +4,15 @@
   gap: 12px;
 }
 
+.main-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a73e8;
+  margin-bottom: 18px;
+  text-align: center;
+  margin-top: 20px;
+}
+
 .extra-card {
   border: 1px solid #ddd;
   border-radius: 12px;

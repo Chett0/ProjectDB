@@ -88,13 +88,15 @@ export class ExtraBookingComponent implements OnInit{
 
       this.bookingService.buyTicket(ticket).subscribe({
         next: (res: Response<any>) => {
+          alert("Biglietto acquistato con successo!");
+          this.router.navigate(['/passengers']);
         },
         error: (err) => {
+          alert("Errore durante l'acquisto del biglietto. Riprova.");
           console.error('buyTicket error:', err);
         }
       });
     });
-    this.router.navigate(['/passengers']);
   }
 
   getFlightTotal(flight: Flight): number {

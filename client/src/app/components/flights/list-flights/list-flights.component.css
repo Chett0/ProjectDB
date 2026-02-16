@@ -33,12 +33,23 @@
   width:36px;height:36px;border-radius:50%;background:linear-gradient(90deg,#ffd54a,#ffb84a);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;
 }
 
+.date {
+  color:#7b8aa5;
+  font-size:0.95rem;
+  margin-top:10px;
+}
+
 .airline-name{font-weight:700;font-size:1.05rem;color:#111}
 .flight-class{color:#7b8aa5;font-size:0.95rem}
 
 .times{display:flex;align-items:center;gap:18px}
 .time-left,.time-right{width:140px;text-align:center}
-.time-big{font-size:2.2rem;font-weight:800;color:#0f1724}
+.time-big{
+  font-size:2.2rem;
+  font-weight:800;
+  color:#0f1724;
+  margin-top: 10px;
+}
 .airport-code{color:#7b8aa5;margin-top:6px}
 
 .timeline-wrap{flex:1; text-align:center}
