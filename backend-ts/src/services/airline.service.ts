@@ -1,4 +1,4 @@
-import { aircraft_classes, aircrafts, airlineRoute, airlines, extras } from '@prisma/client';
+import { aircraft_classes, aircrafts, airlineRoute, airlines, extras, seatstate } from '@prisma/client';
 import prisma from "../config/db";
 import { AircraftDTO, ClassDTO, ExtraDTO, MonthlyIncomeDTO, RouteDTO, RoutesMostInDemandDTO, toAircraftDTO, toClassDTO, toExtraDTO, toRouteDTO } from "../dtos/airline.dto";
 import { AirlineDTO, toAirlineDTO } from "../dtos/user.dto";
@@ -6,6 +6,7 @@ import { AircraftWithClasses, AirlineRoute, Class, CreateAircraft, Extra, Route 
 import { FlightInfoDTO, toFlightInfoDTO } from '../dtos/flight.dto';
 import { Flight, FlightInfo } from '../types/flight.types';
 import { NotFoundError } from '../utils/errors';
+import { Prisma } from '@prisma/client';
 
 //#region Airline Info
 
@@ -684,7 +685,7 @@ export const getAirlineFlightsPaginated = async (
     return { flights: flights.map(toFlightInfoDTO), total };
 }
 
-
+/* old method without seat creation
 export const createAirlineFlight = async (
     flight : Flight
 ) : Promise<FlightInfoDTO> => {
@@ -729,6 +730,70 @@ export const createAirlineFlight = async (
                 }
             }
         }
+    });
+
+    return toFlightInfoDTO(newFlight);
+}
+*/
+
+export const createAirlineFlight = async (
+    flight: Flight
+): Promise<FlightInfoDTO> => {
+
+    const aircraft : AircraftDTO | null = await getAirlineAircraftWithClassesById(flight.airlineId, flight.aircraftId);
+    if(!aircraft)
+        throw new Error("Aircraft not found");
+        
+    const isAirlineRoutePresent : Boolean = await existAirlineRoute(flight.airlineId, flight.routeId);
+    if(!isAirlineRoutePresent)
+        throw new NotFoundError("Airline route not found");
+
+    let letter: string = 'A';
+    let rowNumber: number = 1;
+    let seatsData : Omit<Prisma.seatsCreateManyInput, 'flight_id'>[] = []; 
+
+    for(const cls of aircraft.classes){
+            for(let p = 0; p < cls.nSeats; p++){
+                seatsData.push({
+                    number: `${rowNumber}${letter}`,
+                    class_id: cls.id,
+                    state: seatstate.AVAILABLE,
+                    price: flight.basePrice * cls.priceMultiplier 
+                })
+    
+                letter = String.fromCharCode(letter.charCodeAt(0) + 1);
+                if (letter === 'G') {
+                    rowNumber += 1;
+                    letter = 'A';
+                }
+            }
+        }
+
+    const newFlight = await prisma.$transaction(async (tx) => {
+        
+        const created = await tx.flights.create({
+            data: {
+                routes: { connect: { id: flight.routeId } },
+                aircrafts: { connect: { id: flight.aircraftId } },
+                departure_time: flight.departureTime,
+                arrival_time: flight.arrivalTime,
+                base_price: flight.basePrice,
+                duration_seconds: flight.durationSeconds,
+                nSeats_available: aircraft.nSeats,
+                nSeats_total: aircraft.nSeats,
+                seats: {
+                    createMany: {
+                        data: seatsData
+                    }
+                }
+            },
+            include: {
+                aircrafts: { include: { airlines: true } },
+                routes: { include: { departure_airport: true, arrival_airport: true } }
+            }
+        });
+
+        return created;
     });
 
     return toFlightInfoDTO(newFlight);

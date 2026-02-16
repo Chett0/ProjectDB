@@ -126,7 +126,7 @@ export const toExtraDTO = (extra: extras): ExtraDTO => ({
  *     AirlineDashBoardDTO:
  *       type: object
  *       properties:
- *         year
+ *         year:
  *           type: integer
  *           example: 2026
  *         passengerCount:
