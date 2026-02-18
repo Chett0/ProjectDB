@@ -7,6 +7,7 @@ import { BookingState, Ticket, UserPassengerInfo } from "../types/passenger.type
 import { TicketInfoDTO, PassengerStatsDTO } from "../dtos/passenger.dto";
 import { asyncHandler } from "../utils/helpers/asyncHandler.helper";
 import { BadRequestError, UnauthorizedError } from "../utils/errors";
+import { ExtraDTO } from "../dtos/airline.dto";
 
 export const updatePassenger = asyncHandler (
     async(req : AuthenticatedRequest, res : Response): Promise<Response> => {
@@ -150,6 +151,31 @@ export const getPassengerStats = asyncHandler(
             res,
             "Passenger stats retrieved successfully",
             stats
+        );
+    }
+);
+
+
+export const getTicketExtras = asyncHandler(
+    async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
+        const passengerId: number | null = req.user!.id;
+        const ticketIdParam: string | undefined = req.params.ticketId;
+
+        if (!passengerId) 
+            throw new UnauthorizedError("Passenger ID is required");
+        if (!ticketIdParam)
+            throw new BadRequestError("Ticket ID is required");
+
+        const ticketId: number = parseInt(ticketIdParam);
+        if (isNaN(ticketId)) 
+            throw new BadRequestError("Invalid ticket ID");
+
+        const extras : ExtraDTO[] = await passengerService.getTicketExtras(passengerId, ticketId);
+
+        return successResponse<ExtraDTO[]>(
+            res,
+            "Ticket extras retrieved successfully",
+            extras
         );
     }
 );

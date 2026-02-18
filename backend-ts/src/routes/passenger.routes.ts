@@ -304,6 +304,55 @@ router.get('/tickets', passengerController.getPassengerTickets);
 
 /**
  * @swagger
+ * /api/v1/passenger/tickets/{ticketId}/extras:
+ *   get:
+ *     summary: Get extras for a specific ticket
+ *     description: |
+ *       Retrieves all extra services associated with a specific ticket of the authenticated passenger.
+ *       
+ *       🔐 **Authorization Required**
+ *       - Bearer Token (JWT)
+ *       - Role: PASSENGER
+ *     tags:
+ *       - Tickets
+ *    parameters:
+ *      - in: path
+ *        name: ticketId
+ *       required: true
+ *      schema:
+ *        type: integer
+ *      description: ID of the ticket to retrieve extras for
+ *     security:
+ *       - bearerAuth: [PASSENGER]
+ *     responses:
+ *       200:
+ *         description: Ticket extras retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Ticket extras retrieved successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/ExtraDTO'
+ *      400:
+ *        description: Ticket ID is required or Invalid ticket ID
+ *       401:
+ *         description: Unauthorized - Missing or invalid JWT
+ *       403:
+ *         description: Forbidden - Requires PASSENGER role
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/tickets/:ticketId/extras', passengerController.getTicketExtras);
+
+/**
+ * @swagger
  * /api/v1/passenger/seats/{seatId}/session:
  *   post:
  *     summary: Create a seat session for a passenger
@@ -316,7 +365,7 @@ router.get('/tickets', passengerController.getPassengerTickets);
  *     tags:
  *       - Seats
  *     security:
- *       - bearerAuth: []
+ *       - bearerAuth: [PASSENGER]
  *     parameters:
  *       - in: path
  *         name: seatId

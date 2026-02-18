@@ -141,10 +141,29 @@
 				   <div class="ticket-foot">
 					   <div class="seat">Posto: {{ t.seat }}</div>
 				   </div>
+				   <div class="ticket-extras">
+				<button class="extras-toggle" (click)="toggleExtras(t.id)">
+					Extra di volo
+					<span [class.open]="extrasMap.get(t.id)?.show">▼</span>
+				</button>
+
+				<div class="extras-dropdown" *ngIf="extrasMap.get(t.id)?.show">
+					<div *ngIf="extrasMap.get(t.id)?.extras?.length; else noExtras">
+					<div class="extra-item" *ngFor="let e of extrasMap.get(t.id)?.extras">
+						<span class="extra-name">{{ e.name }}</span>
+						<span class="extra-price">{{ e.price }}€</span>
+					</div>
+					</div>
+
+					<ng-template #noExtras>
+					<div class="extra-empty">Nessun extra selezionato</div>
+					</ng-template>
+				</div>
+				</div>
 			   </div>
 
 			   <div class="ticket-right">
-				   <div class="price">€{{ t.price }}</div>
+				   <div class="price">{{ t.price }}€</div>
 			   </div>
 		   </div>
 	   </div>

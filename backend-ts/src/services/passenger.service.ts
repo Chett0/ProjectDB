@@ -1,6 +1,6 @@
 import { bookingstate, extras, flights, seats, seat_holds, seatstate, tickets } from '@prisma/client';
 import prisma from "../config/db";
-import { ExtraDTO } from "../dtos/airline.dto";
+import { ExtraDTO, toExtraDTO } from "../dtos/airline.dto";
 import { FullTicketInfo, PassengerUser, Ticket, UserPassengerInfo } from "../types/passenger.types";
 import * as flightService from "../services/flight.service"
 import { TicketInfoDTO, toTicketInfoDTO, TicketDisplayDTO, toTicketDisplayDTO, PassengerStatsDTO } from "../dtos/passenger.dto";
@@ -233,4 +233,28 @@ export const getPassengerStats = async (
     const minutes = totalMinutes % 60;
 
     return { totalFlights, flightHours: { hours, minutes }, moneySpent: Math.round(moneySpent * 100) / 100 };
+};
+
+
+export const getTicketExtras = async (
+    passengerId: number,
+    ticketId: number
+): Promise<ExtraDTO[]> => {
+    
+    const extras : extras[] = await prisma.extras.findMany({
+        where: {
+            ticket_extra: {
+                some: {
+                    ticket_id: ticketId,
+                    tickets: {
+                        passenger_id: passengerId
+                    }
+                }
+            },
+            active: true
+        }
+    });
+
+    return extras.map(toExtraDTO);
+
 };

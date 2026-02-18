@@ -9,6 +9,7 @@ import { TicketBookingService } from '../../services/ticket-booking/ticket-booki
 import { PassengerInfo } from '../../../types/users/passenger';
 import { Response } from '../../../types/responses/responses';
 import { HeaderComponent } from '../header/header.component';
+import { Extra } from '../../../types/users/airlines';
 
 @Component({
   selector: 'app-passengers',
@@ -32,6 +33,7 @@ export class PassengersComponent {
   editSurname: string = '';
 
   tickets: any[] = [];
+  extrasMap : Map<number, {extras: Extra[], show: boolean}> = new Map();
 
   public ticketsTotal: number = 0;
   public ticketsPage: number = 1;
@@ -203,4 +205,22 @@ export class PassengersComponent {
     const d = new Date(dateStr);
     return d.toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' });
   }
+
+  toggleExtras(ticketId: number) {
+    if (this.extrasMap.has(ticketId)){
+      this.extrasMap.get(ticketId)!.show = !this.extrasMap.get(ticketId)!.show;
+      console.log(this.extrasMap.get(ticketId));
+      return;
+    }
+    this.ticketService.getTicketExtras(ticketId).subscribe({
+      next: (res : Response<Extra[]>) => {
+        this.extrasMap.set(ticketId, {
+          extras: res?.data || [], 
+          show: true
+        });  
+      }
+    });
+  }
+  
+
 }

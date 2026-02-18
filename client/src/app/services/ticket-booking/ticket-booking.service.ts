@@ -7,6 +7,7 @@ import { tap } from 'rxjs/operators';
 import { CreateTicket } from '../../../types/flights/flights';
 import { tick } from '@angular/core/testing';
 import { Response } from '../../../types/responses/responses';
+import { Extra } from '../../../types/users/airlines';
 
 @Injectable({
   providedIn: 'root'
@@ -42,4 +43,9 @@ export class TicketBookingService {
   clearTicketsCache(){
     this.ticketsCache = null;
   }
+
+  getTicketExtras(ticketId: number): Observable<Response<Extra[]>> {
+    return this.http.get<Response<Extra[]>>(`${enviroment.apiUrl}/v1/passenger/tickets/${ticketId}/extras`);
+  }
+
 }
