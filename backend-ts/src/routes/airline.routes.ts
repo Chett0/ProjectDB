@@ -56,7 +56,7 @@ router.get('/me', airlinesController.getAirlineDetails);
  *     summary: Get airline dashboard statistics
  *     description: |
  *       Retrieves dashboard statistics for the authenticated airline, including passenger count,
- *       monthly income, active routes, flights in progress, most in-demand routes, and monthly incomes.
+ *       total income, active routes, flights in progress, most in-demand routes, and monthly incomes.
  *       
  *       🔐 **Authorization Required**
  *       - Bearer Token (JWT)
