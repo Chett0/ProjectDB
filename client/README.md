@@ -4,28 +4,65 @@ Prerequisiti
 - Docker / Docker Desktop installato
 - `docker compose` o `docker-compose` disponibile
 
-Avviare tutti i servizi (dalla root del progetto)
+## Setup Completo
+
+1) Posizionati nella root del progetto:
 
 ```bash
-docker compose up --build
-# oppure in background
+cd /path/to/ProjectDB
+```
+
+2) Crea il file `.env` per il backend (`backend-ts/.env`) con questa riga (usato dai container):
+
+```
+DATABASE_URL=postgresql://postgres:postgres@db:5432/projectdb?schema=public
+```
+
+3) Avvia i servizi (dalla root del progetto):
+
+```bash
 docker compose up -d --build
-# se usi la vecchia CLI:
-docker-compose up --build
 ```
 
-Log e gestione
+
+4) Se il DB è vuoto o vuoi applicare manualmente migration + seed, esegui il servizio `migrate` (one-shot):
 
 ```bash
-docker compose logs -f            # segui i log di tutti i servizi
-docker compose logs -f <servizio> # segui i log di uno specifico servizio
-docker compose down               # ferma e rimuove i container di compose
+docker compose run --rm migrate sh -c "npm install && npx prisma migrate dev"
 ```
 
-Suggerimenti utili
-- Se i servizi non si avviano, esegui `docker compose config` per verificare la sintassi del file `docker-compose.yml`.
-- Se cambiano le variabili d'ambiente o i Dockerfile, ricostruisci con `--build`.
-- Se usi macOS con chip Apple Silicon, verifica l'architettura delle immagini (arm64 vs amd64).
+5) Verifiche utili:
+
+```bash
+# vedere i log del migrate
+docker compose logs migrate --tail 200
+
+# listare le tabelle nel DB
+docker compose exec db psql -U postgres -d projectdb -c "\dt"
+
+# contare gli utenti
+docker compose exec db psql -U postgres -d projectdb -c "SELECT count(*) FROM users;"
+
+# seguire i log di backend/client
+docker compose logs -f backend
+docker compose logs -f client
+
+```
+
+6) Per avviare tutto "da zero" (rimuovere il volume DB e ricreare):
+
+```bash
+# ferma e rimuovi container + network
+docker compose down       
+
+# rimuovi il volume (nome standard: projectdb_db-data)
+docker volume rm projectdb_db-data
+
+# ricrea e riavvia
+docker compose up -d --build
+docker compose run --rm migrate
+```
+
 
 
 
