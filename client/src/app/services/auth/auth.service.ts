@@ -8,6 +8,7 @@ import { enviroment } from '../../enviroments/enviroments';
 import { TokensService } from '../tokens/tokens.service';
 import { Router, RouterStateSnapshot } from '@angular/router';
 import { AuthResp, Response } from '../../../types/responses/responses';
+import { UserDTO } from '../../../types/users/user';
 import { AirlineAsUser } from '../../../types/users/airlines';
 
 
@@ -76,11 +77,11 @@ export class AuthService {
   }
 
   deleteUserByEmail(email: string) {
-    return this.http.delete<Response<any>>(`${enviroment.apiUrl}/v1/users/${encodeURIComponent(email)}`);
+    return this.http.delete<Response<UserDTO>>(`${enviroment.apiUrl}/v1/users/${encodeURIComponent(email)}`);
   }
 
   reactivateUserByEmail(email: string) {
-    return this.http.patch<Response<any>>(`${enviroment.apiUrl}/v1/users/${encodeURIComponent(email)}`, {});
+    return this.http.patch<Response<UserDTO>>(`${enviroment.apiUrl}/v1/users/${encodeURIComponent(email)}`, {});
   }
 
   static clearRedirectPath() {

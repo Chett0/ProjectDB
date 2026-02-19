@@ -1,5 +1,6 @@
 import { UserLogin } from "./auth";
 import { Response } from "../responses/responses";
+import { TicketDisplay } from "../flights/flights";
 
 export enum UserRole {
     PASSENGER = 'Passenger',
@@ -27,6 +28,7 @@ export interface PassengerInfo {
     email: string
 }
 
-export interface PassengerResolverResponse {
+export interface PassengersResolveData {
     passengerResponse: Response<PassengerInfo>;
+    tickets: Response<{ tickets: TicketDisplay[] }>;
 }

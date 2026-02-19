@@ -24,7 +24,7 @@ export class AirlinesService {
   constructor(private http : HttpClient) { }
 
   getAirlinesInfo() {
-    return this.http.get<any>(`${enviroment.apiUrl}/v1/airline/me`);
+    return this.http.get<Response<Airline>>(`${enviroment.apiUrl}/v1/airline/me`);
   }
 
   getAllAirlines() {
@@ -36,7 +36,7 @@ export class AirlinesService {
   }
 
   createFlight(newFlight: CreateFlight) : Observable<Response<Flight>> {
-    return this.http.post<any>(`${enviroment.apiUrl}/v1/airline/flights`, newFlight).pipe(
+    return this.http.post<Response<Flight>>(`${enviroment.apiUrl}/v1/airline/flights`, newFlight).pipe(
       tap((res : Response<Flight>) => {
         if(res.success && res.data) {
           if(!this.flightCache)
