@@ -309,21 +309,21 @@ router.get('/tickets', passengerController.getPassengerTickets);
  *     summary: Get extras for a specific ticket
  *     description: |
  *       Retrieves all extra services associated with a specific ticket of the authenticated passenger.
- *       
+ *
  *       🔐 **Authorization Required**
  *       - Bearer Token (JWT)
  *       - Role: PASSENGER
  *     tags:
  *       - Tickets
- *    parameters:
- *      - in: path
- *        name: ticketId
- *       required: true
- *      schema:
- *        type: integer
- *      description: ID of the ticket to retrieve extras for
+ *     parameters:
+ *       - in: path
+ *         name: ticketId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the ticket to retrieve extras for
  *     security:
- *       - bearerAuth: [PASSENGER]
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Ticket extras retrieved successfully
@@ -340,8 +340,8 @@ router.get('/tickets', passengerController.getPassengerTickets);
  *                   example: Ticket extras retrieved successfully
  *                 data:
  *                   $ref: '#/components/schemas/ExtraDTO'
- *      400:
- *        description: Ticket ID is required or Invalid ticket ID
+ *       400:
+ *         description: Ticket ID is required or invalid ticket ID
  *       401:
  *         description: Unauthorized - Missing or invalid JWT
  *       403:
