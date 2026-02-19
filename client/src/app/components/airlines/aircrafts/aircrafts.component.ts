@@ -111,15 +111,14 @@ export class AircraftsComponent implements OnInit {
       next: (res: Response<AircraftWithClasses>) => {
         if(res.success){
           this.addSuccess = 'Aereo aggiunto con successo.';
-          setTimeout(() => this.addSuccess = null, 4000);
-          this.addLoading = false;
-          this.aircrafts.push(res.data);
+          this.aircrafts = [...this.aircrafts, res.data]; //recreate the array to show new aircraft added
 
-          //this part is needed to update the viewed aircraft list
           const currentFilter = (this.searchControl.value || '').trim().toLocaleLowerCase();
           this.applyFilter(currentFilter);
 
-          this.closeAddModal();
+          setTimeout(() => {
+            this.closeAddModal();
+          }, 500);
         }
       },
       error: () => {
