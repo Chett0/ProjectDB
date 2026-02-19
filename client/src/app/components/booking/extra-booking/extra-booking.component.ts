@@ -8,6 +8,7 @@ import { ExtraService } from '../../../services/airlines/extras.service';
 import { HeaderComponent } from '../../header/header.component';
 import { CommonModule } from '@angular/common';
 import { TicketBookingService } from '../../../services/ticket-booking/ticket-booking.service';
+import { PassengerService } from '../../../services/passenger/passenger.service';
 
 @Component({
   selector: 'app-extra',
@@ -26,7 +27,8 @@ export class ExtraBookingComponent implements OnInit{
     private ticketService: TicketService,
     private bookingService: TicketBookingService,  
     private extrasService: ExtraService,
-    private router: Router
+    private router: Router,
+    private passengerService: PassengerService
   ) { }
 
   ngOnInit(): void {
@@ -88,6 +90,7 @@ export class ExtraBookingComponent implements OnInit{
 
       this.bookingService.buyTicket(ticket).subscribe({
         next: (res: Response<any>) => {
+          this.passengerService.clearPassengerCache();
           alert("Biglietto acquistato con successo!");
           this.router.navigate(['/passengers']);
         },
