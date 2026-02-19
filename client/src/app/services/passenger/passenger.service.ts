@@ -13,6 +13,8 @@ export class PassengerService {
 
   private passengerCache: PassengerInfo | null = null;
   private passengerCacheTimestamp: number | null = null;
+  private passengerStatsCache: { totalFlights: number; flightHours: { hours: number; minutes: number }; moneySpent: number } | null = null;
+  private passengerStatsCacheTimestamp: number | null = null;
   private readonly cacheTTL = 2 * 60 * 1000; 
 
   constructor(private http: HttpClient) { }
@@ -47,12 +49,30 @@ export class PassengerService {
     );
   }
 
-  getPassengerStats(): Observable<Response<{ totalFlights: number; flightHours: { hours: number; minutes: number }; moneySpent: number }>> {
-    return this.http.get<Response<{ totalFlights: number; flightHours: { hours: number; minutes: number }; moneySpent: number }>>(`${enviroment.apiUrl}/v1/passenger/dashboard_stats`);
+  getPassengerStats(forceRefresh = false): Observable<Response<{ totalFlights: number; flightHours: { hours: number; minutes: number }; moneySpent: number }>> {
+    const now = Date.now();
+    if (!forceRefresh && this.passengerStatsCache && this.passengerStatsCacheTimestamp && (now - this.passengerStatsCacheTimestamp < this.cacheTTL)) {
+      return of({
+        success: true,
+        message: 'Fetched from cache',
+        data: this.passengerStatsCache
+      });
+    }
+
+    return this.http.get<Response<{ totalFlights: number; flightHours: { hours: number; minutes: number }; moneySpent: number }>>(`${enviroment.apiUrl}/v1/passenger/dashboard_stats`).pipe(
+      tap(res => {
+        if (res && res.success && res.data) {
+          this.passengerStatsCache = res.data;
+          this.passengerStatsCacheTimestamp = Date.now();
+        }
+      })
+    );
   }
 
   clearPassengerCache() {
     this.passengerCache = null;
     this.passengerCacheTimestamp = null;
+    this.passengerStatsCache = null;
+    this.passengerStatsCacheTimestamp = null;
   }
 }
