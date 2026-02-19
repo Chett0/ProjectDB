@@ -4,7 +4,7 @@ import { enviroment } from '../../enviroments/enviroments';
 import { Observable } from 'rxjs/internal/Observable';
 import { of } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { CreateTicket } from '../../../types/flights/flights';
+import { CreateTicket, TicketDisplay, TicketInfo } from '../../../types/flights/flights';
 import { tick } from '@angular/core/testing';
 import { Response } from '../../../types/responses/responses';
 import { Extra } from '../../../types/users/airlines';
@@ -16,8 +16,8 @@ export class TicketBookingService {
   private ticketsCache: { [key: string]: any } | null = null; 
   constructor(private http: HttpClient) { }
 
-  buyTicket(ticket : CreateTicket): Observable<Response<any>> {
-    return this.http.post<Response<any>>(`${enviroment.apiUrl}/v1/passenger/tickets`, ticket).pipe(
+  buyTicket(ticket : CreateTicket): Observable<Response<TicketInfo>> {
+    return this.http.post<Response<TicketInfo>>(`${enviroment.apiUrl}/v1/passenger/tickets`, ticket).pipe(
       tap((res) => {
         this.clearTicketsCache();
       })
@@ -25,14 +25,14 @@ export class TicketBookingService {
   }
 
 
-  getTickets(page: number = 1, limit: number = 10): Observable<any> {
+  getTickets(page: number = 1, limit: number = 10): Observable<Response<{ tickets: TicketDisplay[]; total: number; page: number; limit: number }>> {
     const key = `${page}_${limit}`;
     if (this.ticketsCache && this.ticketsCache[key]) {
       return of(this.ticketsCache[key]);
     }
 
     const url = `${enviroment.apiUrl}/v1/passenger/tickets?page=${page}&limit=${limit}`;
-    return this.http.get<any>(url).pipe(
+    return this.http.get<Response<{ tickets: TicketDisplay[]; total: number; page: number; limit: number }>>(url).pipe(
       tap(data => {
         if (!this.ticketsCache) this.ticketsCache = {};
         this.ticketsCache[key] = data;

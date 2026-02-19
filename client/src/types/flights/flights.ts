@@ -65,3 +65,32 @@ export interface CreateTicket {
     extrasIds: number[],
     seatNumber: string,
 }
+
+export interface TicketInfo {
+    id: number;
+    seatNumber: string;
+    finalCost: number | string;
+}
+
+export interface TicketDisplay {
+    id: number;
+    code: string;
+    airline: string;
+    booking: number | string;
+    from: {
+        code: string;
+        city: string;
+        time: string;
+        date: string;
+    };
+    to: {
+        code: string;
+        city: string;
+        time: string;
+        date: string;
+    };
+    cabin: string;
+    seat: string;
+    price: string | number;
+    raw?: any;
+}

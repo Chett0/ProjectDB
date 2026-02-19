@@ -8,6 +8,7 @@ import { PassengerService } from '../../services/passenger/passenger.service';
 import { TicketBookingService } from '../../services/ticket-booking/ticket-booking.service';
 import { PassengerInfo } from '../../../types/users/passenger';
 import { Response } from '../../../types/responses/responses';
+import { TicketDisplay } from '../../../types/flights/flights';
 import { HeaderComponent } from '../header/header.component';
 import { Extra } from '../../../types/users/airlines';
 
@@ -32,7 +33,7 @@ export class PassengersComponent {
   editName: string = '';
   editSurname: string = '';
 
-  tickets: any[] = [];
+  tickets: TicketDisplay[] = [];
   extrasMap : Map<number, {extras: Extra[], show: boolean}> = new Map();
 
   public ticketsTotal: number = 0;
@@ -73,7 +74,8 @@ export class PassengersComponent {
 
         
         if (passengerData.tickets) {
-          const payload = passengerData.tickets?.data ? passengerData.tickets.data : passengerData.tickets;
+          const ticketsRes = passengerData.tickets as Response<{ tickets: TicketDisplay[]; total: number; page: number; limit: number }>;
+          const payload = ticketsRes.data ? ticketsRes.data : (ticketsRes as unknown as any);
           this.tickets = payload?.tickets || [];
           this.ticketsTotal = payload?.total || 0;
           this.ticketsPage = payload?.page || this.ticketsPage;
@@ -84,8 +86,8 @@ export class PassengersComponent {
 
         // load passenger stats
         this.passengerService.getPassengerStats().subscribe({
-          next: (res: any) => {
-            const payload = res?.data ? res.data : res;
+          next: (res: Response<{ totalFlights: number; flightHours: { hours: number; minutes: number }; moneySpent: number }>) => {
+            const payload = res?.data ? res.data : (res as unknown as any);
             this.totalFlights = payload?.totalFlights || 0;
             const fh = payload?.flightHours || { hours: 0, minutes: 0 };
             this.flightHoursDisplay = `${fh.hours}h ${fh.minutes}m`;
@@ -112,8 +114,8 @@ export class PassengersComponent {
   loadTickets(page: number = 1) {
     this.ticketsPage = page;
     this.ticketService.getTickets(page, this.ticketsLimit).subscribe({
-      next: (res: any) => {
-        const payload = res?.data ? res.data : res;
+      next: (res: Response<{ tickets: TicketDisplay[]; total: number; page: number; limit: number }>) => {
+        const payload = res?.data ? res.data : (res as unknown as any);
         this.tickets = payload?.tickets || [];
         this.ticketsTotal = payload?.total || 0;
         this.ticketsPage = payload?.page || page;

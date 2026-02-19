@@ -4,7 +4,15 @@ import { PassengerAsUser } from '../../../../types/users/passenger';
 import { AuthService } from '../../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Response } from '../../../../types/responses/responses';
 
+interface RegisterFormValue {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  name: string;
+  surname: string;
+}
 @Component({
   selector: 'app-register',
   imports: [ReactiveFormsModule, CommonModule],
@@ -30,7 +38,7 @@ export class RegisterComponent implements OnInit {
 
   register(): void {
     this.registerError = '';
-    const {email, password, name, surname, confirmPassword} = this.registerForm.value as any;
+    const {email, password, name, surname, confirmPassword} = this.registerForm.value as RegisterFormValue;
     if(!email || !password || !name || !surname) {
       this.registerError = 'Tutti i campi sono obbligatori.';
       return;
@@ -50,7 +58,7 @@ export class RegisterComponent implements OnInit {
       surname: surname ?? ''
     };
     this.authService.registerPassenger(passenger).subscribe({
-      next: (response: any) => {
+      next: (response: Response<void>) => {
         this.router.navigate(['/login'])
       },
       error: (err: any) => {

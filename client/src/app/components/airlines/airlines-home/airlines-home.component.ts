@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Type } from '@angular/core';
 import { CommonModule} from '@angular/common';
+import { Response } from '../../../../types/responses/responses';
 import { ActivatedRoute, Router} from '@angular/router';
 import { AuthService } from '../../../services/auth/auth.service';
 import { AirlinesService } from '../../../services/airlines/airlines.service';
@@ -10,7 +11,7 @@ import { RoutesComponent } from '../routes/routes.component';
 import { FlightsComponent } from '../flights/flights.component';
 import { ExtraComponent } from '../extra/extra.component';
 import { FooterComponent } from '../../footer/footer.component';
-import { AirlineDashBoard } from '../../../../types/users/airlines';
+import { Airline, AirlineDashBoard } from '../../../../types/users/airlines';
 import { AirlineDashboardComponent } from '../airline-dashboard/airline-dashboard.component';
 import { HeaderComponent } from '../../header/header.component';
 import { ExtraService } from '../../../services/airlines/extras.service';
@@ -19,7 +20,7 @@ import { ExtraService } from '../../../services/airlines/extras.service';
   selector: 'app-airlines-home',
   imports: [CommonModule, AircraftsComponent, RoutesComponent, FlightsComponent, ExtraComponent, FooterComponent, AirlineDashboardComponent,HeaderComponent],
   templateUrl: './airlines-home.component.html',
-  styleUrl: './airlines-home.component.css'
+  styleUrls: ['./airlines-home.component.css']
 })
 export class AirlinesHomeComponent implements OnInit{
 
@@ -54,7 +55,7 @@ export class AirlinesHomeComponent implements OnInit{
     monthlyIncomes: []
   }
 
-  tabs: { label: string; component: any }[] = [
+  tabs: { label: string; component: Type<any> }[] = [
     { label: 'Dashboard', component: AirlineDashboardComponent },
     { label: 'Aerei', component: AircraftsComponent },
     { label: 'Voli', component: FlightsComponent },
@@ -62,7 +63,7 @@ export class AirlinesHomeComponent implements OnInit{
     { label: 'Extra', component: ExtraComponent }
   ];
 
-  get activeComponent(): any {
+  get activeComponent(): Type<any> {
     return this.tabs[this.activeTab].component;
   }
 
@@ -77,8 +78,8 @@ export class AirlinesHomeComponent implements OnInit{
       }
     });
 
-    this.airlinesService.getAirlinesInfo().subscribe((info: any) => {
-      this.airlineName = info?.data.name || 'Compagnia Aerea';
+    this.airlinesService.getAirlinesInfo().subscribe((info: Response<Airline>) => {
+      this.airlineName = info?.data?.name || 'Compagnia Aerea';
     });
 
   }

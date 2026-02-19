@@ -9,3 +9,8 @@ export interface AuthResp {
   refreshToken: string,
   role : string
 }
+
+export interface RefreshTokenResponse {
+  accessToken: string;
+  role: string;
+}

@@ -40,11 +40,11 @@ export class AircraftsService {
     return this.http.post<Response<AircraftWithClasses>>(`${enviroment.apiUrl}/v1/airline/aircrafts`, aircraft).pipe(
       tap((res : Response<AircraftWithClasses>) => {
         if(res.success && res.data){
-          if(!this.aircraftsCache)
-            this.aircraftsCache = [];
-          this.aircraftsCache.push(res.data);
+
+          const prev = this.aircraftsCache ? [...this.aircraftsCache] : [];
+          this.aircraftsCache = [...prev, res.data];
           this.aircraftsCacheTimestamp = Date.now();
-        } 
+        }
       })
     );
   }

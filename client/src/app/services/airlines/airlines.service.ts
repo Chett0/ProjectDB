@@ -24,7 +24,7 @@ export class AirlinesService {
   constructor(private http : HttpClient) { }
 
   getAirlinesInfo() {
-    return this.http.get<any>(`${enviroment.apiUrl}/v1/airline/me`);
+    return this.http.get<Response<Airline>>(`${enviroment.apiUrl}/v1/airline/me`);
   }
 
   getAllAirlines() {
@@ -36,7 +36,7 @@ export class AirlinesService {
   }
 
   createFlight(newFlight: CreateFlight) : Observable<Response<Flight>> {
-    return this.http.post<any>(`${enviroment.apiUrl}/v1/airline/flights`, newFlight).pipe(
+    return this.http.post<Response<Flight>>(`${enviroment.apiUrl}/v1/airline/flights`, newFlight).pipe(
       tap((res : Response<Flight>) => {
         if(res.success && res.data) {
           if(!this.flightCache)
@@ -53,7 +53,8 @@ export class AirlinesService {
     page: number = 1,
     limit: number = 10,
     filters?: { q?: string; maxPrice?: number; sortBy?: string; order?: string }
-  ) : Observable<Response<any>> {
+  ): Observable<Response<{ flights: Flight[]; total: number; page: number; limit: number }>> {
+    type FlightsPayload = { flights: Flight[]; total: number; page: number; limit: number };
 
     const paramsArr: string[] = [];
     paramsArr.push(`page=${page}`);
@@ -73,7 +74,7 @@ export class AirlinesService {
       }
     }
     const params = paramsArr.length ? `?${paramsArr.join('&')}` : '';
-    return this.http.get<Response<any>>(`${enviroment.apiUrl}/v1/airline/flights${params}`);
+    return this.http.get<Response<FlightsPayload>>(`${enviroment.apiUrl}/v1/airline/flights${params}`);
   }
 
 }

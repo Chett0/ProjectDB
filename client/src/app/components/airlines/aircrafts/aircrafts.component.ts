@@ -14,12 +14,12 @@ import { AircraftWithClasses, Class, ClassInfo, CreateAircraft } from '../../../
 })
 export class AircraftsComponent implements OnInit {
   tab: 'list' | 'add' = 'list';
-  aircrafts: any[] = [];
+  aircrafts: AircraftWithClasses[] = [];
   loading = false;
   error = '';
 
   searchControl = new FormControl('');
-  filteredAircrafts: any[] = [];
+  filteredAircrafts: AircraftWithClasses[] = [];
 
   // Form fields
   newModel = '';
@@ -86,6 +86,12 @@ export class AircraftsComponent implements OnInit {
       this.addError = 'Compila tutti i campi.';
       return;
     }
+
+     if(Number(this.newSeats) <= 0){
+      this.addError = "Un aereo deve avere almeno 1 posto";
+      return;
+    }
+
     for (const c of this.classes) {
       if (!c.name || !c.nSeats || !c.priceMultiplier) {
         this.addError = 'Compila tutti i campi delle classi o rimuovi classi incomplete.';
@@ -107,19 +113,21 @@ export class AircraftsComponent implements OnInit {
       classes: this.classes
     };
 
-  this.aircraftsService.addAircraft(newAircraft).subscribe({
+    this.aircraftsService.addAircraft(newAircraft).subscribe({
       next: (res: Response<AircraftWithClasses>) => {
-        if(res.success){
+        if (res.success && res.data) {
           this.addSuccess = 'Aereo aggiunto con successo.';
-          setTimeout(() => this.addSuccess = null, 4000);
-          this.addLoading = false;
-          this.aircrafts.push(res.data);
+          this.aircrafts = [...this.aircrafts, res.data]; // recreate the array to show new aircraft added
 
-          //this part is needed to update the viewed aircraft list
           const currentFilter = (this.searchControl.value || '').trim().toLocaleLowerCase();
           this.applyFilter(currentFilter);
 
-          this.closeAddModal();
+          setTimeout(() => {
+            this.closeAddModal();
+          }, 500);
+        } else {
+          this.addError = 'Errore durante l\'aggiunta.';
+          this.addLoading = false;
         }
       },
       error: () => {
@@ -151,7 +159,7 @@ export class AircraftsComponent implements OnInit {
     });
   }
 
-  deleteAircraft(aircraft: any) {
+  deleteAircraft(aircraft: AircraftWithClasses) {
     const confirmed = window.confirm(`Sei sicuro di voler eliminare l'aereo: ${aircraft.model} (ID ${aircraft.id})?`);
     if (!confirmed) return;
 

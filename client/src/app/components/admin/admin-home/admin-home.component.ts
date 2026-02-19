@@ -10,7 +10,7 @@ import { Airline, AirlineAsUser } from '../../../../types/users/airlines';
 import { Response } from '../../../../types/responses/responses';
 import { CreatedAirline } from '../../../../types/users/auth';
 import { HeaderComponent } from '../../header/header.component';
-import { AdminService } from '../../../services/admin/admin.service';
+import { UserDTO } from '../../../../types/users/user';
 import { AdminDashboard } from '../../../../types/users/admin';
 
 @Component({
@@ -32,7 +32,7 @@ export class AdminHomeComponent implements OnInit {
   userFeedbackType: 'success' | 'error' | '' = '';
   
   searchQuery = '';
-  activeTab: any = 0;
+  activeTab: number = 0;
   airlines: Airline[] = [];
   deleteEmail: string = '';
 
@@ -104,7 +104,7 @@ export class AdminHomeComponent implements OnInit {
     if (!confirmed) return;
 
     this.authService.deleteUserByEmail(this.deleteEmail).subscribe({
-      next: (res: Response<any>) => {
+      next: (res: Response<UserDTO>) => {
         this.userFeedbackMsg = 'Utente eliminato con successo.';
         this.userFeedbackType = 'success';
         this.deleteEmail = '';
@@ -129,7 +129,7 @@ export class AdminHomeComponent implements OnInit {
     if (!confirmed) return;
 
     this.authService.reactivateUserByEmail(this.deleteEmail).subscribe({
-      next: (res: Response<any>) => {
+      next: (res: Response<UserDTO>) => {
         this.userFeedbackMsg = 'Utente riattivato con successo.';
         this.userFeedbackType = 'success';
         this.deleteEmail = '';
