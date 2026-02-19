@@ -53,7 +53,8 @@ export class AirlinesService {
     page: number = 1,
     limit: number = 10,
     filters?: { q?: string; maxPrice?: number; sortBy?: string; order?: string }
-  ) : Observable<Response<any>> {
+  ): Observable<Response<{ flights: Flight[]; total: number; page: number; limit: number }>> {
+    type FlightsPayload = { flights: Flight[]; total: number; page: number; limit: number };
 
     const paramsArr: string[] = [];
     paramsArr.push(`page=${page}`);
@@ -73,7 +74,7 @@ export class AirlinesService {
       }
     }
     const params = paramsArr.length ? `?${paramsArr.join('&')}` : '';
-    return this.http.get<Response<any>>(`${enviroment.apiUrl}/v1/airline/flights${params}`);
+    return this.http.get<Response<FlightsPayload>>(`${enviroment.apiUrl}/v1/airline/flights${params}`);
   }
 
 }

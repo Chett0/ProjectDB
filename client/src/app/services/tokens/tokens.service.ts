@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
+import { Response, RefreshTokenResponse } from '../../../types/responses/responses';
 import { enviroment } from '../../enviroments/enviroments';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
@@ -11,7 +12,7 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 export class TokensService {
   
   private accessToken : BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
-  private refreshTimeout: any;
+  private refreshTimeout: number | null = null;
   private jwtHelper = new JwtHelperService();
 
   constructor(private http : HttpClient) { }
@@ -39,7 +40,10 @@ export class TokensService {
   }
 
   private clearRefresh() {
-    if (this.refreshTimeout) clearTimeout(this.refreshTimeout);
+    if (this.refreshTimeout !== null) {
+      clearTimeout(this.refreshTimeout);
+      this.refreshTimeout = null;
+    }
   }
 
   setTokens(access_token: string) {
@@ -59,7 +63,7 @@ export class TokensService {
     if (timeout <= 0) {
       this.performRefresh();
     } else {
-      this.refreshTimeout = setTimeout(() => this.performRefresh(), timeout);
+      this.refreshTimeout = window.setTimeout(() => this.performRefresh(), timeout);
     }
   }
 
@@ -71,11 +75,10 @@ export class TokensService {
   }
 
 
-  refreshToken(): Observable<any> {
-    
-    return this.http.post<any>(`${enviroment.apiUrl}/v1/auth/refresh`, {}, { withCredentials: true }).pipe(
-      tap((response: any) => {
-        const newAccess = response?.data?.accessToken || response?.accessToken;
+  refreshToken(): Observable<Response<RefreshTokenResponse>> {
+    return this.http.post<Response<RefreshTokenResponse>>(`${enviroment.apiUrl}/v1/auth/refresh`, {}, { withCredentials: true }).pipe(
+      tap((response: Response<RefreshTokenResponse>) => {
+        const newAccess = response?.data?.accessToken || (response as any)?.accessToken;
         if (newAccess) this.setTokens(newAccess);
       }),
       catchError(() => {
