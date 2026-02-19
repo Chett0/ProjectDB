@@ -86,6 +86,12 @@ export class AircraftsComponent implements OnInit {
       this.addError = 'Compila tutti i campi.';
       return;
     }
+
+     if(Number(this.newSeats) <= 0){
+      this.addError = "Un aereo deve avere almeno 1 posto";
+      return;
+    }
+
     for (const c of this.classes) {
       if (!c.name || !c.nSeats || !c.priceMultiplier) {
         this.addError = 'Compila tutti i campi delle classi o rimuovi classi incomplete.';
