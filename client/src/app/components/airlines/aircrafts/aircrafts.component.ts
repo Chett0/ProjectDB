@@ -14,12 +14,12 @@ import { AircraftWithClasses, Class, ClassInfo, CreateAircraft } from '../../../
 })
 export class AircraftsComponent implements OnInit {
   tab: 'list' | 'add' = 'list';
-  aircrafts: any[] = [];
+  aircrafts: AircraftWithClasses[] = [];
   loading = false;
   error = '';
 
   searchControl = new FormControl('');
-  filteredAircrafts: any[] = [];
+  filteredAircrafts: AircraftWithClasses[] = [];
 
   // Form fields
   newModel = '';
@@ -107,11 +107,11 @@ export class AircraftsComponent implements OnInit {
       classes: this.classes
     };
 
-  this.aircraftsService.addAircraft(newAircraft).subscribe({
+    this.aircraftsService.addAircraft(newAircraft).subscribe({
       next: (res: Response<AircraftWithClasses>) => {
-        if(res.success){
+        if (res.success && res.data) {
           this.addSuccess = 'Aereo aggiunto con successo.';
-          this.aircrafts = [...this.aircrafts, res.data]; //recreate the array to show new aircraft added
+          this.aircrafts = [...this.aircrafts, res.data]; // recreate the array to show new aircraft added
 
           const currentFilter = (this.searchControl.value || '').trim().toLocaleLowerCase();
           this.applyFilter(currentFilter);
@@ -119,6 +119,9 @@ export class AircraftsComponent implements OnInit {
           setTimeout(() => {
             this.closeAddModal();
           }, 500);
+        } else {
+          this.addError = 'Errore durante l\'aggiunta.';
+          this.addLoading = false;
         }
       },
       error: () => {
@@ -150,7 +153,7 @@ export class AircraftsComponent implements OnInit {
     });
   }
 
-  deleteAircraft(aircraft: any) {
+  deleteAircraft(aircraft: AircraftWithClasses) {
     const confirmed = window.confirm(`Sei sicuro di voler eliminare l'aereo: ${aircraft.model} (ID ${aircraft.id})?`);
     if (!confirmed) return;
 
