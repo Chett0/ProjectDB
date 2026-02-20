@@ -33,25 +33,15 @@ JWT_REFRESH_TOKEN_SECRET=5d2c38a5a9b3eaf994c22d2e415ea22a7a8f8b8e56b9c7127cfb6ec
 BCRYPT_SALT_ROUNDS=10
 ```
 
-
-
 2. Avviare i servizi (dalla root del progetto):
 
 ```bash
 docker compose up -d --build
 ```
 
+Dopo il completamente delle operazione si può navigare sul sito all'indirizzo: `http://localhost:4200/`
 
-
-3. Applicare migration / seed (one-shot migrate container):
-
-```bash
-docker compose run --rm migrate sh -c "npm install && npx prisma migrate dev"
-```
-
-
-
-4. Comandi utili per debug e gestione:
+3. Comandi utili per debug e gestione:
 
 ```bash
 # vedere log del migrate
@@ -76,7 +66,7 @@ docker compose run --rm migrate
 
 
 
-5. Utenti e credenziali di Test
+4. Utenti e credenziali di Test
 
 Questi utenti sono quelli creati dallo script di seed (`backend-ts/prisma/seeds`). Nel database le password sono memorizzate come hash; qui sono elencate in chiaro, per permettere il login in ambiente di sviluppo.
 
@@ -140,4 +130,6 @@ ng serve
 
 3. Aprire il browser su `http://localhost:4200/`.
 
+## Documentazione api
 
+1. Aprire il browser su `http://localhost:5000/api-docs`
