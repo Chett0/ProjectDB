@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ReactiveFormsModule, FormControl, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FiltersFlightsComponent } from '../../flights/filters-flights/filters-flights.component';
@@ -9,6 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CreateFlight, Flight } from '../../../../types/flights/flights';
 import { Response } from '../../../../types/responses/responses';
 import { AircraftWithClasses, AirlineRoute } from '../../../../types/users/airlines';
+import { Subscription } from 'rxjs';
 
 export interface NewFlightData {
   departure_time: string;
@@ -22,7 +23,7 @@ export interface NewFlightData {
   templateUrl: './flights.component.html',
   styleUrl: './flights.component.css'
 })
-export class FlightsComponent implements OnInit {
+export class FlightsComponent implements OnInit, OnDestroy {
   searchControl = new FormControl('');
 
   newFlight: NewFlightData = {
@@ -51,6 +52,8 @@ export class FlightsComponent implements OnInit {
   selectedRouteId: number | null = null;
   modalRouteSearchControl = new FormControl('');
   showModalRoutesDropdown = false;
+  private routesSub: Subscription | null = null;
+  private aircraftsSub: Subscription | null = null;
 
   addLoading = false;
   addError = '';
@@ -165,6 +168,26 @@ export class FlightsComponent implements OnInit {
           });
         }
 
+          // live updates
+          if (!this.routesSub) {
+            this.routesSub = this.routesService.watchRoutes().subscribe(list => {
+              if (Array.isArray(list)) {
+                this.routes = list.slice();
+                this.applyRoutesModalFilter(String(this.modalRouteSearchControl.value || '').trim().toLowerCase());
+              }
+            });
+          }
+
+          // live updates
+          if (!this.aircraftsSub) {
+            this.aircraftsSub = this.aircraftsService.watchAircrafts().subscribe(list => {
+              if (Array.isArray(list)) {
+                this.aircrafts = list.slice();
+                this.applyAircraftsModalFilter(String(this.modalAircraftSearchControl.value || '').trim().toLowerCase());
+              }
+            });
+          }
+
 
         //flights
         if (airlineData.flightsResponse) {
@@ -224,6 +247,17 @@ export class FlightsComponent implements OnInit {
     this.route.queryParams.subscribe(() => {
       this.loadFlights(1);
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.routesSub) {
+      this.routesSub.unsubscribe();
+      this.routesSub = null;
+    }
+    if (this.aircraftsSub) {
+      this.aircraftsSub.unsubscribe();
+      this.aircraftsSub = null;
+    }
   }
 
   loadFlights(page: number = 1) {

@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { Extra } from '../../../../types/users/airlines';
 import { Response } from '../../../../types/responses/responses';
 import { ExtraService } from '../../../services/airlines/extras.service';
@@ -13,6 +14,7 @@ import { ExtraService } from '../../../services/airlines/extras.service';
   styleUrl: './extra.component.css'
 })
 export class ExtraComponent implements OnInit {
+  private extrasSub: Subscription | null = null;
   searchControl = new FormControl('');
   showAddModal = false;
   addExtraForm = new FormGroup({
@@ -35,7 +37,31 @@ export class ExtraComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.fetchExtras();
+    // prefetch data if available
+    this.route.data.subscribe(({ airlineData }) => {
+      if (airlineData && airlineData.extrasResponse && airlineData.extrasResponse.success) {
+        this.extras = airlineData.extrasResponse.data || [];
+        this.applySearch();
+        this.loading = false;
+      } else {
+        this.fetchExtras();
+      }
+    });
+
+    // live updates
+    this.extrasSub = this.extraService.watchExtras().subscribe(list => {
+      if (Array.isArray(list)) {
+        this.extras = list.slice();
+        this.applySearch();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.extrasSub) {
+      this.extrasSub.unsubscribe();
+      this.extrasSub = null;
+    }
   }
 
 
@@ -82,7 +108,6 @@ export class ExtraComponent implements OnInit {
         }
         this.showAddModal = false;
         this.addExtraForm.reset();
-        this.extras.push(res.data);
         this.applySearch();
       },
       error: () => {
@@ -99,8 +124,6 @@ export class ExtraComponent implements OnInit {
           this.error = 'Errore eliminazione extra'; 
           return;
         }
-        this.extras = this.extras.filter(e => e.id !== extra.id);
-        this.applySearch();
       },
       error: () => { 
         this.error = 'Errore eliminazione extra'; 

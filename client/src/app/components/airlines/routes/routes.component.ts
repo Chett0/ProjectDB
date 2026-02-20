@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RoutesService } from '../../../services/airlines/routes.service';
 import { ActivatedRoute } from '@angular/router';
 import { AirlineRoute, Route } from '../../../../types/users/airlines';
 import { Router } from '@angular/router';
 import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-routes',
@@ -12,7 +13,7 @@ import { FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angula
   templateUrl: './routes.component.html',
   styleUrls: ['./routes.component.css']
 })
-export class RoutesComponent implements OnInit{
+export class RoutesComponent implements OnInit, OnDestroy{
 
   constructor(private routesService : RoutesService, private router : Router, private route: ActivatedRoute) {}
 
@@ -24,6 +25,7 @@ export class RoutesComponent implements OnInit{
   errorMessage: string | null = null;
   showAddModal: boolean = false;
   searchControl = new FormControl('');
+  private routesSub: Subscription | null = null;
 
   addRouteForm = new FormGroup({
     departure_airport: new FormControl('', [Validators.required, Validators.maxLength(3)]),
@@ -31,12 +33,36 @@ export class RoutesComponent implements OnInit{
   });
 
   ngOnInit() {
-  this.loadRoutes();
-  
-  this.searchControl.valueChanges.subscribe(value => {
-    this.applyFilter(String(value || '').trim().toLowerCase());
-  });
+    // prefetch data if available
+    this.route.data.subscribe(({ airlineData }) => {
+      if (airlineData && airlineData.routesResponse && airlineData.routesResponse.success) {
+        this.routes = airlineData.routesResponse.data || [];
+        this.filteredRoutes = this.routes.slice();
+        this.loading = false;
+      } else {
+        this.loadRoutes();
+      }
+    });
+
+    this.searchControl.valueChanges.subscribe(value => {
+      this.applyFilter(String(value || '').trim().toLowerCase());
+    });
+
+    // live updates
+    this.routesSub = this.routesService.watchRoutes().subscribe(list => {
+      if (Array.isArray(list)) {
+        this.routes = list.slice();
+        this.applyFilter((this.searchControl.value || '').trim().toLowerCase());
+      }
+    });
 }
+
+  ngOnDestroy(): void {
+    if (this.routesSub) {
+      this.routesSub.unsubscribe();
+      this.routesSub = null;
+    }
+  }
 
   loadRoutes() {
     
@@ -91,8 +117,7 @@ export class RoutesComponent implements OnInit{
       next: response => {
         this.addRouteForm.reset();
         if(response.success && response.data){
-          this.routes.push(response.data);
-          this.applyFilter((this.searchControl.value || '').trim().toLowerCase());
+            this.applyFilter((this.searchControl.value || '').trim().toLowerCase());
         }
         this.submitting = false;
       },
@@ -108,21 +133,16 @@ export class RoutesComponent implements OnInit{
     const confirmed = window.confirm(`Sei sicuro di voler eliminare la tratta: ${route.departureAirport.code} → ${route.arrivalAirport.code}?`);
     if (!confirmed) return;
 
-    this.deletingId = route.id;
     this.errorMessage = null;
 
   this.routesService.deleteRoute(route.id).subscribe({
       next: res => {
         if(res.success){
-          this.routes = this.routes.filter(r => r.id !== route.id);
-          this.applyFilter((this.searchControl.value || '').trim().toLowerCase());
-          this.routesService.clearRoutesCache();
-          this.deletingId = null;
+          return;
         }
       },
       error: (err) => {
         this.errorMessage = 'Errore durante l\'eliminazione della tratta.';
-        this.deletingId = null;
       }
     });
 
