@@ -14,11 +14,26 @@ Prerequisiti
 
 Opzione consigliata — Avvio con Docker Compose
 
-1. Creare il file `.env` nella root o in `backend-ts` (se non già presente) con la variabile DATABASE_URL usata dai container. Un esempio usato nei container:
 
+1. Creare il file `.env` in `backend-ts` (se non già presente) con la variabile DATABASE_URL usata dai container. 
+
+Questo è il contenuto che deve esserci nel file `.env` usato dal progetto:
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@db:5432/projectdb?schema=public"
+POSTGRES_USER="postgres"
+POSTGRES_PASSWORD="postgres"
+POSTGRES_DB="projectdb"
+REDIS_URL="redis://redis:6379"
+PORT = 5000
+
+JWT_ACCESS_TOKEN_SECRET=9bda4dc7c1675a64d55f36f5e7f11e593e83d53b53e92f78b96d3b45ff0f7f25b7e98f95b7c758da58c0d4b2a896f42743a8b379c6d25716e49b5ccab14bfa5f
+JWT_REFRESH_TOKEN_SECRET=5d2c38a5a9b3eaf994c22d2e415ea22a7a8f8b8e56b9c7127cfb6ec8ce7a5932f1c9b44b9e51689ff55c07b95eb739bb5ff320a1db1f7c6c3e2e0d3a7d94f093
+
+BCRYPT_SALT_ROUNDS=10
 ```
-DATABASE_URL=postgresql://postgres:postgres@db:5432/projectdb?schema=public
-```
+
+
 
 2. Avviare i servizi (dalla root del progetto):
 
@@ -26,11 +41,15 @@ DATABASE_URL=postgresql://postgres:postgres@db:5432/projectdb?schema=public
 docker compose up -d --build
 ```
 
+
+
 3. Applicare migration / seed (one-shot migrate container):
 
 ```bash
 docker compose run --rm migrate sh -c "npm install && npx prisma migrate dev"
 ```
+
+
 
 4. Comandi utili per debug e gestione:
 
@@ -57,8 +76,24 @@ docker compose run --rm migrate
 
 
 
+5. Utenti e credenziali di Test
 
-Sviluppo locale — Backend (`backend-ts`)
+Questi utenti sono quelli creati dallo script di seed (`backend-ts/prisma/seeds`). Nel database le password sono memorizzate come hash; qui sono elencate in chiaro, per permettere il login in ambiente di sviluppo.
+
+- **Admin**: email: `admin@example.com` — password: `admin` — ruolo: `ADMIN`
+- **Airline (Lufthansa)**: email: `lufthansa@example.com` — password: `Lufthansa` — ruolo: `AIRLINE`
+- **Airline (Ryanair)**: email: `ryanair@example.com` — password: `Ryanair` — ruolo: `AIRLINE`
+- **Passenger (test)**: email: `test@example.com` — password: `test` — ruolo: `PASSENGER`
+
+Queste credenziali devono essere usate esclusivamente durante lo sviluppo.
+
+
+
+
+
+
+
+## Sviluppo locale — Backend (`backend-ts`)
 
 1. Entrare nella cartella backend:
 
@@ -104,12 +139,5 @@ ng serve
 ```
 
 3. Aprire il browser su `http://localhost:4200/`.
-
-
-
-
-Ulteriori informazioni e riferimenti
-- README dedicato backend: [backend-ts/README.md](backend-ts/README.md)
-- README dedicato client: [client/README.md](client/README.md)
 
 
