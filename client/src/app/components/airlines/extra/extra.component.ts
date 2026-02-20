@@ -35,16 +35,7 @@ export class ExtraComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // prefetch extras
-    this.route.data.subscribe(({ airlineData }) => {
-      if (airlineData && airlineData.extrasResponse && airlineData.extrasResponse.success) {
-        this.extras = airlineData.extrasResponse.data || [];
-        this.applySearch();
-        this.loading = false;
-      } else {
-        this.fetchExtras();
-      }
-    });
+    this.fetchExtras();
   }
 
 

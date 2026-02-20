@@ -33,22 +33,12 @@ export class AircraftsComponent implements OnInit {
   constructor(private aircraftsService: AircraftsService, private route: ActivatedRoute) {}
 
   ngOnInit() {
-    
-    //prefetch aircrafts
-    this.route.data.subscribe(({ airlineData }) => {
-      if (airlineData && airlineData.aircraftsResponse && airlineData.aircraftsResponse.success) {
-        this.aircrafts = airlineData.aircraftsResponse.data || [];
-        this.applyFilter((this.searchControl.value || '').trim().toLowerCase());
-        this.loading = false;
-      } else {
-        this.fetchAircrafts();
-      }
-    });
-
-    this.searchControl.valueChanges.subscribe(value => {
-      this.applyFilter(String(value || '').trim().toLowerCase());
-    });
-  }
+  this.fetchAircrafts();
+  
+  this.searchControl.valueChanges.subscribe(value => {
+    this.applyFilter(String(value || '').trim().toLowerCase());
+  });
+}
 
   fetchAircrafts() {
   this.loading = true;
@@ -117,7 +107,7 @@ export class AircraftsComponent implements OnInit {
       next: (res: Response<AircraftWithClasses>) => {
         if (res.success && res.data) {
           this.addSuccess = 'Aereo aggiunto con successo.';
-          this.aircrafts = [...this.aircrafts, res.data]; // recreate the array to show new aircraft added
+          this.aircrafts.push(res.data);
 
           const currentFilter = (this.searchControl.value || '').trim().toLocaleLowerCase();
           this.applyFilter(currentFilter);

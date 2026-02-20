@@ -30,23 +30,13 @@ export class RoutesComponent implements OnInit{
     arrival_airport: new FormControl('', [Validators.required, Validators.maxLength(3)])
   });
 
-  ngOnInit(): void {
-
-    //prefetch routes
-    this.route.data.subscribe(({ airlineData }) => {
-      if (airlineData && airlineData.routesResponse && airlineData.routesResponse.success) {
-        this.routes = airlineData.routesResponse.data || [];
-        this.filteredRoutes = this.routes.slice();
-        this.loading = false;
-      } else {
-        this.loadRoutes();
-      }
-    });
-
-    this.searchControl.valueChanges.subscribe(value => {
-      this.applyFilter(String(value || '').trim().toLowerCase());
-    });
-  }
+  ngOnInit() {
+  this.loadRoutes();
+  
+  this.searchControl.valueChanges.subscribe(value => {
+    this.applyFilter(String(value || '').trim().toLowerCase());
+  });
+}
 
   loadRoutes() {
     
