@@ -66,16 +66,14 @@ Once completed, the application will be available at:
 `http://localhost:4200/`
 
 
-## Test Users (Development Only)
+## Test Users
 
 These users are created via the seed script (`backend-ts/prisma/seeds`)
 
-- **Admin**: email: `admin@example.com` — password: `admin` — ruolo: `ADMIN`
-- **Airline (Lufthansa)**: email: `lufthansa@example.com` — password: `Lufthansa` — ruolo: `AIRLINE`
-- **Airline (Ryanair)**: email: `ryanair@example.com` — password: `Ryanair` — ruolo: `AIRLINE`
-- **Passenger (test)**: email: `test@example.com` — password: `test` — ruolo: `PASSENGER`
-
-Queste credenziali devono essere usate esclusivamente durante lo sviluppo.
+- **Admin**: email: `admin@example.com` — password: `admin` — role: `ADMIN`
+- **Airline (Lufthansa)**: email: `lufthansa@example.com` — password: `Lufthansa` — role: `AIRLINE`
+- **Airline (Ryanair)**: email: `ryanair@example.com` — password: `Ryanair` — role: `AIRLINE`
+- **Passenger (test)**: email: `test@example.com` — password: `test` — role: `PASSENGER`
 
 ## API Documentation
 Once the backend is running, access the Swagger documentation at:
